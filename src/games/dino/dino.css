@@ -1,0 +1,146 @@
+.dino {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+.dino__hud {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.dino__reset {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  font-size: 1.2rem;
+}
+.dino__reset:active {
+  transform: scale(0.9);
+}
+
+.dino__field {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  background: linear-gradient(180deg, #fff4d6, #ffe8a8);
+  cursor: pointer;
+  touch-action: none;
+}
+
+.dino__sun {
+  position: absolute;
+  top: 14px;
+  right: 18px;
+  font-size: 2.4rem;
+}
+.dino__cloud {
+  position: absolute;
+  font-size: 1.8rem;
+  opacity: 0.9;
+}
+.dino__cloud--a {
+  top: 22px;
+  left: 18%;
+  animation: dino-cloud 14s linear infinite;
+}
+.dino__cloud--b {
+  top: 64px;
+  left: 60%;
+  animation: dino-cloud 20s linear infinite;
+}
+@keyframes dino-cloud {
+  from {
+    transform: translateX(20px);
+  }
+  to {
+    transform: translateX(-120vw);
+  }
+}
+
+.dino__ground {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 28px;
+  background: repeating-linear-gradient(
+      90deg,
+      #c98b3a 0 22px,
+      #b87a2c 22px 26px
+    ),
+    #c98b3a;
+  border-top: 3px solid #a86a22;
+}
+
+.dino__dino {
+  position: absolute;
+  font-size: 44px;
+  line-height: 1;
+  transform: scaleX(-1); /* face right, toward the cactuses */
+  z-index: 3;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.2));
+}
+.dino__dino.is-run {
+  animation: dino-bob 0.3s ease-in-out infinite;
+}
+@keyframes dino-bob {
+  0%,
+  100% {
+    transform: scaleX(-1) translateY(0);
+  }
+  50% {
+    transform: scaleX(-1) translateY(-2px);
+  }
+}
+.dino__dino.is-stumble {
+  animation: dino-stumble 0.25s ease-in-out infinite;
+  filter: drop-shadow(0 3px 3px rgba(0, 0, 0, 0.2)) hue-rotate(-25deg);
+}
+@keyframes dino-stumble {
+  0%,
+  100% {
+    transform: scaleX(-1) rotate(-8deg);
+  }
+  50% {
+    transform: scaleX(-1) rotate(8deg);
+  }
+}
+
+.dino__cactus {
+  position: absolute;
+  line-height: 1;
+  z-index: 2;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.15));
+}
+.dino__coin {
+  position: absolute;
+  font-size: 28px;
+  line-height: 1;
+  z-index: 2;
+  animation: dino-twinkle 0.8s ease-in-out infinite;
+}
+@keyframes dino-twinkle {
+  0%,
+  100% {
+    transform: scale(1) rotate(-8deg);
+  }
+  50% {
+    transform: scale(1.15) rotate(8deg);
+  }
+}
+
+.dino__hint {
+  margin: 0;
+  text-align: center;
+  color: var(--white);
+  font-weight: 800;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}

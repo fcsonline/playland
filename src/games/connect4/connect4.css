@@ -1,0 +1,137 @@
+.connect4 {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* center the controls + board block vertically */
+  gap: 12px;
+  min-height: 0;
+  flex: 1;
+}
+
+.connect4__controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  align-items: center;
+  justify-content: center;
+}
+.connect4__status {
+  font-size: 0.95rem;
+  font-weight: 800;
+}
+.connect4__status.is-player {
+  background: var(--good, #38c172);
+  color: #fff;
+}
+.connect4__status.is-cpu {
+  background: var(--sun, #ffd166);
+  color: var(--ink);
+}
+
+.connect4__pill {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--ink);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.08s ease;
+}
+.connect4__pill:active {
+  transform: scale(0.92);
+}
+.connect4__pill--go {
+  background: var(--primary);
+  color: #fff;
+}
+
+.connect4__board {
+  /* Width-capped board, centered. Height comes from the square cells, so it's
+     a tidy 7x6 grid of discs with no big empty gaps. */
+  align-self: center;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 7), 1fr);
+  gap: 6px;
+  justify-items: stretch;
+  background: var(--primary, #5b7cff);
+  width: min(100%, 460px);
+  border-radius: 16px;
+  padding: 8px;
+}
+
+.connect4__col {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: none;
+  border-radius: 12px;
+  padding: 2px;
+  transition: background 0.12s ease, transform 0.08s ease;
+  cursor: pointer;
+}
+.connect4__col.is-active:hover {
+  background: rgba(255, 255, 255, 0.22);
+}
+.connect4__col.is-active:active {
+  transform: scale(0.97);
+  background: rgba(255, 255, 255, 0.32);
+}
+.connect4__col:disabled {
+  cursor: default;
+}
+
+.connect4__cell {
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: inset 0 3px 6px rgba(0, 0, 0, 0.18);
+  transition: transform 0.12s ease;
+}
+.connect4__cell.is-red {
+  background: radial-gradient(circle at 35% 30%, #ff8a8a, #e23b3b);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+  animation: connect4-drop 0.22s ease;
+}
+.connect4__cell.is-yellow {
+  background: radial-gradient(circle at 35% 30%, #ffe27a, #f5b81f);
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.25);
+  animation: connect4-drop 0.22s ease;
+}
+.connect4__cell.is-win {
+  animation: connect4-win 0.6s ease infinite alternate;
+  outline: 3px solid #fff;
+}
+
+@keyframes connect4-drop {
+  0% {
+    transform: translateY(-60%);
+    opacity: 0.4;
+  }
+  100% {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+@keyframes connect4-win {
+  0% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1.12);
+  }
+}
+
+/* Landscape phones: tighter gaps; the width formula already fits the height. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .connect4 {
+    gap: 8px;
+  }
+  .connect4__board {
+    gap: 4px;
+    padding: 6px;
+  }
+  .connect4__col {
+    gap: 4px;
+  }
+}

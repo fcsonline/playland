@@ -1,0 +1,130 @@
+.memory {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  flex: 1;
+}
+
+.memory__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.memory__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+}
+.memory__pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.65);
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--ink);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.08s ease;
+}
+.memory__pill:active {
+  transform: scale(0.92);
+}
+.memory__pill.is-on {
+  background: var(--white);
+  outline: 3px solid var(--primary);
+}
+.memory__pill--go {
+  background: var(--primary);
+  color: #fff;
+}
+
+.memory__board {
+  flex: 1;
+  display: grid;
+  grid-template-columns: repeat(var(--cols, 4), 1fr);
+  gap: 10px;
+  align-content: center;
+  justify-items: center;
+}
+
+.mcard {
+  width: 100%;
+  max-width: 110px;
+  aspect-ratio: 3 / 4;
+  perspective: 600px;
+  background: none;
+}
+.mcard__inner {
+  position: relative;
+  display: block;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.35s ease;
+  transform-style: preserve-3d;
+}
+.mcard.is-up .mcard__inner {
+  transform: rotateY(180deg);
+}
+.mcard__back,
+.mcard__front {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  backface-visibility: hidden;
+  font-size: clamp(1.8rem, 9vw, 2.8rem);
+  box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
+}
+.mcard__back {
+  background: linear-gradient(150deg, #f6d365, #fda085);
+  color: rgba(255, 255, 255, 0.9);
+}
+.mcard__front {
+  background: var(--white);
+  transform: rotateY(180deg);
+}
+.mcard.is-matched {
+  animation: wiggle 0.4s ease;
+}
+.mcard.is-matched .mcard__front {
+  background: #eafff1;
+  outline: 3px solid var(--good);
+}
+
+.memory__win {
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.memory__win p {
+  margin: 0;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Landscape phones: wide & short — pack cards into more columns and shrink them
+   so every card stays on screen without scrolling. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .memory {
+    gap: 8px;
+  }
+  .memory__board {
+    grid-template-columns: repeat(auto-fit, minmax(46px, 64px));
+    justify-content: center;
+    gap: 6px;
+  }
+  .mcard {
+    max-width: 64px;
+  }
+  .mcard__back,
+  .mcard__front {
+    font-size: clamp(1.4rem, 7vh, 2rem);
+    border-radius: 12px;
+  }
+}

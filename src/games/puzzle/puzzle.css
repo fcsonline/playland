@@ -1,0 +1,171 @@
+.puzzle {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  flex: 1;
+}
+
+.puzzle__controls {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+.puzzle__group {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+.puzzle__pill {
+  padding: 8px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.7);
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--ink);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
+  transition: transform 0.08s ease;
+}
+.puzzle__pill:active {
+  transform: scale(0.92);
+}
+.puzzle__pill.is-on {
+  background: var(--white);
+  outline: 3px solid var(--primary);
+}
+.puzzle__pill--go {
+  background: var(--primary);
+  color: #fff;
+}
+.puzzle__count {
+  font-size: 0.9rem;
+}
+
+/* Board centers a square frame that holds the ghost guide + the slot grid. */
+.puzzle__board {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 10px;
+  min-height: 0;
+}
+.puzzle__frame {
+  position: relative;
+  width: min(100%, 56vh);
+  aspect-ratio: 1 / 1;
+  border-radius: var(--radius-sm);
+  overflow: hidden;
+}
+
+/* Faint target picture behind the slots. */
+.puzzle__ghost {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  opacity: 0.3;
+  filter: saturate(0.85);
+  pointer-events: none;
+}
+
+/* Slot grid sits exactly on top of the ghost. */
+.puzzle__grid {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-rows: repeat(var(--rows), 1fr);
+  gap: 2px;
+}
+.puzzle__slot {
+  border-radius: 4px;
+  outline: 1px dashed rgba(58, 44, 90, 0.25);
+  outline-offset: -2px;
+}
+.puzzle__slot.is-filled {
+  outline: none;
+}
+.puzzle__filled {
+  width: 100%;
+  height: 100%;
+  animation: snap-in 0.3s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+.puzzle__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Tray of loose pieces. */
+.puzzle__tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-content: flex-start;
+  padding: 8px;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius-sm);
+  max-height: 34vh;
+  overflow-y: auto;
+}
+.puzzle__piece {
+  width: clamp(44px, 15vw, 72px);
+  background: var(--white);
+  border-radius: 8px;
+  padding: 0;
+  overflow: hidden;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+  touch-action: none;
+  transition: transform 0.1s ease;
+}
+.puzzle__piece:active {
+  transform: scale(0.94);
+}
+.puzzle__piece.is-dragging {
+  opacity: 0.25;
+}
+.puzzle__piece.is-wrong {
+  animation: wiggle 0.4s ease;
+}
+
+/* Floating piece that follows the pointer. */
+.puzzle__floater {
+  position: fixed;
+  z-index: 5000;
+  width: clamp(56px, 22vw, 90px);
+  transform: translate(-50%, -50%) scale(1.08);
+  border-radius: 8px;
+  overflow: hidden;
+  pointer-events: none;
+  box-shadow: var(--shadow-lg);
+  background: var(--white);
+}
+
+.puzzle__win {
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--white);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.puzzle__win p {
+  margin: 0;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+@keyframes snap-in {
+  0% {
+    transform: scale(1.25);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

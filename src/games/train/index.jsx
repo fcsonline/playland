@@ -1,0 +1,229 @@
+import { useEffect, useMemo, useRef, useState } from 'react'
+import { useGame } from '../../state/game.jsx'
+import { sfx, tone, noiseBurst } from '../../lib/audio.js'
+import { LEVELS, openingsOf, tracePath, generateLevel, key } from './rails.js'
+import './train.css'
+
+/** A track tile drawn as rail arms from the centre to each open side. */
+function RailShape({ type, rot, color }) {
+  const open = openingsOf(type, rot)
+  const arm = {
+    0: { x2: 50, y2: 2 },
+    1: { x2: 98, y2: 50 },
+    2: { x2: 50, y2: 98 },
+    3: { x2: 2, y2: 50 },
+  }
+  return (
+    <svg className="train__rail" viewBox="0 0 100 100" aria-hidden="true">
+      <g className="train__bed">
+        {open.map((d) => (
+          <line key={`b${d}`} x1="50" y1="50" x2={arm[d].x2} y2={arm[d].y2} />
+        ))}
+      </g>
+      {color && (
+        <g className="train__live" style={{ stroke: color }}>
+          {open.map((d) => (
+            <line key={`l${d}`} x1="50" y1="50" x2={arm[d].x2} y2={arm[d].y2} />
+          ))}
+          <circle cx="50" cy="50" r="7" fill={color} />
+        </g>
+      )}
+    </svg>
+  )
+}
+
+export default function RailRoutes() {
+  const { earn, award } = useGame()
+  const [levelIndex, setLevelIndex] = useState(0)
+  const [level, setLevel] = useState(() => generateLevel(LEVELS[0]))
+  const [running, setRunning] = useState(false)
+  const [solved, setSolved] = useState(false)
+  const [tick, setTick] = useState(0)
+  const runTraces = useRef(null)
+  const timer = useRef(null)
+  const awardedRef = useRef(false)
+
+  function loadLevel(i) {
+    clearInterval(timer.current)
+    const idx = Math.min(i, LEVELS.length - 1)
+    setLevelIndex(idx)
+    setLevel(generateLevel(LEVELS[idx]))
+    setRunning(false)
+    setSolved(false)
+    setTick(0)
+    runTraces.current = null
+    awardedRef.current = false
+  }
+
+  useEffect(() => () => clearInterval(timer.current), [])
+
+  // Live traces of every train through the CURRENT layout (for glow + win check).
+  const liveTraces = useMemo(
+    () => level.trains.map((t) => tracePath(level.grid, t, level.cols, level.rows)),
+    [level],
+  )
+  const connectedCount = liveTraces.filter((tr) => tr.arrived).length
+
+  // cellKey -> train color, highlighting each fully-connected rail line.
+  const highlight = useMemo(() => {
+    const m = {}
+    liveTraces.forEach((tr, k) => {
+      if (!tr.arrived) return
+      tr.path.forEach((p) => (m[key(p.c, p.r)] = level.trains[k].color))
+    })
+    return m
+  }, [liveTraces, level])
+
+  function rotate(cell) {
+    if (running || solved || cell.locked) return
+    sfx.tap()
+    setLevel((lv) => {
+      const cur = lv.grid[key(cell.c, cell.r)]
+      return { ...lv, grid: { ...lv.grid, [key(cell.c, cell.r)]: { ...cur, rot: (cur.rot + 1) % 4 } } }
+    })
+  }
+
+  function chug() {
+    noiseBurst({ duration: 0.12, gain: 0.16, type: 'lowpass', freq: 600 })
+    setTimeout(() => tone('E5', { duration: 0.4, type: 'sine', gain: 0.14 }), 260)
+  }
+
+  function go() {
+    if (running || solved) return
+    const captured = level.trains.map((t) => tracePath(level.grid, t, level.cols, level.rows))
+    runTraces.current = captured
+    setRunning(true)
+    setTick(0)
+    chug()
+    const maxLen = Math.max(...captured.map((c) => c.path.length))
+    let step = 0
+    timer.current = setInterval(() => {
+      step += 1
+      setTick(step)
+      if (step >= maxLen - 1) {
+        clearInterval(timer.current)
+        const allArrived = captured.every((c) => c.arrived)
+        if (allArrived && !awardedRef.current) {
+          awardedRef.current = true
+          setSolved(true)
+          setTimeout(() => {
+            sfx.win()
+            award(Math.min(3, 1 + levelIndex), { count: 22 })
+            earn(2 + level.trains.length)
+          }, 300)
+        } else if (!allArrived) {
+          // Not all connected — gently send the trains back so kids can fix it.
+          setTimeout(() => {
+            setRunning(false)
+            runTraces.current = null
+            setTick(0)
+          }, 500)
+        }
+      }
+    }, 260)
+  }
+
+  const hasNext = levelIndex < LEVELS.length - 1
+
+  const trainPos = (k) => {
+    if (running && runTraces.current) {
+      const p = runTraces.current[k].path
+      return p[Math.min(tick, p.length - 1)]
+    }
+    const s = level.trains[k].start
+    return { c: s.c, r: s.r }
+  }
+
+  const cells = []
+  for (let r = 0; r < level.rows; r++) {
+    for (let c = 0; c < level.cols; c++) cells.push({ c, r, cell: level.grid[key(c, r)] })
+  }
+
+  return (
+    <div className="train">
+      <div className="train__hud">
+        <span className="chip">🚂 Connect each train to its station! ({connectedCount}/{level.trains.length})</span>
+        <span className="train__levels">
+          {LEVELS.map((_, i) => (
+            <button
+              key={i}
+              className={`train__dot ${i === levelIndex ? 'is-on' : ''}`}
+              onClick={() => loadLevel(i)}
+              aria-label={`level ${i + 1}`}
+            >
+              {i + 1}
+            </button>
+          ))}
+        </span>
+      </div>
+
+      <div
+        className={`train__board play-surface ${solved ? 'is-solved' : ''}`}
+        style={{ '--cols': level.cols, '--rows': level.rows }}
+      >
+        {cells.map(({ c, r, cell }) => {
+          if (!cell)
+            return <div key={key(c, r)} className="train__grass" style={{ gridColumn: c + 1, gridRow: r + 1 }} />
+          const rotatable = !cell.locked
+          const stationLit = liveTraces.some((tr, k) => tr.arrived && level.trains[k].color === cell.color)
+          return (
+            <button
+              key={key(c, r)}
+              className={`train__cell ${cell.locked ? 'is-locked' : ''}`}
+              style={{ gridColumn: c + 1, gridRow: r + 1 }}
+              onClick={() => rotatable && rotate(cell)}
+              aria-label={rotatable ? 'rotate track' : cell.role}
+            >
+              <RailShape type={cell.type} rot={cell.rot} color={highlight[key(c, r)]} />
+              {cell.role === 'station' && (
+                <span
+                  className={`train__station ${stationLit ? 'is-lit' : ''}`}
+                  style={{ '--tc': cell.color }}
+                  aria-hidden="true"
+                />
+              )}
+            </button>
+          )
+        })}
+
+        {level.trains.map((t, k) => {
+          const pos = trainPos(k)
+          return (
+            <span
+              key={k}
+              className="train__loco"
+              style={{
+                left: `${((pos.c + 0.5) / level.cols) * 100}%`,
+                top: `${((pos.r + 0.5) / level.rows) * 100}%`,
+                '--tc': t.color,
+              }}
+              aria-hidden="true"
+            >
+              <span className="train__loco-win" />
+            </span>
+          )
+        })}
+      </div>
+
+      <div className="train__footer">
+        {solved ? (
+          <div className="train__win">
+            <p>All aboard! 🎉</p>
+            <button className="btn btn--good" onClick={() => loadLevel(hasNext ? levelIndex + 1 : 0)}>
+              {hasNext ? 'Next level ▶' : 'Play again 🔄'}
+            </button>
+          </div>
+        ) : (
+          <>
+            <button className="btn btn--good train__go" onClick={go} disabled={running}>
+              {running ? '🚂 Going…' : 'GO! 🚂💨'}
+            </button>
+            <button className="btn btn--ghost" onClick={() => loadLevel(levelIndex)} disabled={running}>
+              🔄 New
+            </button>
+          </>
+        )}
+      </div>
+    </div>
+  )
+}

@@ -1,0 +1,17 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 512 512" role="img" aria-label="Kids Playland">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#6c5ce7" />
+      <stop offset="1" stop-color="#ff7eb3" />
+    </linearGradient>
+  </defs>
+  <rect width="512" height="512" rx="112" fill="url(#bg)" />
+  <path
+    d="M256 116 l44 90 99 14 -72 70 17 99 -88 -47 -88 47 17 -99 -72 -70 99 -14z"
+    fill="#fff"
+  />
+  <circle cx="120" cy="146" r="18" fill="#ffce4f" />
+  <circle cx="398" cy="372" r="22" fill="#84fab0" />
+  <circle cx="150" cy="392" r="15" fill="#5ec5ff" />
+  <circle cx="392" cy="138" r="13" fill="#ff9ec7" />
+</svg>

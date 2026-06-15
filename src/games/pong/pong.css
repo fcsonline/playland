@@ -1,0 +1,150 @@
+.pong {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+.pong__hud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-items: center;
+}
+.pong__score {
+  background: rgba(255, 255, 255, 0.85);
+  font-size: 1rem;
+  font-weight: 900;
+  letter-spacing: 1px;
+}
+.pong__dash {
+  opacity: 0.6;
+}
+.pong__pill--go {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.85rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.08s ease;
+}
+.pong__pill--go:active {
+  transform: scale(0.92);
+}
+
+.pong__field {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  max-width: min(100%, 60vh);
+  margin: 0 auto;
+  align-self: center;
+  background: linear-gradient(180deg, #b3e0ff 0%, #d9f3ff 50%, #c7ecd6 100%);
+  overflow: hidden;
+  touch-action: none;
+  min-height: 0;
+}
+
+.pong__net {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  height: 0;
+  border-top: 4px dashed rgba(255, 255, 255, 0.7);
+  transform: translateY(-50%);
+  pointer-events: none;
+}
+
+.pong__paddle {
+  position: absolute;
+  transform: translateX(-50%);
+  border-radius: 999px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+  pointer-events: none;
+}
+.pong__paddle--you {
+  background: linear-gradient(180deg, #ff7eb3, #ff4d8d);
+}
+.pong__paddle--cpu {
+  background: linear-gradient(180deg, #5ea9ff, #2f6fe0);
+}
+
+.pong__ball {
+  position: absolute;
+  aspect-ratio: 1 / 1;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  font-size: clamp(0.9rem, 5vw, 1.6rem);
+  line-height: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+}
+
+.pong__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.28);
+  animation: pop-in 0.3s ease;
+  z-index: 5;
+}
+.pong__overlay-title {
+  margin: 0;
+  font-weight: 900;
+  font-size: clamp(1.2rem, 6vw, 2rem);
+  color: #fff;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+}
+
+.pong__pad {
+  display: flex;
+  justify-content: center;
+  gap: 16px;
+}
+.pong__arrow {
+  width: 72px;
+  height: 56px;
+  border-radius: 18px;
+  background: rgba(255, 255, 255, 0.9);
+  font-size: 1.6rem;
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
+  transition: transform 0.08s ease;
+}
+.pong__arrow:active {
+  transform: scale(0.88);
+  background: #fff;
+}
+.pong__hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--white);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Landscape phones: shrink the field so paddles + buttons stay on screen. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .pong {
+    gap: 6px;
+  }
+  .pong__field {
+    max-width: min(100%, 48vh);
+  }
+  .pong__arrow {
+    width: 64px;
+    height: 46px;
+    font-size: 1.3rem;
+  }
+}

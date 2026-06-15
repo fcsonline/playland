@@ -1,0 +1,189 @@
+.music {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ---- HUD ---- */
+.music__hud {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  flex-wrap: wrap;
+}
+.music__combo {
+  transition: transform 0.12s ease;
+}
+.music__combo.is-hot {
+  background: #fff3bf;
+  transform: scale(1.08);
+}
+.music__songname {
+  background: rgba(255, 255, 255, 0.85);
+}
+
+/* ---- Falling field ---- */
+.music__field {
+  flex: 1;
+  position: relative;
+  display: flex;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #2b2350 0%, #3a2f6b 60%, #4a3d82 100%);
+}
+.music__lanes {
+  position: relative;
+  display: flex;
+  width: 100%;
+  height: 100%;
+}
+.music__lane {
+  position: relative;
+  flex: 1;
+  border-right: 2px dashed rgba(255, 255, 255, 0.12);
+  background: linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.02),
+    color-mix(in srgb, var(--lane) 14%, transparent)
+  );
+}
+.music__lane:last-child {
+  border-right: none;
+}
+
+/* The hit line sits near the bottom, where pads line up. */
+.music__hitline {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 8%;
+  height: 10px;
+  background: repeating-linear-gradient(
+    90deg,
+    rgba(255, 255, 255, 0.85) 0 14px,
+    rgba(255, 255, 255, 0.25) 14px 28px
+  );
+  box-shadow: 0 0 14px rgba(255, 255, 255, 0.5);
+  border-radius: 5px;
+}
+
+/* Falling notes — positioned by top% (0 = top, 92% = hit line). */
+.music__note {
+  position: absolute;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  width: clamp(40px, 13vw, 60px);
+  height: clamp(40px, 13vw, 60px);
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 32%, #fff, var(--lane));
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), 0 0 12px var(--lane);
+  display: grid;
+  place-items: center;
+  /* top% is set in JS so progress=1 lands on the hit line at 92%. */
+}
+.music__note-emoji {
+  font-size: clamp(1.3rem, 6vw, 1.9rem);
+  line-height: 1;
+}
+
+/* ---- Overlay (ready / done) ---- */
+.music__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(20, 16, 45, 0.72);
+  backdrop-filter: blur(2px);
+  text-align: center;
+  padding: 16px;
+}
+.music__big {
+  font-size: clamp(1.4rem, 7vw, 2rem);
+  font-weight: 900;
+  color: var(--white);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+}
+.music__sub {
+  font-size: 1rem;
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
+}
+.music__start {
+  padding: 14px 28px;
+  font-size: 1.2rem;
+  font-weight: 900;
+}
+
+/* ---- Tap pads ---- */
+.music__pads {
+  display: flex;
+  gap: 8px;
+}
+.music__pad {
+  flex: 1;
+  min-height: 72px;
+  border-radius: 18px 18px 22px 22px;
+  background: linear-gradient(180deg, var(--lane), color-mix(in srgb, var(--lane) 60%, #000));
+  box-shadow: inset 0 -8px 14px rgba(0, 0, 0, 0.25), 0 5px 12px rgba(0, 0, 0, 0.2);
+  display: grid;
+  place-items: center;
+  transition: transform 0.07s ease, filter 0.07s ease, box-shadow 0.07s ease;
+  border: 3px solid rgba(255, 255, 255, 0.4);
+}
+.music__pad-emoji {
+  font-size: clamp(1.8rem, 9vw, 2.6rem);
+  line-height: 1;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+}
+.music__pad:active {
+  transform: scale(0.94) translateY(3px);
+}
+.music__pad.is-hit {
+  filter: brightness(1.4);
+  transform: scale(0.96) translateY(2px);
+  box-shadow: inset 0 -4px 10px rgba(0, 0, 0, 0.2), 0 0 18px var(--lane);
+}
+
+/* ---- Song chooser ---- */
+.music__songs {
+  display: flex;
+  gap: 6px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.music__songbtn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 6px 14px;
+  border-radius: 16px;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.08s ease;
+}
+.music__songbtn:active {
+  transform: scale(0.93);
+}
+.music__songbtn.is-on {
+  background: #fff;
+  outline: 3px solid var(--primary);
+}
+.music__songbtn:disabled {
+  opacity: 0.5;
+}
+.music__songbtn-emoji {
+  font-size: 1.4rem;
+}
+.music__songbtn-name {
+  font-size: 0.72rem;
+  font-weight: 800;
+  color: var(--ink);
+}

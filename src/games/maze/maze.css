@@ -1,0 +1,198 @@
+.maze {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+  padding: 4px 8px 8px;
+}
+
+.maze__hud {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+  align-items: center;
+  flex: none;
+}
+.maze__newbtn {
+  padding: 8px 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  color: #444;
+  font-weight: 800;
+  font-size: 0.85rem;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  transition: transform 0.08s ease;
+}
+.maze__newbtn:active {
+  transform: scale(0.92);
+}
+
+.maze__wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.maze__board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--n), 1fr);
+  grid-template-rows: repeat(var(--n), 1fr);
+  gap: 0;
+  aspect-ratio: 1 / 1;
+  width: min(100%, 440px);
+  max-height: 100%;
+  margin: 0 auto;
+  border-radius: 18px;
+  overflow: hidden;
+  background: var(--frame, #cdeccb);
+  box-shadow: inset 0 0 0 4px rgba(0, 0, 0, 0.05), 0 12px 26px rgba(0, 0, 0, 0.14);
+  touch-action: none;
+}
+
+.maze__cell {
+  position: relative;
+}
+.maze__cell.is-floor {
+  background: var(--path, #fff7e0);
+}
+.maze__cell.is-wall {
+  background: var(--wall, #5fae5a);
+  box-shadow: inset 0 4px 0 var(--wall-edge, #83cf7a);
+}
+
+/* Soft ring marking the starting tile. */
+.maze__home {
+  position: absolute;
+  inset: 22%;
+  border-radius: 50%;
+  border: 3px dashed var(--wall-edge, #83cf7a);
+  opacity: 0.7;
+}
+
+/* Breadcrumb dot showing where the character has already been. */
+.maze__crumb {
+  position: absolute;
+  inset: 34%;
+  border-radius: 50%;
+  background: var(--wall-edge, #83cf7a);
+  opacity: 0.5;
+  animation: maze-crumb 0.25s ease;
+}
+@keyframes maze-crumb {
+  from {
+    transform: scale(0.2);
+    opacity: 0;
+  }
+  to {
+    transform: scale(1);
+    opacity: 0.5;
+  }
+}
+
+.maze__goal {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+  pointer-events: none;
+  z-index: 2;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+  animation: maze-pulse 1.3s ease-in-out infinite;
+}
+@keyframes maze-pulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.14);
+  }
+}
+
+.maze__avatar {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  line-height: 1;
+  pointer-events: none;
+  z-index: 4;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
+  transition: left 0.1s linear, top 0.1s linear;
+  display: grid;
+  place-items: center;
+}
+.maze__avatar.is-grabbed {
+  transition: left 0.06s linear, top 0.06s linear;
+}
+.maze__avatar.is-won {
+  animation: maze-spin 0.8s ease;
+}
+@keyframes maze-spin {
+  0% {
+    transform: translate(-50%, -50%) scale(1) rotate(0deg);
+  }
+  60% {
+    transform: translate(-50%, -50%) scale(1.4) rotate(360deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1) rotate(360deg);
+  }
+}
+
+/* Pulsing ring inviting the child to press the character at the start. */
+.maze__grabpulse {
+  position: absolute;
+  inset: -55%;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.9);
+  box-shadow: 0 0 0 2px rgba(0, 0, 0, 0.08);
+  animation: maze-grab 1.2s ease-out infinite;
+}
+@keyframes maze-grab {
+  0% {
+    transform: scale(0.6);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+.maze__cheer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: clamp(1.4rem, 7vw, 2.4rem);
+  color: #fff;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
+  background: rgba(0, 0, 0, 0.16);
+  animation: pop-in 0.3s ease;
+  z-index: 6;
+}
+
+.maze__hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--white, #fff);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.28);
+  flex: none;
+}
+
+/* Landscape / short viewports: trim chrome so the board stays fully visible. */
+@media (max-height: 600px) and (orientation: landscape) {
+  .maze {
+    gap: 6px;
+    padding: 2px 8px 4px;
+  }
+  .maze__hint {
+    display: none;
+  }
+}

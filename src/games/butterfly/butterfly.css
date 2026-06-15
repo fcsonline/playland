@@ -1,0 +1,116 @@
+.butterfly {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+.butterfly__hud {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+/* The goal: tiny butterflies (same hue as the flying ones) + progress counts. */
+.butterfly__goal {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  font-weight: 800;
+}
+.butterfly__goallabel {
+  color: var(--ink-soft);
+}
+.butterfly__goalitem {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border-radius: 999px;
+  background: rgba(108, 92, 231, 0.1);
+  transition: opacity 0.2s ease, transform 0.2s ease;
+}
+.butterfly__goalitem.is-done {
+  background: rgba(46, 204, 113, 0.18);
+}
+.butterfly__goalbug {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+.butterfly__goalcount {
+  font-size: 0.95rem;
+  font-variant-numeric: tabular-nums;
+  color: var(--ink);
+}
+.butterfly__goalitem.is-done .butterfly__goalcount {
+  color: var(--good);
+}
+
+.butterfly__sky {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  background: linear-gradient(180deg, #cdeaff, #eafaff 70%, #e4ffe9);
+  touch-action: none;
+}
+.butterfly__cloud {
+  position: absolute;
+  font-size: 2.6rem;
+  opacity: 0.8;
+  pointer-events: none;
+}
+.butterfly__sun {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 2.8rem;
+  pointer-events: none;
+  animation: butterfly-spin 18s linear infinite;
+}
+@keyframes butterfly-spin {
+  to { transform: rotate(360deg); }
+}
+
+.butterfly__bug {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  /* Big, finger-friendly tap target around the emoji. */
+  width: 64px;
+  height: 64px;
+  display: grid;
+  place-items: center;
+  background: none;
+  font-size: 2.4rem;
+  line-height: 1;
+  will-change: left, top;
+  transition: transform 0.3s cubic-bezier(0.2, 1.6, 0.4, 1), opacity 0.3s ease;
+  touch-action: none;
+}
+.butterfly__wing {
+  display: inline-block;
+  animation: butterfly-flutter 0.7s ease-in-out infinite;
+}
+@keyframes butterfly-flutter {
+  0%, 100% { transform: scaleX(1) rotate(-6deg); }
+  50%      { transform: scaleX(0.7) rotate(6deg); }
+}
+.butterfly__bug:active {
+  transform: translate(-50%, -50%) scale(0.85);
+}
+.butterfly__bug.is-caught {
+  transform: translate(-50%, -50%) scale(1.9);
+  opacity: 0;
+  pointer-events: none;
+}
+
+.butterfly__hint {
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  color: var(--white);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}

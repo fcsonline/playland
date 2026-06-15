@@ -1,0 +1,210 @@
+.pipes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  flex: 1;
+}
+
+.pipes__hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.pipes__arrow {
+  color: var(--sky);
+}
+.pipes__levels {
+  display: flex;
+  gap: 6px;
+}
+.pipes__dot {
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.7);
+  font-weight: 800;
+  color: var(--ink);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
+  transition: transform 0.08s ease;
+}
+.pipes__dot:active {
+  transform: scale(0.9);
+}
+.pipes__dot.is-on {
+  background: #fff;
+  outline: 3px solid var(--sky);
+}
+
+.pipes__board {
+  /* A centred square (cols:rows) that fits whichever dimension is tighter, so
+     it works in both portrait and landscape without growing too tall or wide. */
+  margin: auto;
+  min-height: 0;
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), minmax(0, 1fr));
+  grid-template-rows: repeat(var(--rows), minmax(0, 1fr));
+  gap: 4px;
+  width: auto;
+  aspect-ratio: var(--cols) / var(--rows);
+  max-width: 100%;
+  max-height: 100%;
+  /* Leave room around the grid for the source/dest markers. */
+  padding: 32px;
+}
+.pipes__board.is-solved {
+  animation: wiggle 0.5s ease;
+}
+
+.pipes__cell {
+  position: relative;
+  width: 100%;
+  aspect-ratio: 1 / 1;
+  border-radius: 14px;
+  background: #eef3f8;
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.06);
+  display: grid;
+  place-items: center;
+  padding: 6%;
+  transition: transform 0.08s ease, background 0.2s ease;
+}
+.pipes__cell:active {
+  transform: scale(0.94);
+}
+.pipes__cell.is-wet {
+  background: #e1f4ff;
+}
+
+.pipes__pipe {
+  width: 100%;
+  height: 100%;
+  transition: transform 0.18s ease;
+  overflow: visible;
+}
+.pipes__casing line {
+  stroke: #b7c4d2;
+  stroke-width: 26;
+  stroke-linecap: round;
+}
+.pipes__water line {
+  stroke: var(--sky);
+  stroke-width: 14;
+  stroke-linecap: round;
+  opacity: 0;
+  transition: opacity 0.25s ease;
+}
+.pipes__pipe.is-wet .pipes__water line {
+  opacity: 1;
+  animation: pipes-pulse 1.4s ease-in-out infinite;
+}
+.pipes__hub {
+  fill: #b7c4d2;
+}
+.pipes__pipe.is-wet .pipes__hub {
+  fill: var(--sky);
+}
+
+@keyframes pipes-pulse {
+  0%,
+  100% {
+    stroke: var(--sky);
+  }
+  50% {
+    stroke: #2aa9ff;
+  }
+}
+
+/* Start & End cells: clear color-coded rings + corner labels (no emoji). */
+.pipes__cell.is-locked:active {
+  transform: none;
+}
+.pipes__cell.is-source {
+  background: #e9fbf2;
+  box-shadow: inset 0 0 0 3px #2ec27e;
+}
+.pipes__cell.is-dest {
+  background: #fff7e6;
+  box-shadow: inset 0 0 0 3px #f1b13b;
+}
+.pipes__cell.is-dest.is-wet {
+  background: #e9fbf2;
+  box-shadow: inset 0 0 0 3px #2ec27e;
+}
+
+.pipes__tag {
+  position: absolute;
+  top: 4px;
+  left: 4px;
+  z-index: 4;
+  font-size: clamp(0.42rem, 1.9vw, 0.58rem);
+  font-weight: 900;
+  letter-spacing: 0.5px;
+  padding: 2px 5px;
+  border-radius: 6px;
+  color: #fff;
+  pointer-events: none;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.18);
+}
+.pipes__tag--start {
+  background: #2ec27e;
+}
+.pipes__tag--end {
+  background: #f1b13b;
+}
+.pipes__tag--end.is-on {
+  background: #2ec27e;
+  animation: pipes-tagpop 0.6s ease infinite;
+}
+@keyframes pipes-tagpop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.14);
+  }
+}
+
+/* Legend in the HUD. */
+.pipes__legend {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  font-weight: 800;
+}
+.pipes__swatch {
+  width: 13px;
+  height: 13px;
+  border-radius: 4px;
+  display: inline-block;
+}
+.pipes__swatch--start {
+  background: #2ec27e;
+}
+.pipes__swatch--end {
+  background: #f1b13b;
+}
+
+.pipes__footer {
+  display: flex;
+  justify-content: center;
+  min-height: 56px;
+  align-items: center;
+}
+.pipes__win {
+  text-align: center;
+  color: var(--white);
+  font-weight: 800;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.pipes__win p {
+  margin: 0;
+  font-size: 1.15rem;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}

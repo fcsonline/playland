@@ -1,0 +1,177 @@
+.balloon {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  flex: 1;
+}
+
+.balloon__hud {
+  display: flex;
+  gap: 8px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.balloon__chip {
+  background: rgba(255, 255, 255, 0.88);
+  font-weight: 800;
+}
+
+.balloon__stage {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: 18px;
+  padding: 14px;
+}
+
+/* Big area the balloon grows inside. */
+.balloon__arena {
+  flex: 1;
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  position: relative;
+}
+
+.balloon__shape {
+  position: relative;
+  width: 130px;
+  height: 156px;
+  /* The balloon reddens toward danger: mix its color with hot red as it grows. */
+  background: radial-gradient(
+    circle at 36% 30%,
+    rgba(255, 255, 255, 0.85),
+    color-mix(in srgb, var(--balloon, #ff6b6b) calc((1 - var(--danger, 0)) * 100%), #e8120c) 55%
+  );
+  border-radius: 50% 50% 50% 50% / 45% 45% 55% 55%;
+  transform: scale(var(--scale, 1));
+  transform-origin: center bottom;
+  transition: transform 0.08s linear;
+  box-shadow: inset -10px -14px 24px rgba(0, 0, 0, 0.18),
+    0 10px 24px rgba(0, 0, 0, 0.18),
+    0 0 calc(var(--danger, 0) * 26px) rgba(232, 18, 12, calc(var(--danger, 0) * 0.8));
+  display: grid;
+  place-items: center;
+}
+.balloon__pts {
+  font-size: 2rem;
+  font-weight: 900;
+  color: rgba(255, 255, 255, 0.95);
+  text-shadow: 0 2px 4px rgba(0, 0, 0, 0.35);
+  pointer-events: none;
+}
+.balloon__shine {
+  position: absolute;
+  top: 16%;
+  left: 22%;
+  width: 26%;
+  height: 30%;
+  background: rgba(255, 255, 255, 0.6);
+  border-radius: 50%;
+  filter: blur(2px);
+}
+.balloon__knot {
+  position: absolute;
+  bottom: -8px;
+  left: 50%;
+  width: 14px;
+  height: 14px;
+  transform: translateX(-50%) rotate(45deg);
+  background: var(--balloon, #ff6b6b);
+  border-radius: 3px;
+}
+.balloon__shape.is-banked {
+  animation: balloon-cheer 0.5s ease-in-out 1;
+}
+@keyframes balloon-cheer {
+  0%, 100% { transform: scale(var(--scale, 1)) rotate(0deg); }
+  25% { transform: scale(calc(var(--scale, 1) * 1.04)) rotate(-3deg); }
+  75% { transform: scale(calc(var(--scale, 1) * 1.04)) rotate(3deg); }
+}
+
+/* Pop burst replaces the balloon. */
+.balloon__pop {
+  font-size: 6rem;
+  animation: balloon-burst 0.4s ease-out;
+}
+@keyframes balloon-burst {
+  0% { transform: scale(0.3); opacity: 0.2; }
+  60% { transform: scale(1.25); opacity: 1; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
+/* Confetti pieces that fly out on a pop. */
+.balloon__confetti {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  font-size: 1.4rem;
+  pointer-events: none;
+  animation: balloon-confetti 0.8s ease-out forwards;
+}
+@keyframes balloon-confetti {
+  0% { transform: translate(-50%, -50%); opacity: 1; }
+  100% {
+    transform: translate(calc(-50% + var(--dx)), calc(-50% + var(--dy)));
+    opacity: 0;
+  }
+}
+
+/* Vertical danger gauge on the right. */
+.balloon__gauge {
+  position: relative;
+  width: 50px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.16);
+  overflow: hidden;
+}
+.balloon__danger {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: linear-gradient(180deg, #e8120c, #ff922b 60%, #ffd43b);
+  transition: height 0.08s linear;
+}
+.balloon__gauge-cap {
+  position: absolute;
+  top: 4px;
+  left: 0;
+  right: 0;
+  text-align: center;
+  font-size: 1rem;
+  z-index: 2;
+}
+
+.balloon__message {
+  margin: 0;
+  text-align: center;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--white);
+  text-shadow: 0 1px 5px rgba(0, 0, 0, 0.28);
+  min-height: 1.3em;
+}
+
+.balloon__controls {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+.balloon__pump {
+  min-width: 180px;
+  min-height: 60px;
+  font-size: 1.2rem;
+  touch-action: none;
+  user-select: none;
+}
+.balloon__pump:active {
+  transform: scale(0.96);
+  filter: brightness(1.08);
+}

@@ -1,0 +1,287 @@
+.aquarium {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ---- HUD chips ---- */
+.aquarium__hud {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.aquarium__chip {
+  background: rgba(255, 255, 255, 0.9);
+  font-weight: 800;
+}
+
+/* ---- Happiness meter ---- */
+.aquarium__meter {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.aquarium__meterlabel {
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.aquarium__meterbar {
+  flex: 1;
+  height: 18px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.12);
+}
+.aquarium__meterfill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--good), var(--sun));
+  transition: width 0.35s ease;
+}
+.aquarium__meternum {
+  font-weight: 900;
+  font-size: 0.9rem;
+  color: var(--ink);
+  min-width: 2.6em;
+  text-align: right;
+}
+
+/* ---- Tank ---- */
+.aquarium__tank {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  background: linear-gradient(180deg, #6fd3ef 0%, #3fa9d8 55%, #2a7fb0 100%);
+  touch-action: manipulation;
+}
+.aquarium__shimmer {
+  position: absolute;
+  inset: 0;
+  background: repeating-linear-gradient(
+    115deg,
+    rgba(255, 255, 255, 0.06) 0 18px,
+    rgba(255, 255, 255, 0) 18px 42px
+  );
+  pointer-events: none;
+}
+.aquarium__sand {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 26px;
+  background: linear-gradient(180deg, #f1dcae, #e6c98a);
+  border-radius: 50% 50% 0 0 / 100% 100% 0 0;
+  pointer-events: none;
+}
+
+/* ---- Fish ---- */
+.aquarium__fishwrap {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  will-change: left, top;
+}
+.aquarium__fishwrap.is-new .aquarium__fish {
+  animation: pop-in 0.4s ease;
+}
+.aquarium__fish {
+  display: inline-block;
+  font-size: clamp(2.1rem, 11vw, 3.1rem);
+  line-height: 1;
+  background: none;
+  padding: 6px;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.2));
+  transition: filter 0.3s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.aquarium__fish:not(:disabled) {
+  cursor: pointer;
+}
+.aquarium__fish.is-hungry {
+  animation: aquarium-wiggle 0.9s ease-in-out infinite;
+}
+.aquarium__fish.is-happy {
+  filter: drop-shadow(0 0 8px rgba(255, 230, 120, 0.95));
+}
+.aquarium__fish.is-flipping {
+  animation: aquarium-flip 0.7s ease;
+}
+.aquarium__fish.is-shaking {
+  animation: aquarium-shake 0.5s ease;
+}
+@keyframes aquarium-wiggle {
+  0%, 100% { transform: rotate(-4deg); }
+  50% { transform: rotate(4deg); }
+}
+@keyframes aquarium-flip {
+  0% { transform: rotate(0); }
+  50% { transform: rotate(360deg) scale(1.25); }
+  100% { transform: rotate(360deg) scale(1); }
+}
+@keyframes aquarium-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-6px); }
+  40% { transform: translateX(6px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+/* Thought bubble with the craving food. */
+.aquarium__thought {
+  position: absolute;
+  left: 50%;
+  bottom: 100%;
+  transform: translateX(-50%);
+  margin-bottom: 2px;
+  display: grid;
+  place-items: center;
+  width: 2.4em;
+  height: 2.4em;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.2);
+  pointer-events: none;
+  animation: aquarium-float 1.6s ease-in-out infinite;
+}
+.aquarium__thought::after {
+  content: '';
+  position: absolute;
+  bottom: -7px;
+  left: 50%;
+  transform: translateX(-60%);
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.95);
+}
+.aquarium__craving {
+  font-size: 1.3rem;
+  line-height: 1;
+}
+@keyframes aquarium-float {
+  0%, 100% { transform: translateX(-50%) translateY(0); }
+  50% { transform: translateX(-50%) translateY(-4px); }
+}
+.aquarium__sparkle {
+  position: absolute;
+  top: -0.6em;
+  left: 50%;
+  transform: translateX(-50%);
+  font-size: 1.4rem;
+  pointer-events: none;
+  animation: aquarium-pop 0.9s ease forwards;
+}
+
+.aquarium__pop {
+  position: absolute;
+  font-size: 1.4rem;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: aquarium-pop 0.9s ease forwards;
+}
+@keyframes aquarium-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 0;
+  }
+  30% {
+    transform: translate(-50%, -90%) scale(1.2);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -180%) scale(1);
+    opacity: 0;
+  }
+}
+
+/* ---- Win overlay ---- */
+.aquarium__win {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 14px;
+  background: rgba(255, 255, 255, 0.4);
+  backdrop-filter: blur(1px);
+}
+.aquarium__win-emoji {
+  font-size: 3.4rem;
+  line-height: 1;
+  animation: pop-in 0.4s ease;
+}
+.aquarium__win-text {
+  margin: 0;
+  font-weight: 900;
+  font-size: 1.3rem;
+  color: var(--ink);
+  background: var(--white);
+  padding: 6px 16px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+}
+
+/* ---- Food tray ---- */
+.aquarium__tray {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  flex-wrap: wrap;
+  padding: 8px 10px;
+  background: linear-gradient(180deg, #f1dcae, #e6c98a);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow);
+}
+.aquarium__foodbtn {
+  width: 56px;
+  height: 56px;
+  min-width: 44px;
+  min-height: 44px;
+  display: grid;
+  place-items: center;
+  border-radius: 16px;
+  background: var(--white);
+  font-size: 1.9rem;
+  line-height: 1;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.18);
+  transition: transform 0.1s ease, outline-color 0.15s ease;
+  -webkit-tap-highlight-color: transparent;
+  touch-action: manipulation;
+}
+.aquarium__foodbtn:not(:disabled):active {
+  transform: scale(0.9);
+}
+.aquarium__foodbtn.is-held {
+  outline: 4px solid var(--good);
+  transform: translateY(-6px) scale(1.12);
+  box-shadow: 0 8px 16px rgba(0, 0, 0, 0.25);
+}
+.aquarium__foodbtn:disabled {
+  opacity: 0.5;
+}
+
+@media (orientation: landscape) and (max-height: 600px) {
+  .aquarium {
+    gap: 6px;
+  }
+  .aquarium__foodbtn {
+    width: 46px;
+    height: 46px;
+    font-size: 1.5rem;
+    border-radius: 12px;
+  }
+}

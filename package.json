@@ -1,0 +1,21 @@
+{
+  "name": "kids-playland",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "description": "Kids Playland — a stress-free collection of mini games for children aged 3 to 8.",
+  "scripts": {
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview"
+  },
+  "dependencies": {
+    "react": "^18.3.1",
+    "react-dom": "^18.3.1"
+  },
+  "devDependencies": {
+    "@vitejs/plugin-react": "^4.3.4",
+    "vite": "^5.4.11",
+    "vite-plugin-pwa": "^1.3.0"
+  }
+}

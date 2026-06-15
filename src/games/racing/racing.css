@@ -1,0 +1,141 @@
+.racing {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+.racing__hud {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+.racing__run {
+  font-size: 1rem;
+}
+.racing__garage {
+  display: flex;
+  gap: 6px;
+}
+.racing__veh {
+  width: 44px;
+  height: 44px;
+  border-radius: 12px;
+  font-size: 1.4rem;
+  background: rgba(255, 255, 255, 0.7);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  display: grid;
+  place-items: center;
+  transition: transform 0.08s ease;
+}
+.racing__veh:active {
+  transform: scale(0.9);
+}
+.racing__veh.is-on {
+  background: #fff;
+  outline: 3px solid var(--primary);
+}
+.racing__veh.is-locked {
+  opacity: 0.55;
+  cursor: default;
+}
+
+.racing__road {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  background: linear-gradient(180deg, #5a6470, #424a55);
+  touch-action: none;
+}
+.racing__road.is-slow {
+  filter: saturate(0.7) brightness(0.95);
+}
+
+/* The two dashed lane dividers, scrolling for a sense of motion. */
+.racing__lines {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+}
+.racing__lines span {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 6px;
+  margin-left: -3px;
+  background: repeating-linear-gradient(
+    180deg,
+    rgba(255, 255, 255, 0.85) 0 22px,
+    transparent 22px 48px
+  );
+  background-size: 100% 48px;
+  animation: racing-scroll 0.5s linear infinite;
+}
+.racing__road.is-slow .racing__lines span {
+  animation-duration: 1.2s;
+}
+.racing__lines span:nth-child(1) { left: 33.33%; }
+.racing__lines span:nth-child(2) { left: 66.66%; }
+@keyframes racing-scroll {
+  to { background-position-y: 48px; }
+}
+
+.racing__item {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 2.2rem;
+  line-height: 1;
+  pointer-events: none;
+  will-change: top;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.3));
+}
+.racing__item--star { animation: racing-spin 1.4s linear infinite; }
+.racing__item--coin { animation: racing-spin 1s linear infinite; }
+@keyframes racing-spin {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50%      { transform: translate(-50%, -50%) scale(1.18); }
+}
+
+.racing__car {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 3rem;
+  line-height: 1;
+  pointer-events: none;
+  transition: left 0.16s cubic-bezier(0.3, 1.5, 0.5, 1);
+  filter: drop-shadow(0 5px 6px rgba(0, 0, 0, 0.4));
+  z-index: 2;
+}
+
+.racing__arrow {
+  position: absolute;
+  bottom: 14px;
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
+  font-size: 1.6rem;
+  color: var(--ink);
+  background: rgba(255, 255, 255, 0.82);
+  box-shadow: var(--shadow);
+  display: grid;
+  place-items: center;
+  z-index: 3;
+  transition: transform 0.08s ease;
+}
+.racing__arrow:active {
+  transform: scale(0.88);
+}
+.racing__arrow--left { left: 14px; }
+.racing__arrow--right { right: 14px; }
+
+.racing__hint {
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  color: var(--white);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}

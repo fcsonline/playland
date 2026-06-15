@@ -1,0 +1,137 @@
+.game-frame {
+  position: fixed;
+  inset: 0;
+  height: 100vh;
+  height: 100dvh; /* track the visible viewport (mobile chrome / both orientations) */
+  display: flex;
+  flex-direction: column;
+  background: linear-gradient(160deg, var(--g-from, #a1c4fd), var(--g-to, #c2e9fb));
+  animation: pop-in 0.25s ease;
+}
+
+.game-frame__bar {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 14px;
+  padding-top: max(12px, env(safe-area-inset-top));
+  padding-left: max(14px, env(safe-area-inset-left));
+  padding-right: max(14px, env(safe-area-inset-right));
+}
+
+.game-frame__back {
+  flex: none;
+  width: 52px;
+  height: 52px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  display: grid;
+  place-items: center;
+  color: var(--primary);
+  transition: transform 0.08s ease;
+}
+.game-frame__back:active {
+  transform: scale(0.9);
+}
+.game-frame__back-icon {
+  width: 26px;
+  height: 26px;
+  /* nudge optically toward the circle centre */
+  margin-left: -2px;
+}
+
+.game-frame__title {
+  flex: 1;
+  font-size: clamp(1.1rem, 4.5vw, 1.6rem);
+  color: var(--white);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.game-frame__wallet {
+  flex: none;
+  font-size: 1.1rem;
+}
+
+.game-frame__stage {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  padding: 0 12px 16px;
+  padding-bottom: max(16px, env(safe-area-inset-bottom));
+  padding-left: max(12px, env(safe-area-inset-left));
+  padding-right: max(12px, env(safe-area-inset-right));
+  overflow: hidden;
+}
+
+.game-frame__loading,
+.game-frame__stage > * {
+  flex: 1;
+  min-height: 0;
+}
+
+.game-frame__loading {
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  color: var(--white);
+}
+
+/* A common surface games can drop their playfield onto. */
+.play-surface {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 16px;
+  display: flex;
+  flex-direction: column;
+  min-height: 0;
+}
+
+/* Stars rating widget */
+.stars__on {
+  color: var(--sun);
+}
+.stars__off {
+  color: rgba(0, 0, 0, 0.12);
+}
+
+/* Landscape phones are short: shrink the header so the playfield keeps room. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .game-frame__bar {
+    gap: 8px;
+    padding: 6px 10px;
+    padding-top: max(6px, env(safe-area-inset-top));
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+  }
+  .game-frame__back {
+    width: 42px;
+    height: 42px;
+  }
+  .game-frame__back-icon {
+    width: 21px;
+    height: 21px;
+  }
+  .game-frame__title {
+    font-size: clamp(1rem, 3.6vw, 1.3rem);
+  }
+  .game-frame__wallet {
+    font-size: 1rem;
+    padding: 6px 12px;
+  }
+  .game-frame__stage {
+    padding: 0 10px 8px;
+    padding-bottom: max(8px, env(safe-area-inset-bottom));
+    padding-left: max(10px, env(safe-area-inset-left));
+    padding-right: max(10px, env(safe-area-inset-right));
+    /* Safety net: if a particular game can't shrink to the short height, let it
+       scroll instead of clipping content out of reach. */
+    overflow-y: auto;
+  }
+}

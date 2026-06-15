@@ -1,0 +1,187 @@
+.flight {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+.flight__hud {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.flight__reset {
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  font-size: 1.2rem;
+}
+.flight__reset:active {
+  transform: scale(0.9);
+}
+
+.flight__field {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  touch-action: none;
+  cursor: pointer;
+  background: linear-gradient(180deg, #aee3ff 0%, #d6f0ff 55%, #eafbff 100%);
+  transition: box-shadow 0.2s ease;
+}
+.flight__field.is-win {
+  box-shadow: inset 0 0 0 4px rgba(67, 233, 123, 0.6), var(--shadow);
+}
+.flight__field.is-miss {
+  animation: flight-bump 0.4s ease;
+}
+@keyframes flight-bump {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
+}
+
+.flight__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+}
+.flight__corridor {
+  fill: none;
+  stroke: rgba(47, 128, 237, 0.22);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.flight__centerline {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.95);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 2 16;
+}
+
+.flight__sun {
+  position: absolute;
+  top: 10px;
+  right: 12px;
+  font-size: 2rem;
+  z-index: 0;
+}
+.flight__cloud {
+  position: absolute;
+  font-size: 1.7rem;
+  opacity: 0.85;
+  z-index: 0;
+}
+.flight__cloud--a { top: 16%; left: -10%; animation: flight-drift 18s linear infinite; }
+.flight__cloud--b { top: 50%; left: -10%; animation: flight-drift 26s linear infinite; animation-delay: -8s; }
+.flight__cloud--c { top: 78%; left: -10%; animation: flight-drift 22s linear infinite; animation-delay: -14s; }
+@keyframes flight-drift {
+  from { transform: translateX(0); }
+  to { transform: translateX(130vw); }
+}
+
+.flight__pad {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  font-size: 2.2rem;
+  z-index: 2;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+  animation: flight-pad 1.4s ease-in-out infinite;
+}
+@keyframes flight-pad {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.12); }
+}
+
+.flight__plane {
+  position: absolute;
+  font-size: 2rem;
+  z-index: 4;
+  line-height: 1;
+  filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25));
+  will-change: left, top, transform;
+}
+.flight__plane.is-flying {
+  animation: flight-wobble 0.5s ease-in-out infinite;
+}
+@keyframes flight-wobble {
+  0%, 100% { filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.25)); }
+  50% { filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.3)); }
+}
+.flight__plane.is-landed {
+  animation: flight-land 0.6s ease;
+}
+@keyframes flight-land {
+  0% { transform: translate(-50%, -50%) scale(1.4) rotate(0deg); }
+  100% { transform: translate(-50%, -50%) scale(1) rotate(0deg); }
+}
+
+.flight__startpulse {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 3px dashed rgba(47, 128, 237, 0.6);
+  z-index: 3;
+  pointer-events: none;
+  animation: flight-pulse 1.3s ease-in-out infinite;
+}
+@keyframes flight-pulse {
+  0%, 100% { opacity: 0.45; transform: translate(-50%, -50%) scale(0.9); }
+  50% { opacity: 0.9; transform: translate(-50%, -50%) scale(1.05); }
+}
+
+.flight__toast {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.95);
+  color: var(--ink);
+  font-weight: 800;
+  padding: 8px 16px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+  z-index: 6;
+  white-space: nowrap;
+  animation: flight-toast 0.3s ease;
+}
+.flight__toast--win {
+  background: linear-gradient(180deg, #d6ffe6, #b6ffd0);
+  color: #138a4a;
+}
+@keyframes flight-toast {
+  from { opacity: 0; transform: translateX(-50%) translateY(-8px); }
+  to { opacity: 1; transform: translateX(-50%) translateY(0); }
+}
+
+.flight__bar {
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+}
+.flight__bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, #56ccf2, #2f80ed);
+  transition: width 0.12s ease;
+}
+
+.flight__hint {
+  margin: 0;
+  text-align: center;
+  color: var(--white);
+  font-weight: 800;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}

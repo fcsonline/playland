@@ -1,0 +1,130 @@
+.math {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  flex: 1;
+}
+
+.math__hud {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+
+.math__stage {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 18px;
+  text-align: center;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+.math__stage.is-right {
+  animation: math-pop 0.5s ease;
+  background: #eafff1;
+}
+@keyframes math-pop {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.03);
+  }
+}
+
+.math__prompt {
+  margin: 0;
+  font-size: clamp(1.1rem, 5vw, 1.5rem);
+  font-weight: 800;
+  color: var(--ink-soft);
+}
+
+.math__picture {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+.math__group {
+  display: inline-flex;
+  flex-wrap: wrap;
+  gap: 4px;
+  max-width: 42vw;
+  justify-content: center;
+  padding: 8px 10px;
+  background: rgba(108, 92, 231, 0.07);
+  border-radius: 16px;
+}
+.math__icon {
+  font-size: clamp(1.6rem, 8vw, 2.6rem);
+  line-height: 1;
+  animation: pop-in 0.3s ease both;
+}
+.math__icon.is-gone {
+  opacity: 0.32;
+  filter: grayscale(1);
+}
+.math__op {
+  font-size: clamp(1.8rem, 9vw, 3rem);
+  font-weight: 900;
+  color: var(--primary);
+}
+
+.math__equation {
+  font-size: clamp(1.6rem, 8vw, 2.6rem);
+  font-weight: 900;
+  color: var(--ink);
+  letter-spacing: 1px;
+}
+
+.math__choices {
+  display: flex;
+  gap: 12px;
+  justify-content: center;
+}
+.math__choice {
+  flex: 1;
+  max-width: 130px;
+  aspect-ratio: 1 / 0.8;
+  border-radius: var(--radius);
+  background: linear-gradient(180deg, #fff, #f3f0ff);
+  box-shadow: var(--shadow);
+  font-size: clamp(2rem, 10vw, 3rem);
+  font-weight: 900;
+  color: var(--primary);
+  transition: transform 0.08s ease, box-shadow 0.15s ease;
+}
+.math__choice:active {
+  transform: translateY(3px) scale(0.96);
+  box-shadow: 0 4px 10px rgba(108, 92, 231, 0.25);
+}
+.math__choice.is-wrong {
+  animation: math-shake 0.4s ease;
+  background: #ffe6e9;
+  color: #ff5b6e;
+}
+@keyframes math-shake {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  20% {
+    transform: translateX(-8px);
+  }
+  40% {
+    transform: translateX(8px);
+  }
+  60% {
+    transform: translateX(-6px);
+  }
+  80% {
+    transform: translateX(6px);
+  }
+}

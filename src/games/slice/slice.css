@@ -1,0 +1,189 @@
+.slice {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+.slice__hud {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.slice__time--low {
+  background: #ffe0e0;
+  color: #c0392b;
+  animation: slice-blink 0.6s ease-in-out infinite;
+}
+@keyframes slice-blink {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.12); }
+}
+
+.slice__field {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  touch-action: none;
+  cursor: crosshair;
+  background: linear-gradient(180deg, #2b2350 0%, #4a3b8a 55%, #6f5fb5 100%);
+}
+.slice__field.is-shake {
+  animation: slice-shake 0.32s ease-in-out;
+}
+@keyframes slice-shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-8px); }
+  40% { transform: translateX(8px); }
+  60% { transform: translateX(-5px); }
+  80% { transform: translateX(5px); }
+}
+
+.slice__fruit {
+  position: absolute;
+  font-size: 3rem;
+  line-height: 1;
+  will-change: left, top, transform;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
+  pointer-events: none;
+  user-select: none;
+}
+.slice__fruit.is-bomb {
+  font-size: 2.8rem;
+  filter: drop-shadow(0 0 6px rgba(255, 80, 80, 0.7));
+}
+
+/* Slice splash: two halves fly apart with a juice splat. */
+.slice__splash {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+.slice__half {
+  position: absolute;
+  font-size: 2.4rem;
+  line-height: 1;
+  left: 0;
+  top: 0;
+}
+.slice__half--a {
+  animation: slice-half-a 0.45s ease-out forwards;
+  clip-path: inset(0 50% 0 0);
+}
+.slice__half--b {
+  animation: slice-half-b 0.45s ease-out forwards;
+  clip-path: inset(0 0 0 50%);
+}
+@keyframes slice-half-a {
+  from { transform: translate(0, 0) rotate(0); opacity: 1; }
+  to { transform: translate(-34px, 14px) rotate(-40deg); opacity: 0; }
+}
+@keyframes slice-half-b {
+  from { transform: translate(0, 0) rotate(0); opacity: 1; }
+  to { transform: translate(34px, 14px) rotate(40deg); opacity: 0; }
+}
+.slice__juice {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 1.8rem;
+  animation: slice-juice 0.45s ease-out forwards;
+}
+@keyframes slice-juice {
+  from { transform: scale(0.5); opacity: 0.9; }
+  to { transform: scale(1.8); opacity: 0; }
+}
+.slice__splash--bomb {
+  font-size: 2.6rem;
+  animation: slice-juice 0.48s ease-out forwards;
+}
+
+/* The fading swipe trail, drawn as an SVG polyline filling the field. */
+.slice__trail {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 4;
+}
+.slice__trail polyline {
+  fill: none;
+  stroke: rgba(255, 255, 255, 0.85);
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 6px rgba(150, 220, 255, 0.9));
+}
+
+.slice__combo {
+  position: absolute;
+  left: 50%;
+  top: 30%;
+  transform: translateX(-50%);
+  z-index: 5;
+  font-weight: 900;
+  font-size: 1.6rem;
+  color: var(--white);
+  text-shadow: 0 2px 8px rgba(0, 0, 0, 0.4);
+  background: linear-gradient(180deg, #ff8a5c, #ff5e7e);
+  padding: 8px 18px;
+  border-radius: 999px;
+  box-shadow: var(--shadow-lg);
+  animation: slice-combo 0.9s ease-out forwards;
+  pointer-events: none;
+}
+@keyframes slice-combo {
+  0% { transform: translateX(-50%) scale(0.3); opacity: 0; }
+  25% { transform: translateX(-50%) scale(1.1); opacity: 1; }
+  70% { transform: translateX(-50%) scale(1); opacity: 1; }
+  100% { transform: translateX(-50%) translateY(-30px) scale(1); opacity: 0; }
+}
+
+/* Friendly end card — never a "game over". */
+.slice__end {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 16, 45, 0.55);
+  animation: slice-fade 0.3s ease;
+}
+@keyframes slice-fade {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+.slice__endcard {
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  padding: 22px 26px;
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  animation: slice-pop 0.4s cubic-bezier(0.2, 1.6, 0.4, 1);
+}
+@keyframes slice-pop {
+  from { transform: scale(0.5); opacity: 0; }
+  to { transform: scale(1); opacity: 1; }
+}
+.slice__endbig {
+  font-size: 1.5rem;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+.slice__hint {
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  color: var(--white);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+}

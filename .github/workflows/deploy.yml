@@ -16,6 +16,10 @@ concurrency:
   group: pages
   cancel-in-progress: false
 
+# Run the JavaScript actions on Node 24 (Node 20 is being retired on the runners).
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -23,7 +27,7 @@ jobs:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: 20
+          node-version: 24
           cache: npm
       - run: npm ci
       - run: npm run build

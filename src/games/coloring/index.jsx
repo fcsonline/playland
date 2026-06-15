@@ -2,25 +2,20 @@ import { createElement, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { pick } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
-import { DRAWINGS, PALETTE, STICKERS } from './drawings.js'
+import { DRAWINGS, PALETTE } from './drawings.js'
 import './coloring.css'
-
-let stickerId = 0
 
 export default function ColoringStudio() {
   const { earn, award } = useGame()
   const [drawing, setDrawing] = useState(() => pick(DRAWINGS))
   const [color, setColor] = useState(PALETTE[0])
-  const [tool, setTool] = useState('fill') // 'fill' | sticker emoji
   const [fills, setFills] = useState({})
-  const [stickers, setStickers] = useState([])
   const [awarded, setAwarded] = useState(false)
   const svgRef = useRef(null)
 
   function switchDrawing(d) {
     setDrawing(d)
     setFills({})
-    setStickers([])
     setAwarded(false)
   }
 
@@ -34,7 +29,6 @@ export default function ColoringStudio() {
   }
 
   function paint(regionId) {
-    if (tool !== 'fill') return
     setFills((f) => {
       const next = { ...f, [regionId]: color }
       // Gentle reward: finished coloring the whole picture.
@@ -52,24 +46,9 @@ export default function ColoringStudio() {
     })
   }
 
-  function tapCanvas(e) {
-    if (tool === 'fill') return
-    const rect = svgRef.current.getBoundingClientRect()
-    const x = ((e.clientX - rect.left) / rect.width) * 100
-    const y = ((e.clientY - rect.top) / rect.height) * 100
-    setStickers((s) => [...s, { id: ++stickerId, emoji: tool, x, y }])
-    sfx.pop()
-    earn(1)
-  }
-
-  function undoSticker() {
-    setStickers((s) => s.slice(0, -1))
-  }
-
   return (
     <div className="coloring">
       <div className="coloring__drawings">
-        <span className="chip coloring__title">{drawing.label}</span>
         <button className="coloring__thumb coloring__thumb--go" onClick={newDrawing}>
           🎲 New picture
         </button>
@@ -78,7 +57,7 @@ export default function ColoringStudio() {
         </button>
       </div>
 
-      <div className="coloring__canvas play-surface" onPointerDown={tapCanvas}>
+      <div className="coloring__canvas play-surface">
         <svg ref={svgRef} viewBox={drawing.viewBox} className="coloring__svg">
           {drawing.regions.map((r) =>
             createElement(r.el, {
@@ -96,16 +75,6 @@ export default function ColoringStudio() {
             }),
           )}
         </svg>
-        {stickers.map((s) => (
-          <span
-            key={s.id}
-            className="coloring__sticker"
-            style={{ left: `${s.x}%`, top: `${s.y}%` }}
-            aria-hidden="true"
-          >
-            {s.emoji}
-          </span>
-        ))}
       </div>
 
       <div className="coloring__tools">
@@ -113,29 +82,12 @@ export default function ColoringStudio() {
           {PALETTE.map((c) => (
             <button
               key={c}
-              className={`coloring__swatch ${tool === 'fill' && color === c ? 'is-on' : ''}`}
+              className={`coloring__swatch ${color === c ? 'is-on' : ''}`}
               style={{ background: c }}
-              onClick={() => {
-                setColor(c)
-                setTool('fill')
-              }}
+              onClick={() => setColor(c)}
               aria-label={`color ${c}`}
             />
           ))}
-        </div>
-        <div className="coloring__stickers">
-          {STICKERS.map((s) => (
-            <button
-              key={s}
-              className={`coloring__stickerbtn ${tool === s ? 'is-on' : ''}`}
-              onClick={() => setTool(s)}
-            >
-              {s}
-            </button>
-          ))}
-          <button className="coloring__stickerbtn" onClick={undoSticker} aria-label="undo sticker">
-            ↩️
-          </button>
         </div>
       </div>
     </div>

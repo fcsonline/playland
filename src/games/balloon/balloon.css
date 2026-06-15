@@ -21,6 +21,7 @@
   flex: 1;
   min-height: 0;
   display: flex;
+  flex-direction: row;
   align-items: stretch;
   justify-content: center;
   gap: 18px;
@@ -121,20 +122,33 @@
   }
 }
 
-/* Vertical danger gauge on the right. */
+/* Vertical fill gauge on the right. */
 .balloon__gauge {
   position: relative;
-  width: 50px;
+  flex: none;
+  width: 54px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.85);
+  background: #e9edf3;
   box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.16);
+  border: 2px solid #d4dae3;
   overflow: hidden;
+  transition: box-shadow 0.15s ease;
+}
+/* The GREEN target band: let go while the fill is in here. */
+.balloon__okzone {
+  position: absolute;
+  left: 0;
+  right: 0;
+  background: rgba(64, 192, 87, 0.5);
+  border-top: 3px solid #2f9e44;
+  z-index: 2;
 }
 .balloon__danger {
   position: absolute;
   left: 0;
   right: 0;
   bottom: 0;
+  z-index: 1;
   background: linear-gradient(180deg, #e8120c, #ff922b 60%, #ffd43b);
   transition: height 0.08s linear;
 }
@@ -145,7 +159,23 @@
   right: 0;
   text-align: center;
   font-size: 1rem;
-  z-index: 2;
+  z-index: 3;
+}
+/* Pulse the gauge + balloon while the fill is in the green zone. */
+.balloon__gauge.is-ready {
+  box-shadow: inset 0 2px 8px rgba(0, 0, 0, 0.16), 0 0 0 3px #2f9e44;
+  animation: balloon-ready 0.5s ease-in-out infinite;
+}
+@keyframes balloon-ready {
+  0%, 100% { filter: brightness(1); }
+  50% { filter: brightness(1.18); }
+}
+.balloon__shape.is-ready {
+  animation: balloon-ready-pulse 0.5s ease-in-out infinite;
+}
+@keyframes balloon-ready-pulse {
+  0%, 100% { transform: scale(var(--scale, 1)); }
+  50% { transform: scale(calc(var(--scale, 1) * 1.03)); }
 }
 
 .balloon__message {

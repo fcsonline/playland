@@ -55,25 +55,24 @@ export default function GameFrame({ gameId, onBack }) {
       }}
     >
       <header className="game-frame__bar">
-        <button className="game-frame__back" onClick={onBack} aria-label="Back to all games">
-          <svg className="game-frame__back-icon" viewBox="0 0 24 24" aria-hidden="true">
-            <path
-              d="M14.5 5.5 8 12l6.5 6.5"
-              fill="none"
-              stroke="currentColor"
-              strokeWidth="2.6"
-              strokeLinecap="round"
-              strokeLinejoin="round"
-            />
-          </svg>
-        </button>
         <h1 className="game-frame__title">
           <span aria-hidden="true">{meta.emoji}</span> {meta.title}
         </h1>
-        <FullscreenToggle className="fs-toggle--bar" />
         <span className="game-frame__wallet chip" aria-label={`${wallet} stars`}>
           ⭐ {wallet}
         </span>
+        <FullscreenToggle className="fs-toggle--bar" />
+        <button className="game-frame__close" onClick={onBack} aria-label="Close game">
+          <svg className="game-frame__close-icon" viewBox="0 0 24 24" aria-hidden="true">
+            <path
+              d="M7 7 L17 17 M17 7 L7 17"
+              fill="none"
+              stroke="currentColor"
+              strokeWidth="3"
+              strokeLinecap="round"
+            />
+          </svg>
+        </button>
       </header>
 
       <main className="game-frame__stage">

@@ -19,26 +19,25 @@
   padding-right: max(14px, env(safe-area-inset-right));
 }
 
-.game-frame__back {
+/* Big, fancy close button on the right — leaves the game. */
+.game-frame__close {
   flex: none;
-  width: 52px;
-  height: 52px;
+  width: 54px;
+  height: 54px;
   border-radius: 50%;
-  background: var(--white);
-  box-shadow: var(--shadow);
+  background: linear-gradient(135deg, #ff6a88, #ff99ac);
+  color: #fff;
+  box-shadow: 0 6px 16px rgba(255, 106, 136, 0.5);
   display: grid;
   place-items: center;
-  color: var(--primary);
-  transition: transform 0.08s ease;
+  transition: transform 0.12s ease, box-shadow 0.15s ease;
 }
-.game-frame__back:active {
-  transform: scale(0.9);
+.game-frame__close:active {
+  transform: scale(0.88) rotate(90deg);
 }
-.game-frame__back-icon {
+.game-frame__close-icon {
   width: 26px;
   height: 26px;
-  /* nudge optically toward the circle centre */
-  margin-left: -2px;
 }
 
 .game-frame__title {
@@ -101,32 +100,40 @@
   color: rgba(0, 0, 0, 0.12);
 }
 
-/* Landscape phones are short: shrink the header so the playfield keeps room. */
+/* Landscape phones are short: reclaim the whole header row. The title, stars and
+   fullscreen button are hidden and the close button floats in the top-right
+   corner, so the playfield gets the full height. */
 @media (orientation: landscape) and (max-height: 600px) {
   .game-frame__bar {
-    gap: 8px;
-    padding: 6px 10px;
+    position: absolute;
+    top: 0;
+    right: 0;
+    left: auto;
+    z-index: 60;
+    gap: 0;
+    padding: 6px;
     padding-top: max(6px, env(safe-area-inset-top));
-    padding-left: max(10px, env(safe-area-inset-left));
-    padding-right: max(10px, env(safe-area-inset-right));
+    padding-right: max(6px, env(safe-area-inset-right));
+    background: transparent;
+    pointer-events: none;
   }
-  .game-frame__back {
+  .game-frame__title,
+  .game-frame__bar .game-frame__wallet,
+  .fs-toggle--bar {
+    display: none;
+  }
+  .game-frame__close {
+    pointer-events: auto;
     width: 42px;
     height: 42px;
+    box-shadow: 0 3px 10px rgba(255, 106, 136, 0.5);
   }
-  .game-frame__back-icon {
-    width: 21px;
-    height: 21px;
-  }
-  .game-frame__title {
-    font-size: clamp(1rem, 3.6vw, 1.3rem);
-  }
-  .game-frame__wallet {
-    font-size: 1rem;
-    padding: 6px 12px;
+  .game-frame__close-icon {
+    width: 20px;
+    height: 20px;
   }
   .game-frame__stage {
-    padding: 0 10px 8px;
+    padding: 6px 10px 8px;
     padding-bottom: max(8px, env(safe-area-inset-bottom));
     padding-left: max(10px, env(safe-area-inset-left));
     padding-right: max(10px, env(safe-area-inset-right));

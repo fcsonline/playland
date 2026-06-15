@@ -103,7 +103,6 @@ export default function PuzzleAdventure() {
   return (
     <div className="puzzle">
       <div className="puzzle__controls">
-        <span className="chip puzzle__scene">{scene.label}</span>
         <span className="chip puzzle__count">
           🧩 {placedCount}/{total}
         </span>

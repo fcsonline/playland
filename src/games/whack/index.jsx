@@ -76,7 +76,7 @@ export default function MolePop() {
       const idx = pick(free)
       const kind = rollKind()
       const id = ++popUid
-      const upMs = kind === KIND_BOMB ? randInt(900, 1300) : randInt(750, 1300)
+      const upMs = kind === KIND_BOMB ? randInt(1300, 2000) : randInt(1300, 2100)
       setHoles((prev) => {
         const next = prev.slice()
         next[idx] = { id, kind, bonked: false }
@@ -97,10 +97,10 @@ export default function MolePop() {
         delete duckTimers.current[idx]
       }, upMs)
     }
-    // Schedule the next pop; cadence quickens slightly as time runs low.
+    // Schedule the next pop; a gentle, unhurried cadence for little hands.
     const left = endAtRef.current - performance.now()
-    const hurry = left < ROUND_MS / 2 ? 0.75 : 1
-    const gap = randInt(420, 820) * hurry
+    const hurry = left < ROUND_MS / 2 ? 0.9 : 1
+    const gap = randInt(780, 1250) * hurry
     popTimer.current = setTimeout(popOne, gap)
   }
 

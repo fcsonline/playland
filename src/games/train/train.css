@@ -9,26 +9,9 @@
 .train__hud {
   display: flex;
   align-items: center;
-  justify-content: space-between;
+  justify-content: center;
   gap: 8px;
   flex-wrap: wrap;
-}
-.train__levels {
-  display: flex;
-  gap: 6px;
-}
-.train__dot {
-  width: 34px;
-  height: 34px;
-  border-radius: 50%;
-  background: rgba(255, 255, 255, 0.7);
-  font-weight: 800;
-  color: var(--ink);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-}
-.train__dot.is-on {
-  background: #fff;
-  outline: 3px solid var(--primary);
 }
 
 /* A centred board sized to its grid ratio so square cells fit both ways. */

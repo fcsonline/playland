@@ -34,10 +34,6 @@
   background: var(--white);
   outline: 3px solid var(--primary);
 }
-.memory__pill--go {
-  background: var(--primary);
-  color: #fff;
-}
 
 .memory__board {
   flex: 1;

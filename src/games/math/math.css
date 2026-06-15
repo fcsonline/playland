@@ -6,14 +6,6 @@
   flex: 1;
 }
 
-.math__hud {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-
 .math__stage {
   flex: 1;
   display: flex;

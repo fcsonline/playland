@@ -21,16 +21,16 @@ const COLORS = ['#ff6b6b', '#ffa94d', '#69db7c', '#4dabf7', '#b197fc', '#f783ac'
 // Each balloon: a target size, a green zone around it, and a pop point above.
 function makeBalloon() {
   const target = randInt(54, 78)
-  const popAt = target + randInt(16, 24)
-  return { target, popAt, low: target - 14 }
+  const popAt = target + randInt(18, 26)
+  return { target, popAt, low: target - 24 }
 }
 
 const scaleFor = (v) => 0.4 + (Math.min(100, v) / 100) * 1.05
 
 export default function BalloonPump() {
-  const { earn, award } = useGame()
-  const cbs = useRef({ earn, award })
-  cbs.current = { earn, award }
+  const { earn, award, oops } = useGame()
+  const cbs = useRef({ earn, award, oops })
+  cbs.current = { earn, award, oops }
 
   const stateRef = useRef({ size: 0, holding: false, settled: false, ...makeBalloon() })
   const rafRef = useRef(0)
@@ -104,15 +104,18 @@ export default function BalloonPump() {
   function popBalloon() {
     noiseBurst({ duration: 0.28, gain: 0.32, type: 'lowpass', freq: 820 })
     tone(150, { duration: 0.18, type: 'sawtooth', gain: 0.18 })
-    const pieces = Array.from({ length: 10 }, (_, i) => ({
+    // Gentle, no-penalty fail: strong RED reaction (vignette + big ✕), not a
+    // celebration. A small scatter of balloon scraps, no festive confetti.
+    const pieces = Array.from({ length: 5 }, (_, i) => ({
       id: `${balloonNo}-${i}-${randInt(0, 99999)}`,
-      dx: (randInt(0, 200) - 100) * 1.2,
-      dy: -randInt(20, 160),
-      emoji: pick(['🎉', '✨', '🎊', '⭐']),
+      dx: (randInt(0, 160) - 80) * 1.1,
+      dy: -randInt(10, 90),
+      emoji: pick(['🎈', '💥']),
     }))
     setConfetti(pieces)
     setTimeout(() => setConfetti([]), 800)
     setOutcome('popped')
+    cbs.current.oops({ word: 'Pop!' })
     tick()
   }
 

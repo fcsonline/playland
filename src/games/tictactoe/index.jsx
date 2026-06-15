@@ -168,11 +168,6 @@ export default function TicTacToe() {
 
   return (
     <div className="ttt">
-      <div className="ttt__hud">
-        <span className="chip ttt__chip">You {PLAYER}</span>
-        <span className="chip ttt__chip">Robo {ROBOT}</span>
-      </div>
-
       <div className={`ttt__status ${status.cls}`}>{status.text}</div>
 
       <div className="ttt__boardwrap">
@@ -209,12 +204,6 @@ export default function TicTacToe() {
             </button>
           </div>
         )}
-      </div>
-
-      <div className="ttt__bar">
-        <button className="btn btn--accent" onPointerDown={newGame}>
-          🔄 New game
-        </button>
       </div>
     </div>
   )

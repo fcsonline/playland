@@ -199,11 +199,6 @@ export default function MathQuiz() {
 
   return (
     <div className="mathquiz">
-      <div className="mathquiz__hud">
-        <span className="chip">Question {index + 1}/{ROUND_LEN}</span>
-        <span className="chip">⭐ Score {score}</span>
-      </div>
-
       <div className="mathquiz__bar" aria-hidden="true">
         <div
           className="mathquiz__bar-fill"

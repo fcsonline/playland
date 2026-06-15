@@ -24,8 +24,10 @@ export default function GameFrame({ gameId, onBack }) {
   const award = useCallback(
     (starCount, opts = {}) => {
       recordMastery(gameId, starCount)
-      // Celebrate a finished game with confetti + a big "Excellent!".
-      cheer({ praise: 'Excellent!', ...opts })
+      // Celebrate a finished game with confetti + praise that scales with the
+      // result, so a tiny effort doesn't always shout "Excellent!".
+      const praise = starCount >= 3 ? 'Excellent!' : starCount === 2 ? 'Well done!' : 'Good try!'
+      cheer({ praise, ...opts })
     },
     [gameId, recordMastery, cheer],
   )

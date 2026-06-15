@@ -273,9 +273,6 @@ export default function FindTheWay() {
         <span className="chip">
           Help {maze.theme.avatar} reach the {maze.theme.goal}!
         </span>
-        <button className="maze__newbtn" onClick={() => startLevel(level)} aria-label="new maze">
-          🔄 New
-        </button>
       </div>
 
       <div className="maze__wrap">

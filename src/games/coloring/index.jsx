@@ -20,12 +20,12 @@ export default function ColoringStudio() {
   }
 
   // Jump to a different random picture — the child never picks from a list.
-  function newDrawing() {
+  function nextRandomDrawing() {
     let d = pick(DRAWINGS)
     if (DRAWINGS.length > 1) {
       while (d.id === drawing.id) d = pick(DRAWINGS)
     }
-    switchDrawing(d)
+    return d
   }
 
   function paint(regionId) {
@@ -38,6 +38,8 @@ export default function ColoringStudio() {
           sfx.win()
           award(3, { count: 22 })
         }, 100)
+        // Endless flow: after a short celebration, load a fresh random picture.
+        setTimeout(() => switchDrawing(nextRandomDrawing()), 1200)
       } else {
         sfx.pop()
         earn(1)
@@ -48,15 +50,6 @@ export default function ColoringStudio() {
 
   return (
     <div className="coloring">
-      <div className="coloring__drawings">
-        <button className="coloring__thumb coloring__thumb--go" onClick={newDrawing}>
-          🎲 New picture
-        </button>
-        <button className="coloring__thumb" onClick={() => switchDrawing(drawing)}>
-          🧽 Clear
-        </button>
-      </div>
-
       <div className="coloring__canvas play-surface">
         <svg ref={svgRef} viewBox={drawing.viewBox} className="coloring__svg">
           {drawing.regions.map((r) =>

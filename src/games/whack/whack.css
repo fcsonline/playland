@@ -6,19 +6,6 @@
   flex: 1;
 }
 
-.whack__hud {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-}
-.whack__score,
-.whack__time {
-  font-weight: 900;
-  font-size: 1.1rem;
-  font-variant-numeric: tabular-nums;
-}
-
 .whack__timerbar {
   height: 10px;
   border-radius: 999px;
@@ -129,7 +116,7 @@
   filter: drop-shadow(0 0 8px rgba(255, 215, 0, 0.9));
 }
 
-/* Start / Time's-up overlay. */
+/* Time's-up overlay. */
 .whack__overlay {
   position: absolute;
   inset: 0;

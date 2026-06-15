@@ -1,5 +1,6 @@
 import { useEffect, useState } from 'react'
 import Home from './screens/Home.jsx'
+import Splash from './screens/Splash.jsx'
 import GameFrame from './components/GameFrame.jsx'
 import { GAME_BY_ID } from './games/registry.js'
 import { enterFullscreen, fullscreenSupported, isFullscreen } from './lib/fullscreen.js'
@@ -14,6 +15,8 @@ const gameFromHistory = () => {
 
 export default function App() {
   const [gameId, setGameId] = useState(gameFromHistory)
+  // Show the welcome splash once on a fresh open (not when reloading into a game).
+  const [showSplash, setShowSplash] = useState(() => !gameFromHistory())
 
   // Go immersive on the very first tap (fullscreen needs a user gesture).
   useEffect(() => {
@@ -50,6 +53,7 @@ export default function App() {
     else setGameId(null)
   }
 
+  if (showSplash && !gameId) return <Splash onDone={() => setShowSplash(false)} />
   if (gameId) return <GameFrame gameId={gameId} onBack={back} />
   return <Home onOpen={open} />
 }

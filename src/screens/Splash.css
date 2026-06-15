@@ -1,0 +1,71 @@
+.splash {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  overflow: hidden;
+  background: radial-gradient(circle at 50% 38%, #fff9f0, #ffe9d6);
+  animation: splash-out 0.45s ease 3.55s forwards;
+}
+@keyframes splash-out {
+  to { opacity: 0; }
+}
+
+/* A soft rainbow arc behind the wordmark. */
+.splash__rainbow {
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: min(132vw, 640px);
+  height: min(132vw, 640px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    #ff5b6e, #ff922b, #ffd23f, #7bd651, #4cc9f0, #9b5de5, #ff5b6e
+  );
+  -webkit-mask: radial-gradient(circle, transparent 55%, #000 56% 70%, transparent 71%);
+  mask: radial-gradient(circle, transparent 55%, #000 56% 70%, transparent 71%);
+  opacity: 0.4;
+  animation: splash-rainbow 0.8s ease both;
+}
+@keyframes splash-rainbow {
+  from { transform: translate(-50%, -50%) scale(0.6) rotate(-20deg); opacity: 0; }
+  to { transform: translate(-50%, -50%) scale(1) rotate(0deg); opacity: 0.4; }
+}
+
+.splash__word {
+  position: relative;
+  display: flex;
+  gap: 0.02em;
+  font-family: var(--font);
+  font-weight: 900;
+  font-size: clamp(3.4rem, 17vw, 9rem);
+  line-height: 1;
+}
+.splash__letter {
+  color: var(--c);
+  -webkit-text-stroke: clamp(4px, 1.4vw, 9px) #fff;
+  paint-order: stroke fill;
+  filter: drop-shadow(0 6px 10px rgba(0, 0, 0, 0.18));
+  transform-origin: center bottom;
+  animation: splash-letter 0.6s cubic-bezier(0.18, 1.6, 0.4, 1) both;
+}
+@keyframes splash-letter {
+  0% { transform: translateY(40%) scale(0.4); opacity: 0; }
+  60% { transform: translateY(-6%) scale(1.12); opacity: 1; }
+  100% { transform: translateY(0) scale(1); }
+}
+
+.splash__toy {
+  position: absolute;
+  font-size: clamp(1.6rem, 5vw, 2.8rem);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.2));
+  transform: translate(-50%, -50%);
+  animation: splash-toy 2.6s ease-in-out infinite;
+}
+@keyframes splash-toy {
+  0%, 100% { transform: translate(-50%, -50%) translateY(0) rotate(-4deg); }
+  50% { transform: translate(-50%, -50%) translateY(-10px) rotate(4deg); }
+}

@@ -46,7 +46,6 @@ export default function DinoRun() {
   const g = useRef(null)
   if (!g.current) g.current = freshGame()
   const [, setTick] = useState(0)
-  const [stars, setStars] = useState(0)
   const [hurt, setHurt] = useState(0) // bumps on each cactus hit to flash red
 
   function jump() {
@@ -60,7 +59,6 @@ export default function DinoRun() {
 
   function reset() {
     g.current = freshGame()
-    setStars(0)
     setTick((t) => t + 1)
   }
 
@@ -157,7 +155,6 @@ export default function DinoRun() {
 
       if (gained > 0) {
         cbs.current.earn(gained)
-        setStars(s.runStars)
       }
 
       setTick((t) => (t + 1) % 1000000)
@@ -177,8 +174,6 @@ export default function DinoRun() {
   return (
     <div className="dino">
       <div className="dino__hud">
-        <span className="chip">⭐ This run: {stars}</span>
-        <span className="chip">🌵 Cleared: {s.cleared}</span>
         <button className="dino__reset" onClick={reset} aria-label="start over">
           🔄
         </button>

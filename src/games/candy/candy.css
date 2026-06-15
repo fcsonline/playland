@@ -6,34 +6,6 @@
   flex: 1;
 }
 
-.candy__controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 8px;
-  align-items: center;
-  justify-content: center;
-}
-.candy__score {
-  font-size: 1rem;
-}
-.candy__pill {
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.65);
-  font-weight: 800;
-  font-size: 0.9rem;
-  color: var(--ink);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.08s ease;
-}
-.candy__pill:active {
-  transform: scale(0.92);
-}
-.candy__pill--go {
-  background: var(--primary);
-  color: #fff;
-}
-
 .candy__board {
   /* Centered board sized to its own aspect ratio so the square cells always
      fit both width and height (no overflow in portrait or landscape). */

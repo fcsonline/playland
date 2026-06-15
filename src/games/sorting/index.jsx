@@ -145,12 +145,6 @@ export default function SortingFactory() {
             <span className="sorting__pill sorting__pill--locked">🔒 keep sorting!</span>
           )}
         </div>
-        <div className="sorting__group">
-          <span className="chip sorting__count">✅ Sorted: {sortedCount}</span>
-          <button className="sorting__pill sorting__pill--go" onClick={() => newBatch()}>
-            🔄 New
-          </button>
-        </div>
       </div>
 
       {/* Conveyor: the loose items waiting to be sorted. */}

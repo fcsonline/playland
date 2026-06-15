@@ -1,10 +1,19 @@
 import { useMemo, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useProgress } from '../../state/progress.jsx'
 import { useDrag } from '../../lib/useDrag.js'
-import { shuffle } from '../../lib/random.js'
+import { pick, shuffle } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import { SCENES, LEVELS } from './scenes.js'
 import './puzzle.css'
+
+// Pick a random scene, avoiding an immediate repeat of the current one.
+function pickScene(currentIdx) {
+  if (SCENES.length <= 1) return 0
+  let i = SCENES.indexOf(pick(SCENES))
+  while (i === currentIdx) i = SCENES.indexOf(pick(SCENES))
+  return i
+}
 
 // Render one slice of the scene by cropping the shared SVG with a shifted viewBox.
 function PieceArt({ scene, r, c, rows, cols }) {
@@ -22,8 +31,12 @@ function PieceArt({ scene, r, c, rows, cols }) {
 
 export default function PuzzleAdventure() {
   const { earn, award } = useGame()
-  const [sceneIdx, setSceneIdx] = useState(0)
-  const [levelIdx, setLevelIdx] = useState(0)
+  const { getGameLevel, setGameLevel } = useProgress()
+  // Start on a random scene; difficulty follows the child's saved history.
+  const [sceneIdx, setSceneIdx] = useState(() => pickScene(-1))
+  const [levelIdx, setLevelIdx] = useState(() =>
+    Math.min(getGameLevel('puzzle'), LEVELS.length - 1),
+  )
   const scene = SCENES[sceneIdx]
   const level = LEVELS[Math.min(levelIdx, LEVELS.length - 1)]
   const { rows, cols } = level
@@ -38,8 +51,6 @@ export default function PuzzleAdventure() {
 
   // Mutable ref so the single useDrag instance always sees the live piece id.
   const activeIdx = useRef(null)
-
-  const placedCount = useMemo(() => Object.keys(placed).length, [placed])
 
   function reset(nextScene = sceneIdx, nextLevel = levelIdx) {
     const t = LEVELS[Math.min(nextLevel, LEVELS.length - 1)]
@@ -102,15 +113,6 @@ export default function PuzzleAdventure() {
 
   return (
     <div className="puzzle">
-      <div className="puzzle__controls">
-        <span className="chip puzzle__count">
-          🧩 {placedCount}/{total}
-        </span>
-        <button className="puzzle__pill puzzle__pill--go" onClick={() => reset()}>
-          🔄 New
-        </button>
-      </div>
-
       <div className="puzzle__board play-surface">
         <div className="puzzle__frame">
           {/* Faint full picture behind the slots as a guide. */}
@@ -190,9 +192,12 @@ export default function PuzzleAdventure() {
           <p>You built it! 🎉</p>
           <button
             className="btn btn--good"
-            onClick={() =>
-              reset((sceneIdx + 1) % SCENES.length, Math.min(levelIdx + 1, LEVELS.length - 1))
-            }
+            onClick={() => {
+              // Random next scene + a bigger level; persist the new difficulty.
+              const nextLevel = Math.min(levelIdx + 1, LEVELS.length - 1)
+              setGameLevel('puzzle', nextLevel)
+              reset(pickScene(sceneIdx), nextLevel)
+            }}
           >
             Next puzzle ➡️
           </button>

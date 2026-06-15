@@ -2,6 +2,7 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { tone, sfx } from '../../lib/audio.js'
 import { randInt } from '../../lib/random.js'
+import Countdown from '../../components/Countdown.jsx'
 import './simon.css'
 
 // Four pads, each with a friendly distinct note and color.
@@ -26,9 +27,9 @@ export default function ColorEcho() {
   const { earn, award, oops } = useGame()
   const [sequence, setSequence] = useState([]) // array of pad ids
   const [lit, setLit] = useState(null) // currently glowing pad id (playback or tap)
-  const [phase, setPhase] = useState('idle') // 'idle' | 'watch' | 'your-turn'
+  const [phase, setPhase] = useState('countdown') // 'countdown' | 'idle' | 'watch' | 'your-turn'
   const [step, setStep] = useState(0) // how many of the sequence the child has matched
-  const [message, setMessage] = useState('Tap ▶ to start!')
+  const [message, setMessage] = useState('Get ready to copy the colors! 🎵')
 
   const timers = useRef([])
   const seqRef = useRef([]) // latest sequence for callbacks
@@ -74,25 +75,16 @@ export default function ColorEcho() {
     [clearTimers],
   )
 
-  // Start a brand-new game from a single random pad.
-  function start() {
+  // Start a brand-new game from a single random pad (called when the
+  // 3·2·1·Go! countdown finishes).
+  const start = useCallback(() => {
     clearTimers()
     const first = [PADS[randInt(0, PADS.length - 1)].id]
     seqRef.current = first
     setSequence(first)
     sfx.tap()
     playback(first)
-  }
-
-  // Replay the current sequence (after a gentle oops, or via the button).
-  function watchAgain() {
-    if (seqRef.current.length === 0) {
-      start()
-      return
-    }
-    sfx.tap()
-    playback(seqRef.current)
-  }
+  }, [clearTimers, playback])
 
   // Grow the sequence by one and play it back.
   const grow = useCallback(
@@ -163,18 +155,10 @@ export default function ColorEcho() {
     }
   }
 
-  const round = Math.max(1, sequence.length)
   const watching = phase === 'watch'
 
   return (
     <div className="simon">
-      <div className="simon__hud">
-        <span className="chip simon__chip">🎵 Length {sequence.length}</span>
-        <span className="chip simon__chip">
-          {phase === 'your-turn' ? `Tap ${step + 1} / ${sequence.length}` : `Round ${round}`}
-        </span>
-      </div>
-
       <div className={`simon__board play-surface ${watching ? 'is-watching' : ''}`}>
         {PADS.map((p) => (
           <button
@@ -182,26 +166,16 @@ export default function ColorEcho() {
             className={`simon__pad ${lit === p.id ? 'is-lit' : ''}`}
             style={{ '--pad': p.color }}
             onPointerDown={() => tapPad(p.id)}
-            disabled={watching}
+            disabled={watching || phase === 'countdown'}
             aria-label={`${p.id} pad`}
           >
             <span className="simon__pad-emoji">{p.emoji}</span>
           </button>
         ))}
+        {phase === 'countdown' && <Countdown onDone={start} />}
       </div>
 
       <p className="simon__message">{message}</p>
-
-      <div className="simon__controls">
-        <button className="btn btn--good" onClick={watchAgain} disabled={watching}>
-          ▶ {sequence.length === 0 ? 'Start' : 'Watch again'}
-        </button>
-        {sequence.length > 0 && (
-          <button className="btn btn--ghost" onClick={start} disabled={watching}>
-            🔄 New
-          </button>
-        )}
-      </div>
     </div>
   )
 }

@@ -41,7 +41,7 @@ function serve(towardBottom) {
 export default function Pong() {
   const { earn, award, oops } = useGame()
 
-  const [score, setScore] = useState({ you: 0, cpu: 0 })
+  const [, setScore] = useState({ you: 0, cpu: 0 })
   const [done, setDone] = useState(null) // null | 'you' | 'cpu'
   const [, forceRender] = useState(0) // bump to repaint positions from refs
 
@@ -221,17 +221,6 @@ export default function Pong() {
 
   return (
     <div className="pong">
-      <div className="pong__hud">
-        <span className="chip">🤖 {score.cpu}</span>
-        <span className="chip pong__score">
-          {score.you} <span className="pong__dash">–</span> {score.cpu}
-        </span>
-        <span className="chip">🙂 {score.you}</span>
-        <button className="pong__pill pong__pill--go" onClick={newGame}>
-          🔄 New game
-        </button>
-      </div>
-
       <div
         ref={fieldRef}
         className="pong__field play-surface"

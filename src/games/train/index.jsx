@@ -1,5 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useProgress } from '../../state/progress.jsx'
 import { sfx, tone, noiseBurst } from '../../lib/audio.js'
 import { LEVELS, openingsOf, tracePath, generateLevel, key } from './rails.js'
 import './train.css'
@@ -58,8 +59,11 @@ function Loco({ color }) {
 
 export default function RailRoutes() {
   const { earn, award } = useGame()
-  const [levelIndex, setLevelIndex] = useState(0)
-  const [level, setLevel] = useState(() => generateLevel(LEVELS[0]))
+  const { getGameLevel, setGameLevel } = useProgress()
+  // Difficulty follows the child's history: start at the highest level reached.
+  const startIndex = Math.min(Math.max(getGameLevel('train'), 0), LEVELS.length - 1)
+  const [levelIndex, setLevelIndex] = useState(startIndex)
+  const [level, setLevel] = useState(() => generateLevel(LEVELS[startIndex]))
   const [running, setRunning] = useState(false)
   const [solved, setSolved] = useState(false)
   const [tick, setTick] = useState(0)
@@ -69,8 +73,10 @@ export default function RailRoutes() {
 
   function loadLevel(i) {
     clearInterval(timer.current)
-    const idx = Math.min(i, LEVELS.length - 1)
+    const idx = Math.min(Math.max(i, 0), LEVELS.length - 1)
     setLevelIndex(idx)
+    // Remember the highest level reached so the game resumes there next time.
+    setGameLevel('train', idx)
     setLevel(generateLevel(LEVELS[idx]))
     setRunning(false)
     setSolved(false)
@@ -147,6 +153,13 @@ export default function RailRoutes() {
     }, 260)
   }
 
+  // Auto-run the trains the instant the layout is fully connected.
+  // Guarded by running/solved so it fires exactly once per solve: once go()
+  // sets running (and then solved), the condition is false and it can't loop.
+  useEffect(() => {
+    if (connectedCount === level.trains.length && !running && !solved) go()
+  }, [connectedCount, running, solved, level])
+
   const hasNext = levelIndex < LEVELS.length - 1
 
   const trainPos = (k) => {
@@ -167,18 +180,6 @@ export default function RailRoutes() {
     <div className="train">
       <div className="train__hud">
         <span className="chip">🚂 Connect each train to its station! ({connectedCount}/{level.trains.length})</span>
-        <span className="train__levels">
-          {LEVELS.map((_, i) => (
-            <button
-              key={i}
-              className={`train__dot ${i === levelIndex ? 'is-on' : ''}`}
-              onClick={() => loadLevel(i)}
-              aria-label={`level ${i + 1}`}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </span>
       </div>
 
       <div
@@ -237,14 +238,9 @@ export default function RailRoutes() {
             </button>
           </div>
         ) : (
-          <>
-            <button className="btn btn--good train__go" onClick={go} disabled={running}>
-              {running ? '🚂 Going…' : 'GO! 🚂💨'}
-            </button>
-            <button className="btn btn--ghost" onClick={() => loadLevel(levelIndex)} disabled={running}>
-              🔄 New
-            </button>
-          </>
+          <button className="btn btn--ghost" onClick={() => loadLevel(levelIndex)} disabled={running}>
+            🔄 New
+          </button>
         )}
       </div>
     </div>

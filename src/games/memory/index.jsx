@@ -118,9 +118,6 @@ export default function MemoryMatch() {
               {s.label}
             </button>
           ))}
-          <button className="memory__pill memory__pill--go" onClick={() => newGame()}>
-            🔄 New
-          </button>
         </div>
       </div>
 

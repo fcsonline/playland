@@ -6,47 +6,6 @@
   flex: 1;
 }
 
-.mosaic__controls {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.mosaic__group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-  align-items: center;
-}
-.mosaic__pill {
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.7);
-  font-weight: 800;
-  font-size: 0.85rem;
-  color: var(--ink);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.08s ease;
-}
-.mosaic__pill:active {
-  transform: scale(0.92);
-}
-.mosaic__pill.is-on {
-  background: var(--white);
-  outline: 3px solid var(--primary);
-}
-.mosaic__pill--go {
-  background: var(--primary);
-  color: #fff;
-}
-.mosaic__pill--locked {
-  opacity: 0.7;
-  font-size: 0.78rem;
-}
-.mosaic__count {
-  font-size: 0.9rem;
-}
-
 /* Stage holds the reference thumbnail + the editable grid. */
 .mosaic__stage {
   flex: 1;

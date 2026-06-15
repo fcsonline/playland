@@ -6,30 +6,6 @@
   flex: 1;
 }
 
-.climber__hud {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  flex-wrap: wrap;
-}
-.climber__combo {
-  background: linear-gradient(180deg, #fff0c2, #ffd24d);
-  color: var(--ink);
-  font-weight: 900;
-}
-.climber__reset {
-  width: 44px;
-  height: 44px;
-  border-radius: 50%;
-  background: var(--white);
-  box-shadow: var(--shadow);
-  font-size: 1.2rem;
-}
-.climber__reset:active {
-  transform: scale(0.9);
-}
-
 /* The wall fills most of the height; the sky gradient brightens with level. */
 .climber__wall {
   flex: 1;

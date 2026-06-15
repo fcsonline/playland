@@ -35,16 +35,9 @@
   background: var(--white);
   outline: 3px solid var(--primary);
 }
-.sorting__pill--go {
-  background: var(--primary);
-  color: #fff;
-}
 .sorting__pill--locked {
   opacity: 0.7;
   font-size: 0.78rem;
-}
-.sorting__count {
-  font-size: 0.9rem;
 }
 
 /* Conveyor belt holding loose items. */

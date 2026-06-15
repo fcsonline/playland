@@ -30,7 +30,6 @@ export default function FlightPath() {
   const fieldRef = useRef(null)
   const [size, setSize] = useState({ w: 360, h: 420 })
   const [level, setLevel] = useState(1)
-  const [best, setBest] = useState(1)
   const [route, setRoute] = useState(null)
   const [progress, setProgress] = useState(0) // 0..1 along the route
   const [plane, setPlane] = useState({ x: 0, y: 0, angle: 0 })
@@ -213,14 +212,8 @@ export default function FlightPath() {
     // Stars scale with how curvy the level was; always a happy 1..3.
     const stars = Math.min(3, 1 + Math.floor((level - 1) / 2))
     award(stars, { count: 18 })
-    setBest((b) => Math.max(b, level + 1))
     // Guarded by wonRef (a ref, not a state dep) so the timer is never cancelled.
     later(() => setLevel((l) => l + 1), 1600)
-  }
-
-  function retry() {
-    clearTimers()
-    buildRoute(size.w, size.h, level)
   }
 
   const tol = tolRef.current
@@ -228,14 +221,6 @@ export default function FlightPath() {
 
   return (
     <div className="flight">
-      <div className="flight__hud">
-        <span className="chip">✈️ Level {level}</span>
-        <span className="chip">🏆 Best {Math.max(best, level)}</span>
-        <button className="flight__reset" onClick={retry} aria-label="restart level">
-          🔄
-        </button>
-      </div>
-
       <div
         ref={fieldRef}
         className={`flight__field play-surface ${status === 'win' ? 'is-win' : ''} ${

@@ -65,21 +65,9 @@ export default function SkyClimber() {
   const g = useRef(null)
   if (!g.current) g.current = freshGame()
   const [, setTick] = useState(0)
-  const rerender = () => setTick((t) => (t + 1) % 1000000)
 
-  const [height, setHeight] = useState(0)
-  const [combo, setCombo] = useState(0)
   const [flag, setFlag] = useState(null) // milestone label or null
   const flagTimer = useRef(0)
-
-  function reset() {
-    g.current = freshGame()
-    setHeight(0)
-    setCombo(0)
-    setFlag(null)
-    sfx.tap()
-    rerender()
-  }
 
   function climb() {
     const s = g.current
@@ -111,7 +99,6 @@ export default function SkyClimber() {
     if (now < s.comboUntil) s.combo = Math.min(9, s.combo + 1)
     else s.combo = 1
     s.comboUntil = now + 1300
-    setCombo(s.combo)
 
     cbs.current.earn(gained)
 
@@ -138,8 +125,6 @@ export default function SkyClimber() {
       sfx.win()
       cbs.current.award(3, { count: 26 })
     }
-
-    setHeight(h)
   }
 
   function popFlag(label) {
@@ -160,10 +145,9 @@ export default function SkyClimber() {
       if (s.progress < 1) {
         s.progress = Math.min(1, s.progress + dt / HOP_TIME)
       }
-      // Decay the combo display when it lapses.
+      // Decay the combo when it lapses.
       if (s.combo > 0 && now > s.comboUntil) {
         s.combo = 0
-        setCombo(0)
       }
 
       setTick((t) => (t + 1) % 1000000)
@@ -198,14 +182,6 @@ export default function SkyClimber() {
 
   return (
     <div className={`climber climber--sky${skyLevel}`}>
-      <div className="climber__hud">
-        <span className="chip">🧗 Height: {s.height}</span>
-        {combo >= 3 && <span className="chip climber__combo">🔥 Combo x{combo}</span>}
-        <button className="climber__reset" onClick={reset} aria-label="start over">
-          🔄
-        </button>
-      </div>
-
       {/* Tapping the whole wall climbs — the big, obvious action. */}
       <div
         className="climber__wall play-surface"

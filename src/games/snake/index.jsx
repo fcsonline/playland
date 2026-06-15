@@ -217,14 +217,6 @@ export default function Snake() {
 
   return (
     <div className="snake">
-      <div className="snake__hud">
-        <span className="chip">🐍 Eat the apples!</span>
-        <span className="chip snake__chip-score">🍎 {score}</span>
-        <button className="snake__pill snake__pill--go" onClick={playAgain}>
-          🔄 New
-        </button>
-      </div>
-
       <div
         ref={boardRef}
         className="snake__board play-surface"

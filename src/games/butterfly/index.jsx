@@ -15,14 +15,15 @@ import './butterfly.css'
 
 // Butterfly colors, made by hue-rotating the 🦋 emoji. `hue` is shared by the
 // flying bug and its matching goal chip so they're always the same color.
+// Hues are spread far apart (~60° steps) so each color is clearly distinct and
+// easy for a small child to tell apart at a glance.
 const COLORS = [
-  { id: 'blue', hue: 0 },
-  { id: 'pink', hue: 130 },
-  { id: 'purple', hue: 65 },
-  { id: 'green', hue: 280 },
-  { id: 'red', hue: 175 },
-  { id: 'gold', hue: 235 },
-  { id: 'teal', hue: 320 },
+  { id: 'blue', hue: 0 },     // base 🦋 is blue
+  { id: 'red', hue: 150 },    // blue → red
+  { id: 'orange', hue: 195 }, // blue → orange
+  { id: 'green', hue: 280 },  // blue → green
+  { id: 'purple', hue: 70 },  // blue → purple
+  { id: 'teal', hue: 320 },   // blue → teal
 ]
 const COLOR_BY_ID = Object.fromEntries(COLORS.map((c) => [c.id, c]))
 

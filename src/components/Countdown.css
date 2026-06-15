@@ -1,0 +1,41 @@
+.countdown {
+  position: absolute;
+  inset: 0;
+  z-index: 40;
+  display: grid;
+  place-items: center;
+  background: rgba(0, 0, 0, 0.16);
+  border-radius: inherit;
+  pointer-events: none;
+}
+.countdown__num {
+  font-family: var(--font);
+  font-weight: 900;
+  font-size: clamp(4rem, 26vw, 9rem);
+  color: #fff;
+  -webkit-text-stroke: 4px var(--primary);
+  paint-order: stroke fill;
+  filter: drop-shadow(0 8px 16px rgba(108, 92, 231, 0.45));
+  animation: countdown-pop 0.7s cubic-bezier(0.18, 1.5, 0.4, 1);
+}
+.countdown__num.is-go {
+  -webkit-text-stroke: 4px #2bd576;
+  filter: drop-shadow(0 8px 16px rgba(43, 213, 118, 0.5));
+}
+@keyframes countdown-pop {
+  0% {
+    transform: scale(0.3);
+    opacity: 0;
+  }
+  35% {
+    transform: scale(1.15);
+    opacity: 1;
+  }
+  55% {
+    transform: scale(1);
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

@@ -15,20 +15,6 @@
   align-items: center;
   flex: none;
 }
-.maze__newbtn {
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.92);
-  color: #444;
-  font-weight: 800;
-  font-size: 0.85rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
-  transition: transform 0.08s ease;
-}
-.maze__newbtn:active {
-  transform: scale(0.92);
-}
-
 .maze__wrap {
   flex: 1;
   min-height: 0;

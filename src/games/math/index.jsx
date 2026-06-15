@@ -112,11 +112,6 @@ export default function AddItUp() {
 
   return (
     <div className="math">
-      <div className="math__hud">
-        <span className="chip">⭐ Solved: {solved}</span>
-        <span className="chip">🧠 {tierLabel(solved)}</span>
-      </div>
-
       <div className={`math__stage play-surface ${justRight ? 'is-right' : ''}`}>
         <p className="math__prompt">{promptText}</p>
 
@@ -175,9 +170,4 @@ export default function AddItUp() {
       </div>
     </div>
   )
-}
-
-function tierLabel(solved) {
-  const t = tierFor(solved)
-  return t === 'count' ? 'Counting' : t === 'add5' ? 'Adding' : t === 'add10' ? 'Adding more' : 'Add & take away'
 }

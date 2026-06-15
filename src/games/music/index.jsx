@@ -99,7 +99,6 @@ export default function RhythmBand() {
   const [songIdx, setSongIdx] = useState(0)
   const [phase, setPhase] = useState('ready') // 'ready' | 'playing' | 'done'
   const [, setTick] = useState(0)
-  const [hud, setHud] = useState({ score: 0, combo: 0 })
   const [result, setResult] = useState({ stars: 0, score: 0, best: 0 })
 
   // Clean up the loop on unmount.
@@ -116,7 +115,6 @@ export default function RhythmBand() {
     // Song ends a beat after the last note's hit time.
     s.songLen = (s.notes.at(-1)?.hitTime ?? 0) + 900
     g.current = s
-    setHud({ score: 0, combo: 0 })
     setPhase('playing')
     sfx.tap()
     rafRef.current = requestAnimationFrame(loop)
@@ -161,7 +159,6 @@ export default function RhythmBand() {
     }
     if (missed && s.combo !== 0) {
       s.combo = 0
-      setHud({ score: s.score, combo: 0 })
     }
 
     if (s.elapsed >= s.songLen) {
@@ -204,7 +201,6 @@ export default function RhythmBand() {
         sfx.pop()
         if (s.score % 3 === 0) cbs.current.earn(1)
       }
-      setHud({ score: s.score, combo: s.combo })
     } else {
       // Empty tap — just a soft click, nothing bad happens.
       playLaneTone(lane)
@@ -226,16 +222,6 @@ export default function RhythmBand() {
 
   return (
     <div className="music">
-      <div className="music__hud">
-        <span className="chip">⭐ {hud.score}</span>
-        <span className={`chip music__combo ${hud.combo >= 3 ? 'is-hot' : ''}`}>
-          🔥 {hud.combo}
-        </span>
-        <span className="chip music__songname">
-          {song.emoji} {song.name}
-        </span>
-      </div>
-
       <div ref={fieldRef} className="music__field play-surface">
         <div className="music__lanes">
           {LANES.map((L, li) => (

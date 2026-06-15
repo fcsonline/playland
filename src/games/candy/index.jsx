@@ -21,7 +21,7 @@ export default function SweetMatch() {
   const [cells, setCells] = useState(() => makeBoard())
   const [selected, setSelected] = useState(null) // flat index or null
   const [clearing, setClearing] = useState(() => new Set()) // indices popping right now
-  const [score, setScore] = useState(0)
+  const [, setScore] = useState(0) // score still tracked for milestone rewards (not shown)
   const [busy, setBusy] = useState(false)
 
   // Track which milestone we've already celebrated so we don't re-award.
@@ -128,25 +128,8 @@ export default function SweetMatch() {
     }
   }
 
-  function newBoard() {
-    sfx.pop()
-    setCells(makeBoard())
-    setSelected(null)
-    setClearing(new Set())
-    setScore(0)
-    lastMilestone.current = 0
-    setBusy(false)
-  }
-
   return (
     <div className="candy">
-      <div className="candy__controls">
-        <span className="chip candy__score">🍭 Score: {score}</span>
-        <button className="candy__pill candy__pill--go" onClick={newBoard}>
-          🔄 New board
-        </button>
-      </div>
-
       <div
         className="candy__board play-surface"
         style={{ '--cols': COLS, '--rows': ROWS }}

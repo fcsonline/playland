@@ -1,10 +1,16 @@
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
-import { useProgress } from '../../state/progress.jsx'
 import { useDrag } from '../../lib/useDrag.js'
+import { pick } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
-import { PICTURES, COLORS, PALETTE, UNLOCK_AT } from './pictures.js'
+import { PICTURES, COLORS, PALETTE } from './pictures.js'
 import './mosaic.css'
+
+// Pick a random picture index, avoiding an immediate repeat of `avoid`.
+function randomPicIdx(avoid = -1) {
+  const choices = PICTURES.map((_, i) => i).filter((i) => i !== avoid)
+  return pick(choices.length ? choices : PICTURES.map((_, i) => i))
+}
 
 // All cells that need a color (non-empty in the reference).
 function targetCells(pic) {
@@ -19,13 +25,12 @@ function targetCells(pic) {
 
 export default function MosaicArt() {
   const { earn, award } = useGame()
-  const { unlock, isUnlocked } = useProgress()
 
-  const [picIdx, setPicIdx] = useState(0)
+  // Start on a random picture; the child never chooses.
+  const [picIdx, setPicIdx] = useState(() => randomPicIdx())
   const [color, setColor] = useState('r')
   const [painted, setPainted] = useState({}) // index -> color key
   const [done, setDone] = useState(false)
-  const [finishes, setFinishes] = useState(0)
 
   const gridRef = useRef(null)
   const lastCell = useRef(null) // avoid re-painting same cell repeatedly mid-drag
@@ -33,27 +38,11 @@ export default function MosaicArt() {
   const pic = PICTURES[picIdx]
   const targets = useMemo(() => targetCells(pic), [pic])
 
-  // Unlock larger mosaics as the child completes pictures.
-  useEffect(() => {
-    if (finishes >= UNLOCK_AT.smiley) unlock('mosaic:smiley')
-    if (finishes >= UNLOCK_AT.flower) unlock('mosaic:flower')
-  }, [finishes, unlock])
-
-  const availablePics = useMemo(
-    () =>
-      PICTURES.filter((p, i) => i < 2 || isUnlocked(`mosaic:${p.id}`)),
-    [isUnlocked, finishes], // eslint-disable-line react-hooks/exhaustive-deps
-  )
-
-  const matchedCount = useMemo(
-    () => targets.filter((i) => painted[i] === keyAt(pic, i)).length,
-    [painted, targets, pic],
-  )
-
-  function reset(nextIdx = picIdx) {
+  // Load a fresh random picture (no immediate repeat).
+  function nextPicture() {
     setPainted({})
     setDone(false)
-    setPicIdx(nextIdx)
+    setPicIdx((cur) => randomPicIdx(cur))
     lastCell.current = null
   }
 
@@ -74,10 +63,10 @@ export default function MosaicArt() {
         const allRight = targets.every((i) => (i === idx ? true : next[i] === keyAt(pic, i)))
         if (allRight) {
           setDone(true)
-          setFinishes((f) => f + 1)
           setTimeout(() => {
             sfx.win()
-            const stars = Math.min(3, 1 + Math.floor(picIdx))
+            // Bigger pictures earn a little more.
+            const stars = Math.min(3, 1 + Math.floor((pic.size - 7) / 1))
             award(stars, { count: 22 })
             earn(stars + 1)
           }, 250)
@@ -117,31 +106,6 @@ export default function MosaicArt() {
 
   return (
     <div className="mosaic">
-      <div className="mosaic__controls">
-        <div className="mosaic__group">
-          {availablePics.map((p) => (
-            <button
-              key={p.id}
-              className={`mosaic__pill ${p.id === pic.id ? 'is-on' : ''}`}
-              onClick={() => reset(PICTURES.indexOf(p))}
-            >
-              {p.label}
-            </button>
-          ))}
-          {availablePics.length < PICTURES.length && (
-            <span className="mosaic__pill mosaic__pill--locked">🔒 finish to unlock!</span>
-          )}
-        </div>
-        <div className="mosaic__group">
-          <span className="chip mosaic__count">
-            🎨 {matchedCount}/{targets.length}
-          </span>
-          <button className="mosaic__pill mosaic__pill--go" onClick={() => reset()}>
-            🔄 Clear
-          </button>
-        </div>
-      </div>
-
       <div className="mosaic__stage play-surface">
         {/* Reference thumbnail. */}
         <div className="mosaic__ref">
@@ -202,19 +166,9 @@ export default function MosaicArt() {
       {done && (
         <div className="mosaic__win">
           <p>Beautiful! 🎉</p>
-          {picIdx < PICTURES.length - 1 && isUnlocked(`mosaic:${PICTURES[picIdx + 1].id}`) ? (
-            <button className="btn btn--good" onClick={() => reset(picIdx + 1)}>
-              Next, bigger! ➡️
-            </button>
-          ) : picIdx < PICTURES.length - 1 ? (
-            <button className="btn btn--good" onClick={() => reset(picIdx + 1)}>
-              Next picture ➡️
-            </button>
-          ) : (
-            <button className="btn btn--good" onClick={() => reset()}>
-              Make it again
-            </button>
-          )}
+          <button className="btn btn--good" onClick={nextPicture}>
+            Next ➡️
+          </button>
         </div>
       )}
     </div>

@@ -33,11 +33,10 @@
 }
 .home__actions {
   display: flex;
+  justify-content: flex-end;
   align-items: center;
   gap: 10px;
-}
-.home__wallet {
-  font-size: 1.2rem;
+  margin-bottom: 10px;
 }
 
 /* The catalogue: a 5-wide grid. Cards keep their natural size and the page

@@ -20,10 +20,12 @@ import './slice.css'
  */
 
 const ROUND_MS = 35000
-const GRAVITY = 1500 // px/s^2 pulling fruit back down
+const GRAVITY = 1010 // px/s^2 pulling fruit back down (slowed ~18%: lower gravity
+// stretches the rise/fall time while keeping the apex inside the field, since
+// the launch velocity below is derived from GRAVITY so apex height is unchanged)
 const SLICE_RADIUS = 56 // how close the pointer must pass to slice a fruit
-const SPAWN_MIN = 0.55 // seconds between tosses (min/max)
-const SPAWN_MAX = 1.1
+const SPAWN_MIN = 0.65 // seconds between tosses (min/max) — slightly less frequent
+const SPAWN_MAX = 1.3
 const BOMB_CHANCE = 0.14
 const TRAIL_MAX = 14 // trail points kept
 
@@ -42,11 +44,12 @@ function makeToss(W, H) {
     emoji: isBomb ? '💣' : pick(FRUITS),
     x,
     y: H + 40, // start just below the field
-    vx: towardCenter * 220 + (Math.random() * 120 - 60),
-    // Upward velocity tuned so the apex lands inside the field height.
+    vx: towardCenter * 180 + (Math.random() * 100 - 50),
+    // Upward velocity tuned so the apex lands inside the field height. Derived
+    // from GRAVITY, so lowering GRAVITY slows the rise without raising the apex.
     vy: -(Math.sqrt(2 * GRAVITY * H * (0.62 + Math.random() * 0.28))),
     spin: Math.random() * 360,
-    vspin: (Math.random() * 2 - 1) * 320,
+    vspin: (Math.random() * 2 - 1) * 262,
     sliced: false,
   }
 }

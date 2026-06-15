@@ -6,36 +6,6 @@
   flex: 1;
 }
 
-.pong__hud {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-  align-items: center;
-}
-.pong__score {
-  background: rgba(255, 255, 255, 0.85);
-  font-size: 1rem;
-  font-weight: 900;
-  letter-spacing: 1px;
-}
-.pong__dash {
-  opacity: 0.6;
-}
-.pong__pill--go {
-  padding: 8px 14px;
-  border-radius: 999px;
-  background: var(--primary);
-  color: #fff;
-  font-weight: 800;
-  font-size: 0.85rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
-  transition: transform 0.08s ease;
-}
-.pong__pill--go:active {
-  transform: scale(0.92);
-}
-
 .pong__field {
   flex: 1;
   position: relative;

@@ -1,7 +1,8 @@
-import { useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { pick, randInt } from '../../lib/random.js'
 import { sfx, tone } from '../../lib/audio.js'
+import Countdown from '../../components/Countdown.jsx'
 import './whack.css'
 
 /**
@@ -41,6 +42,9 @@ export default function MolePop() {
   const [score, setScore] = useState(0)
   const [running, setRunning] = useState(false)
   const [remaining, setRemaining] = useState(ROUND_MS)
+  // While true, the 3·2·1·Go! overlay is shown; when it finishes it starts the
+  // round. Begins true so the game auto-starts on mount.
+  const [countingDown, setCountingDown] = useState(true)
 
   // Refs let the timers read live values without re-subscribing each render.
   const holesRef = useRef(holes)
@@ -54,6 +58,7 @@ export default function MolePop() {
   const duckTimers = useRef({}) // hole index -> timeout that ducks that mole
   const endAtRef = useRef(0) // wall-clock time the round ends
   const countdownRef = useRef(null)
+  const countdownDoneRef = useRef(false) // guards onCountdownDone double-fire
 
   function clearAllTimers() {
     if (popTimer.current) clearTimeout(popTimer.current)
@@ -123,6 +128,27 @@ export default function MolePop() {
     // First pop shortly after start.
     popTimer.current = setTimeout(popOne, 500)
   }
+
+  // Show the 3·2·1·Go! overlay, then start the round. Used on mount and when
+  // the player taps "Play again".
+  const beginCountdown = useCallback(() => {
+    clearAllTimers()
+    runningRef.current = false
+    setRunning(false)
+    setHoles(Array(HOLES).fill(null))
+    setScore(0)
+    setRemaining(ROUND_MS)
+    countdownDoneRef.current = false
+    setCountingDown(true)
+  }, [])
+
+  // Countdown.onDone — guarded so a single countdown can only start one round.
+  const onCountdownDone = useCallback(() => {
+    if (countdownDoneRef.current) return
+    countdownDoneRef.current = true
+    setCountingDown(false)
+    startRound()
+  }, [])
 
   function endRound() {
     if (!runningRef.current) return
@@ -204,16 +230,10 @@ export default function MolePop() {
   // Tidy up everything if the player leaves mid-round.
   useEffect(() => clearAllTimers, [])
 
-  const seconds = Math.ceil(remaining / 1000)
   const pct = (remaining / ROUND_MS) * 100
 
   return (
     <div className="whack">
-      <div className="whack__hud">
-        <span className="chip whack__score">🔨 {score}</span>
-        <span className="chip whack__time">⏱️ {seconds}s</span>
-      </div>
-
       <div className="whack__timerbar" aria-hidden="true">
         <div className="whack__timerfill" style={{ width: `${pct}%` }} />
       </div>
@@ -252,24 +272,14 @@ export default function MolePop() {
           ))}
         </div>
 
-        {!running && (
+        {countingDown && <Countdown onDone={onCountdownDone} />}
+
+        {!running && !countingDown && remaining === 0 && (
           <div className="whack__overlay">
-            {remaining === 0 ? (
-              <>
-                <p className="whack__big">Time! You bonked {score} 🔨</p>
-                <button className="btn btn--good" onClick={startRound}>
-                  Play again
-                </button>
-              </>
-            ) : (
-              <>
-                <p className="whack__big">Bonk the moles! 🐹</p>
-                <p className="whack__sub">Gold 🌟 is worth more. Skip the 💣!</p>
-                <button className="btn btn--good" onClick={startRound}>
-                  Start ▶
-                </button>
-              </>
-            )}
+            <p className="whack__big">Time! You bonked {score} 🔨</p>
+            <button className="btn btn--good" onClick={beginCountdown}>
+              Play again
+            </button>
           </div>
         )}
       </div>

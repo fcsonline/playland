@@ -6,20 +6,6 @@
   flex: 1;
 }
 
-/* ---- HUD chips ---- */
-.ttt__hud {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.ttt__chip {
-  background: rgba(255, 255, 255, 0.9);
-  font-weight: 800;
-  font-size: 1rem;
-}
-
 /* ---- Status line ---- */
 .ttt__status {
   text-align: center;
@@ -129,19 +115,6 @@
   border-radius: 999px;
   box-shadow: var(--shadow);
   text-align: center;
-}
-
-/* ---- Action bar ---- */
-.ttt__bar {
-  display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12px;
-  flex-wrap: wrap;
-}
-.ttt__bar .btn {
-  padding: 12px 28px;
-  font-size: 1.05rem;
 }
 
 /* Landscape phones: keep the whole board on screen. */

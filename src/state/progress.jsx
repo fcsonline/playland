@@ -18,7 +18,7 @@ const STORAGE_KEY = 'kids-playland.save.v1'
 
 const ProgressContext = createContext(null)
 
-const emptySave = () => ({ wallet: 0, lifetime: 0, mastery: {}, unlocks: {} })
+const emptySave = () => ({ wallet: 0, lifetime: 0, mastery: {}, unlocks: {}, gameLevel: {} })
 
 function loadSave() {
   try {
@@ -30,6 +30,7 @@ function loadSave() {
       lifetime: Number(parsed.lifetime) || 0,
       mastery: parsed.mastery && typeof parsed.mastery === 'object' ? parsed.mastery : {},
       unlocks: parsed.unlocks && typeof parsed.unlocks === 'object' ? parsed.unlocks : {},
+      gameLevel: parsed.gameLevel && typeof parsed.gameLevel === 'object' ? parsed.gameLevel : {},
     }
   } catch {
     return emptySave()
@@ -81,6 +82,18 @@ export function ProgressProvider({ children }) {
     setSave((s) => (s.unlocks[key] ? s : { ...s, unlocks: { ...s.unlocks, [key]: true } }))
   }, [])
 
+  // Remember the highest difficulty level a child has reached in a game, so it
+  // starts there next time (difficulty follows their history — they never pick).
+  const setGameLevel = useCallback((gameId, level) => {
+    const n = Math.max(0, Math.round(level))
+    setSave((s) => {
+      if ((s.gameLevel[gameId] || 0) >= n) return s
+      return { ...s, gameLevel: { ...s.gameLevel, [gameId]: n } }
+    })
+  }, [])
+
+  const getGameLevel = useCallback((gameId) => saveRef.current.gameLevel[gameId] || 0, [])
+
   const isUnlocked = useCallback((key) => !!saveRef.current.unlocks[key], [])
 
   const resetAll = useCallback(() => setSave(emptySave()), [])
@@ -91,14 +104,17 @@ export function ProgressProvider({ children }) {
       lifetime: save.lifetime,
       mastery: save.mastery,
       unlocks: save.unlocks,
+      gameLevel: save.gameLevel,
       earn,
       spend,
       recordMastery,
       unlock,
       isUnlocked,
+      setGameLevel,
+      getGameLevel,
       resetAll,
     }),
-    [save, earn, spend, recordMastery, unlock, isUnlocked, resetAll],
+    [save, earn, spend, recordMastery, unlock, isUnlocked, setGameLevel, getGameLevel, resetAll],
   )
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>

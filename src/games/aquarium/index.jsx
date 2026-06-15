@@ -253,7 +253,6 @@ export default function HungryFish() {
   return (
     <div className="aquarium">
       <div className="aquarium__hud">
-        <span className="chip aquarium__chip">🐟 Round {round}</span>
         <span className="chip aquarium__chip">
           {held ? <>Holding {held} — tap a hungry fish!</> : 'Pick a food below 👇'}
         </span>

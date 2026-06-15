@@ -6,43 +6,6 @@
   flex: 1;
 }
 
-.racing__hud {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-  flex-wrap: wrap;
-}
-.racing__run {
-  font-size: 1rem;
-}
-.racing__garage {
-  display: flex;
-  gap: 6px;
-}
-.racing__veh {
-  width: 44px;
-  height: 44px;
-  border-radius: 12px;
-  font-size: 1.4rem;
-  background: rgba(255, 255, 255, 0.7);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
-  display: grid;
-  place-items: center;
-  transition: transform 0.08s ease;
-}
-.racing__veh:active {
-  transform: scale(0.9);
-}
-.racing__veh.is-on {
-  background: #fff;
-  outline: 3px solid var(--primary);
-}
-.racing__veh.is-locked {
-  opacity: 0.55;
-  cursor: default;
-}
-
 .racing__road {
   flex: 1;
   position: relative;

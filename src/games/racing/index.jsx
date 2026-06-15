@@ -9,7 +9,8 @@ import './racing.css'
  * Star Racing — a friendly endless lane racer.
  * The road scrolls down past 3 lanes; tap left/right to hop lanes and scoop up
  * stars and coins. Mud just slows the scroll for a moment — there is no crash
- * and no game over. Collect to unlock new vehicles you can switch between.
+ * and no game over. Collect to unlock new vehicles — the newest unlocked one
+ * is driven automatically; the child never picks.
  */
 
 const LANES = 3
@@ -49,23 +50,24 @@ const CAR_Y = 0.84 // car sits near the bottom (normalized)
 
 export default function StarRacing() {
   const { earn, award } = useGame()
-  const { unlock, isUnlocked } = useProgress()
+  const { unlock, isUnlocked, unlocks } = useProgress()
   const roadRef = useRef(null)
 
-  const vehicles = useMemo(
-    () => VEHICLES.filter((v) => v.unlockAt === 0 || isUnlocked(`racing_${v.id}`)),
-    [isUnlocked],
-  )
+  // The child never picks a vehicle — always drive the highest unlocked one
+  // (falling back to the starter car). Recomputes whenever unlocks change.
+  const vehicle = useMemo(() => {
+    const owned = VEHICLES.filter((v) => v.unlockAt === 0 || isUnlocked(`racing_${v.id}`))
+    return owned[owned.length - 1] || VEHICLES[0]
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [unlocks, isUnlocked])
 
-  const [vehicle, setVehicle] = useState(VEHICLES[0])
   const [lane, setLane] = useState(1)
   const laneRef = useRef(lane)
   laneRef.current = lane
 
   const [items, setItems] = useState([])
-  const [runStars, setRunStars] = useState(0)
   // Lifetime-this-session count, kept in a ref because only the unlock/milestone
-  // logic reads it (the visible counter uses runStars).
+  // logic reads it.
   const totalRef = useRef(0)
 
   // Mud slowdown timer (seconds remaining of "slow").
@@ -88,7 +90,6 @@ export default function StarRacing() {
       const x = rect.left + laneW * (laneRef.current + 0.5)
       const y = rect.top + rect.height * CAR_Y
       earn(item.value, { x, y, emoji: item.emoji })
-      setRunStars((s) => s + item.value)
 
       const t = totalRef.current + item.value
       totalRef.current = t
@@ -164,26 +165,6 @@ export default function StarRacing() {
 
   return (
     <div className="racing">
-      <div className="racing__hud">
-        <span className="racing__run chip">⭐ This run: {runStars}</span>
-        <div className="racing__garage" aria-label="choose vehicle">
-          {VEHICLES.map((v) => {
-            const owned = vehicles.some((u) => u.id === v.id)
-            return (
-              <button
-                key={v.id}
-                className={`racing__veh ${vehicle.id === v.id ? 'is-on' : ''} ${owned ? '' : 'is-locked'}`}
-                disabled={!owned}
-                onClick={() => owned && setVehicle(v)}
-                aria-label={owned ? v.name : 'locked vehicle'}
-              >
-                {owned ? v.emoji : '🔒'}
-              </button>
-            )
-          })}
-        </div>
-      </div>
-
       <div
         className={`racing__road play-surface ${boost ? 'is-slow' : ''}`}
         ref={roadRef}

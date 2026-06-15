@@ -169,8 +169,16 @@ export default function FlightPath() {
     // Ride the plane along the nearest point on the route, rotated to the tangent.
     setPlane({ x: hit.x, y: hit.y, angle: hit.angle })
 
-    // Reached the end within tolerance → win.
-    if (hit.index >= lastIndex - 0.6 && progressRef.current > 0.92) {
+    // Reached the landing pad → win. Forgiving so it never gets "stuck" just shy
+    // of the end: win if the nearest point is at the tail of the route OR the
+    // finger is near the pad, as long as most of the route has been traced.
+    const dxe = p.x - r.end.x
+    const dye = p.y - r.end.y
+    const distEnd = Math.sqrt(dxe * dxe + dye * dye)
+    if (
+      progressRef.current > 0.85 &&
+      (hit.index >= lastIndex - 1.2 || distEnd <= tolRef.current + 18)
+    ) {
       win()
     }
   }

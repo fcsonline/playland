@@ -47,6 +47,7 @@ export default function DinoRun() {
   if (!g.current) g.current = freshGame()
   const [, setTick] = useState(0)
   const [stars, setStars] = useState(0)
+  const [hurt, setHurt] = useState(0) // bumps on each cactus hit to flash red
 
   function jump() {
     const s = g.current
@@ -124,6 +125,7 @@ export default function DinoRun() {
           o.hit = true
           s.stumble = 0.5
           sfx.tap()
+          setHurt((h) => h + 1) // flash the field red
         }
         if (!o.scored && o.x + OBS_W < DINO_X) {
           o.scored = true
@@ -228,6 +230,8 @@ export default function DinoRun() {
         >
           🦖
         </span>
+
+        {hurt > 0 && <div key={hurt} className="dino__hurt" aria-hidden="true">💥</div>}
 
         <div className="dino__ground" aria-hidden="true" />
       </div>

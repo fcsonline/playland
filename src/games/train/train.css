@@ -117,24 +117,18 @@
 .train__loco {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: calc(82% / var(--cols));
-  height: calc(82% / var(--rows));
-  background: var(--tc);
-  border-radius: 26% 26% 30% 30% / 34%;
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.28), inset 0 -4px 0 rgba(0, 0, 0, 0.18);
+  width: calc(94% / var(--cols));
+  height: calc(86% / var(--rows));
   transition: left 0.24s linear, top 0.24s linear;
   z-index: 3;
   pointer-events: none;
+  display: grid;
+  place-items: center;
 }
-.train__loco-win {
-  position: absolute;
-  top: 20%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 52%;
-  height: 38%;
-  border-radius: 30%;
-  background: rgba(255, 255, 255, 0.92);
+.train__loco-svg {
+  width: 100%;
+  height: 100%;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
 }
 
 .train__footer {

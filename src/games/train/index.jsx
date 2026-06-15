@@ -32,6 +32,30 @@ function RailShape({ type, rot, color }) {
   )
 }
 
+/** A little side-view steam locomotive, painted in the train's color. */
+function Loco({ color }) {
+  return (
+    <svg className="train__loco-svg" viewBox="0 0 64 50" aria-hidden="true">
+      {/* wheels */}
+      <circle cx="20" cy="42" r="6.5" fill="#2b2b35" />
+      <circle cx="44" cy="42" r="6.5" fill="#2b2b35" />
+      <circle cx="20" cy="42" r="2.6" fill="#cfd6df" />
+      <circle cx="44" cy="42" r="2.6" fill="#cfd6df" />
+      {/* body + cab */}
+      <rect x="5" y="20" width="54" height="20" rx="5" fill={color} />
+      <rect x="35" y="7" width="21" height="20" rx="4" fill={color} />
+      {/* cab window */}
+      <rect x="40" y="11" width="11" height="9.5" rx="2" fill="#ffffff" opacity="0.95" />
+      {/* funnel + steam puff */}
+      <rect x="8" y="6" width="16" height="5" rx="2.5" fill="#2b2b35" />
+      <rect x="12" y="8" width="9" height="14" rx="2" fill="#2b2b35" />
+      <circle cx="16.5" cy="2.5" r="3" fill="#ffffff" opacity="0.85" />
+      {/* headlight */}
+      <circle cx="9" cy="30" r="3.2" fill="#ffe27a" />
+    </svg>
+  )
+}
+
 export default function RailRoutes() {
   const { earn, award } = useGame()
   const [levelIndex, setLevelIndex] = useState(0)
@@ -195,11 +219,10 @@ export default function RailRoutes() {
               style={{
                 left: `${((pos.c + 0.5) / level.cols) * 100}%`,
                 top: `${((pos.r + 0.5) / level.rows) * 100}%`,
-                '--tc': t.color,
               }}
               aria-hidden="true"
             >
-              <span className="train__loco-win" />
+              <Loco color={t.color} />
             </span>
           )
         })}

@@ -1,5 +1,6 @@
 import { createElement, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { pick } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import { DRAWINGS, PALETTE, STICKERS } from './drawings.js'
 import './coloring.css'
@@ -8,7 +9,7 @@ let stickerId = 0
 
 export default function ColoringStudio() {
   const { earn, award } = useGame()
-  const [drawing, setDrawing] = useState(DRAWINGS[0])
+  const [drawing, setDrawing] = useState(() => pick(DRAWINGS))
   const [color, setColor] = useState(PALETTE[0])
   const [tool, setTool] = useState('fill') // 'fill' | sticker emoji
   const [fills, setFills] = useState({})
@@ -21,6 +22,15 @@ export default function ColoringStudio() {
     setFills({})
     setStickers([])
     setAwarded(false)
+  }
+
+  // Jump to a different random picture — the child never picks from a list.
+  function newDrawing() {
+    let d = pick(DRAWINGS)
+    if (DRAWINGS.length > 1) {
+      while (d.id === drawing.id) d = pick(DRAWINGS)
+    }
+    switchDrawing(d)
   }
 
   function paint(regionId) {
@@ -59,15 +69,10 @@ export default function ColoringStudio() {
   return (
     <div className="coloring">
       <div className="coloring__drawings">
-        {DRAWINGS.map((d) => (
-          <button
-            key={d.id}
-            className={`coloring__thumb ${d.id === drawing.id ? 'is-on' : ''}`}
-            onClick={() => switchDrawing(d)}
-          >
-            {d.label}
-          </button>
-        ))}
+        <span className="chip coloring__title">{drawing.label}</span>
+        <button className="coloring__thumb coloring__thumb--go" onClick={newDrawing}>
+          🎲 New picture
+        </button>
         <button className="coloring__thumb" onClick={() => switchDrawing(drawing)}>
           🧽 Clear
         </button>

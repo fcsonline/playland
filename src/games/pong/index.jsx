@@ -13,18 +13,18 @@ import './pong.css'
 const WIN = 3 // short game so the win comes quickly
 
 // Geometry (fractions of the field).
-const PADDLE_W = 0.5 // VERY wide player paddle — covers half the field
-const CPU_W = 0.22 // narrower CPU paddle so the ball slips past it
+const PADDLE_W = 0.62 // HUGE player paddle — covers most of the field
+const CPU_W = 0.16 // skinny CPU paddle so the ball slips past it easily
 const PADDLE_H = 0.026
 const PADDLE_INSET = 0.04 // distance of each paddle from its wall
 const BALL_R = 0.03
 const HALF_PW = PADDLE_W / 2 // player half-width
 const HALF_CW = CPU_W / 2 // cpu half-width
 
-// Speeds (per second). Deliberately slow and gentle.
-const BALL_SPEED = 0.34 // total speed magnitude — slow enough to track easily
-const CPU_SPEED = 0.16 // low capped tracking speed → easily out-run
-const CPU_LAG = 0.78 // CPU eases toward a point that lags behind the ball
+// Speeds (per second). Deliberately slow and gentle — even easier now.
+const BALL_SPEED = 0.27 // total speed magnitude — slow enough to track easily
+const CPU_SPEED = 0.085 // very low capped tracking speed → easily out-run
+const CPU_LAG = 0.5 // CPU eases toward a point that lags well behind the ball
 
 function serve(towardBottom) {
   // Mostly vertical, with a gentle sideways drift.

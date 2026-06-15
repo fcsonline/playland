@@ -103,25 +103,13 @@ export default function PuzzleAdventure() {
   return (
     <div className="puzzle">
       <div className="puzzle__controls">
-        <div className="puzzle__group">
-          {SCENES.map((s, i) => (
-            <button
-              key={s.id}
-              className={`puzzle__pill ${i === sceneIdx ? 'is-on' : ''}`}
-              onClick={() => reset(i, levelIdx)}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-        <div className="puzzle__group">
-          <span className="chip puzzle__count">
-            🧩 {placedCount}/{total}
-          </span>
-          <button className="puzzle__pill puzzle__pill--go" onClick={() => reset()}>
-            🔄 New
-          </button>
-        </div>
+        <span className="chip puzzle__scene">{scene.label}</span>
+        <span className="chip puzzle__count">
+          🧩 {placedCount}/{total}
+        </span>
+        <button className="puzzle__pill puzzle__pill--go" onClick={() => reset()}>
+          🔄 New
+        </button>
       </div>
 
       <div className="puzzle__board play-surface">
@@ -201,15 +189,14 @@ export default function PuzzleAdventure() {
       {done && (
         <div className="puzzle__win">
           <p>You built it! 🎉</p>
-          {levelIdx < LEVELS.length - 1 ? (
-            <button className="btn btn--good" onClick={() => reset(sceneIdx, levelIdx + 1)}>
-              Next, bigger! ➡️
-            </button>
-          ) : (
-            <button className="btn btn--good" onClick={() => reset()}>
-              Play again
-            </button>
-          )}
+          <button
+            className="btn btn--good"
+            onClick={() =>
+              reset((sceneIdx + 1) % SCENES.length, Math.min(levelIdx + 1, LEVELS.length - 1))
+            }
+          >
+            Next puzzle ➡️
+          </button>
         </div>
       )}
     </div>

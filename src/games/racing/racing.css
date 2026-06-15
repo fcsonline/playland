@@ -102,7 +102,8 @@
 
 .racing__car {
   position: absolute;
-  transform: translate(-50%, -50%);
+  /* Car emoji face left by default — rotate so it points UP the road. */
+  transform: translate(-50%, -50%) rotate(90deg);
   font-size: 3rem;
   line-height: 1;
   pointer-events: none;

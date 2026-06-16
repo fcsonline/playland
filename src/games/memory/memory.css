@@ -6,47 +6,22 @@
   flex: 1;
 }
 
-.memory__controls {
-  display: flex;
-  flex-direction: column;
-  gap: 8px;
-}
-.memory__group {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-}
-.memory__pill {
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.65);
-  font-weight: 800;
-  font-size: 0.85rem;
-  color: var(--ink);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-  transition: transform 0.08s ease;
-}
-.memory__pill:active {
-  transform: scale(0.92);
-}
-.memory__pill.is-on {
-  background: var(--white);
-  outline: 3px solid var(--primary);
-}
-
+/* The board is a centered, perfectly-tiled grid: fixed 1fr tracks inside a
+   width capped to the column count keep every card the same size and snugly
+   aligned, and the block is centered both ways inside the play surface. */
 .memory__board {
   flex: 1;
   display: grid;
   grid-template-columns: repeat(var(--cols, 4), 1fr);
-  gap: 10px;
-  align-content: center;
-  justify-items: center;
+  gap: clamp(8px, 2.4vw, 14px);
+  width: 100%;
+  max-width: calc(var(--cols, 4) * 116px);
+  margin: 0 auto;
+  place-content: center;
 }
 
 .mcard {
   width: 100%;
-  max-width: 110px;
   aspect-ratio: 3 / 4;
   perspective: 600px;
   background: none;
@@ -70,7 +45,7 @@
   place-items: center;
   border-radius: 16px;
   backface-visibility: hidden;
-  font-size: clamp(1.8rem, 9vw, 2.8rem);
+  font-size: clamp(1.6rem, 8vw, 2.8rem);
   box-shadow: 0 6px 14px rgba(0, 0, 0, 0.12);
 }
 .mcard__back {
@@ -97,26 +72,26 @@
   display: flex;
   flex-direction: column;
   align-items: center;
-  gap: 8px;
+  gap: 4px;
 }
 .memory__win p {
   margin: 0;
   text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
 }
+.memory__next {
+  font-size: 0.95rem;
+  opacity: 0.9;
+}
 
-/* Landscape phones: wide & short — pack cards into more columns and shrink them
-   so every card stays on screen without scrolling. */
+/* Landscape phones are wide & short — cap the board by height so every card
+   stays on screen, still as a tidy centered grid. */
 @media (orientation: landscape) and (max-height: 600px) {
   .memory {
     gap: 8px;
   }
   .memory__board {
-    grid-template-columns: repeat(auto-fit, minmax(46px, 64px));
-    justify-content: center;
+    max-width: calc(var(--cols, 4) * 76px);
     gap: 6px;
-  }
-  .mcard {
-    max-width: 64px;
   }
   .mcard__back,
   .mcard__front {

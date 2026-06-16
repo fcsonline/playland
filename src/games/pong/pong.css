@@ -1,7 +1,7 @@
 .pong {
   display: flex;
   flex-direction: column;
-  gap: 10px;
+  gap: 6px;
   min-height: 0;
   flex: 1;
 }
@@ -10,9 +10,12 @@
   flex: 1;
   position: relative;
   width: 100%;
-  max-width: min(100%, 60vh);
+  /* Use nearly all the width — only cap on unusually tall/narrow screens so the
+     playfield stays generous instead of sitting in a thin centered column. */
+  max-width: min(100%, 96vh);
   margin: 0 auto;
   align-self: center;
+  padding: 0;
   background: linear-gradient(180deg, #b3e0ff 0%, #d9f3ff 50%, #c7ecd6 100%);
   overflow: hidden;
   touch-action: none;
@@ -80,14 +83,14 @@
 .pong__pad {
   display: flex;
   justify-content: center;
-  gap: 16px;
+  gap: 12px;
 }
 .pong__arrow {
-  width: 72px;
-  height: 56px;
-  border-radius: 18px;
+  width: 76px;
+  height: 44px;
+  border-radius: 14px;
   background: rgba(255, 255, 255, 0.9);
-  font-size: 1.6rem;
+  font-size: 1.4rem;
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
   transition: transform 0.08s ease;
 }
@@ -98,7 +101,7 @@
 .pong__hint {
   margin: 0;
   text-align: center;
-  font-size: 0.8rem;
+  font-size: 0.75rem;
   font-weight: 700;
   color: var(--white);
   text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);

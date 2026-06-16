@@ -65,14 +65,25 @@
 
 .racing__car {
   position: absolute;
-  /* Car emoji face left by default — rotate so it points UP the road. */
-  transform: translate(-50%, -50%) rotate(90deg);
-  font-size: 3rem;
-  line-height: 1;
+  transform: translate(-50%, -50%);
+  width: clamp(46px, 14vw, 66px);
   pointer-events: none;
   transition: left 0.16s cubic-bezier(0.3, 1.5, 0.5, 1);
-  filter: drop-shadow(0 5px 6px rgba(0, 0, 0, 0.4));
+  filter: drop-shadow(0 5px 7px rgba(0, 0, 0, 0.45));
   z-index: 2;
+}
+.racing__carart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+.racing__flames {
+  transform-origin: 30px 100px;
+  animation: racing-flames 0.18s steps(2) infinite;
+}
+@keyframes racing-flames {
+  0% { transform: scaleY(1); opacity: 0.95; }
+  100% { transform: scaleY(0.7); opacity: 0.75; }
 }
 
 .racing__arrow {

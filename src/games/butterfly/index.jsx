@@ -15,17 +15,23 @@ import './butterfly.css'
 
 // Butterfly colors, made by hue-rotating the 🦋 emoji. `hue` is shared by the
 // flying bug and its matching goal chip so they're always the same color.
-// Hues are spread far apart (~60° steps) so each color is clearly distinct and
-// easy for a small child to tell apart at a glance.
+// The first three are a full 120° apart (maximally distinct) and the rest fill
+// the gaps at 60°, so even at higher levels no two colors look alike. A strong
+// saturation/contrast boost makes each one vivid instead of washed-out, which is
+// what made them hard to tell apart before.
 const COLORS = [
-  { id: 'blue', hue: 0 },     // base 🦋 is blue
-  { id: 'red', hue: 150 },    // blue → red
-  { id: 'orange', hue: 195 }, // blue → orange
-  { id: 'green', hue: 280 },  // blue → green
-  { id: 'purple', hue: 70 },  // blue → purple
-  { id: 'teal', hue: 320 },   // blue → teal
+  { id: 'blue', hue: 0 },      // base 🦋 is blue
+  { id: 'green', hue: 120 },   // blue → green
+  { id: 'magenta', hue: 240 }, // blue → magenta/pink
+  { id: 'gold', hue: 60 },     // blue → gold/yellow
+  { id: 'purple', hue: 300 },  // blue → purple
+  { id: 'red', hue: 180 },     // blue → warm red/orange
 ]
 const COLOR_BY_ID = Object.fromEntries(COLORS.map((c) => [c.id, c]))
+
+// Filter applied to a 🦋 to tint it: the saturation/contrast boost is the key to
+// keeping the colors crisp and clearly different from one another.
+const bugFilter = (hue) => `hue-rotate(${hue}deg) saturate(1.9) contrast(1.06)`
 
 const PATTERNS = ['drift', 'zigzag', 'circle', 'bob']
 const NUM_BUGS = 6
@@ -186,7 +192,7 @@ export default function ButterflyCatcher() {
               <span key={it.colorId} className={`butterfly__goalitem ${done ? 'is-done' : ''}`}>
                 <span
                   className="butterfly__goalbug"
-                  style={{ filter: `hue-rotate(${color.hue}deg)` }}
+                  style={{ filter: bugFilter(color.hue) }}
                   aria-hidden="true"
                 >
                   🦋
@@ -210,7 +216,7 @@ export default function ButterflyCatcher() {
             style={{
               left: `${b.x * 100}%`,
               top: `${b.y * 100}%`,
-              filter: `hue-rotate(${b.color.hue}deg)`,
+              filter: bugFilter(b.color.hue),
             }}
             onPointerDown={(e) => {
               e.preventDefault()

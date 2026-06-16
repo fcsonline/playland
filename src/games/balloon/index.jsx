@@ -19,10 +19,13 @@ const GROW_RATE = 18 // size units per second while held (0..100 scale)
 const COLORS = ['#ff6b6b', '#ffa94d', '#69db7c', '#4dabf7', '#b197fc', '#f783ac']
 
 // Each balloon: a target size, a green zone around it, and a pop point above.
+// `low` (where the green zone starts) is kept at ~30% of the pop point so the
+// "too small" wrong zone at the bottom of the gauge is short — the green band
+// fills most of the gauge and is reached quickly.
 function makeBalloon() {
   const target = randInt(54, 78)
   const popAt = target + randInt(18, 26)
-  return { target, popAt, low: target - 24 }
+  return { target, popAt, low: Math.round(popAt * 0.3) }
 }
 
 const scaleFor = (v) => 0.4 + (Math.min(100, v) / 100) * 1.05

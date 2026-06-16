@@ -55,9 +55,9 @@ function makeToss(W, H) {
 }
 
 export default function FruitSlash() {
-  const { earn, award } = useGame()
-  const cbs = useRef({ earn, award })
-  cbs.current = { earn, award }
+  const { earn, award, oops } = useGame()
+  const cbs = useRef({ earn, award, oops })
+  cbs.current = { earn, award, oops }
 
   const fieldRef = useRef(null)
   const sim = useRef({
@@ -127,15 +127,17 @@ export default function FruitSlash() {
         o.sliced = true
         if (o.bomb) {
           bombHit = true
-          // Gentle oops: shake the field, no points, no game over.
+          // Loud, obvious "wrong": shake the field, flash it red, fire the big
+          // ✕ overlay — but still no points lost and no game over.
           const field = fieldRef.current
           if (field) {
-            field.classList.remove('is-shake')
-            // force reflow so the animation can retrigger
+            field.classList.remove('is-shake', 'is-boom')
+            // force reflow so the animations can retrigger
             void field.offsetWidth
-            field.classList.add('is-shake')
+            field.classList.add('is-shake', 'is-boom')
           }
-          noiseBurst({ duration: 0.18, gain: 0.16, type: 'lowpass', freq: 500 })
+          noiseBurst({ duration: 0.22, gain: 0.2, type: 'lowpass', freq: 500 })
+          cbs.current.oops({ word: 'Boom!' })
           s.splashes.push({ key: ++objUid, x: o.x, y: o.y, bomb: true, born: performance.now() })
         } else {
           cut++
@@ -328,7 +330,7 @@ export default function FruitSlash() {
               style={{ left: `${sp.x}px`, top: `${sp.y}px` }}
               aria-hidden="true"
             >
-              💨
+              💥
             </span>
           ) : (
             <span

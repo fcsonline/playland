@@ -136,11 +136,12 @@ export default function MosaicArt() {
             const target = keyAt(pic, i)
             const fill = painted[i]
             const right = fill === target
+            const wrong = fill != null && !right
             return (
               <div
                 key={i}
                 data-cell={i}
-                className={`mosaic__cell ${right ? 'is-right' : ''}`}
+                className={`mosaic__cell ${right ? 'is-right' : ''} ${wrong ? 'is-wrong' : ''}`}
                 style={{ background: fill ? COLORS[fill] : 'transparent' }}
               />
             )

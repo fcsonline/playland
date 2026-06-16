@@ -16,12 +16,73 @@ import './racing.css'
 const LANES = 3
 
 const VEHICLES = [
-  { id: 'car',     emoji: '🚗', name: 'Red Car',  unlockAt: 0 },
-  { id: 'suv',     emoji: '🚙', name: 'Blue SUV', unlockAt: 8 },
-  { id: 'police',  emoji: '🚓', name: 'Police',   unlockAt: 20 },
-  { id: 'race',    emoji: '🏎️', name: 'Racer',    unlockAt: 40 },
-  { id: 'rocket',  emoji: '🚀', name: 'Rocket',   unlockAt: 70 },
+  { id: 'car',     name: 'Red Car',  unlockAt: 0,  color: '#ff4d4d', dark: '#c41f1f' },
+  { id: 'suv',     name: 'Blue SUV', unlockAt: 8,  color: '#3b82f6', dark: '#1e51b8' },
+  { id: 'police',  name: 'Police',   unlockAt: 20, color: '#1f2a44', dark: '#0d1426', police: true },
+  { id: 'race',    name: 'Racer',    unlockAt: 40, color: '#ff8a00', dark: '#c45e00', racer: true },
+  { id: 'rocket',  name: 'Rocket',   unlockAt: 70, color: '#8b5cf6', dark: '#5b34b0', rocket: true },
 ]
+
+/**
+ * A friendly top-down vehicle, drawn as inline SVG (no image assets). It points
+ * UP the road; the body is tinted per vehicle, with little extras: a police
+ * light bar, racing stripes for the racer, and rocket flames out the back.
+ */
+function Vehicle({ v }) {
+  return (
+    <svg className="racing__carart" viewBox="0 0 60 108" aria-hidden="true">
+      {/* Rocket exhaust flames out the back. */}
+      {v.rocket && (
+        <g className="racing__flames">
+          <path d="M22 100 Q30 120 38 100 Q30 110 22 100 Z" fill="#ff8a00" />
+          <path d="M25 100 Q30 114 35 100 Q30 108 25 100 Z" fill="#ffd23f" />
+        </g>
+      )}
+
+      {/* Tyres. */}
+      <g fill="#15171c">
+        <rect x="6"  y="24" width="9" height="18" rx="3.5" />
+        <rect x="45" y="24" width="9" height="18" rx="3.5" />
+        <rect x="6"  y="66" width="9" height="20" rx="3.5" />
+        <rect x="45" y="66" width="9" height="20" rx="3.5" />
+      </g>
+
+      {/* Body. */}
+      <rect x="12" y="6" width="36" height="96" rx="14" fill={v.dark} />
+      <rect x="13.5" y="7.5" width="33" height="93" rx="12.5" fill={v.color} />
+      {/* Soft top highlight for a glossy, rounded look. */}
+      <ellipse cx="30" cy="34" rx="12" ry="22" fill="#ffffff" opacity="0.18" />
+
+      {/* Racing stripes (down the hood). */}
+      {(v.racer || v.id === 'car') && (
+        <g fill="#ffffff" opacity="0.9">
+          <rect x="27.4" y="8" width="2.2" height="92" rx="1" />
+          <rect x="30.4" y="8" width="2.2" height="92" rx="1" />
+        </g>
+      )}
+
+      {/* Windshield + rear window (glass). */}
+      <rect x="17" y="28" width="26" height="17" rx="7" fill="#0e1b3d" opacity="0.82" />
+      <rect x="18" y="64" width="24" height="13" rx="6" fill="#0e1b3d" opacity="0.7" />
+
+      {/* Police light bar across the roof. */}
+      {v.police && (
+        <g>
+          <rect x="19" y="48" width="11" height="7" rx="2" fill="#ff3b53" />
+          <rect x="30" y="48" width="11" height="7" rx="2" fill="#3b82f6" />
+        </g>
+      )}
+
+      {/* Headlights (front) + tail lights (rear). */}
+      <g>
+        <rect x="16" y="8" width="6" height="4" rx="2" fill="#fff6c2" />
+        <rect x="38" y="8" width="6" height="4" rx="2" fill="#fff6c2" />
+        <rect x="16" y="95" width="6" height="3.5" rx="1.5" fill="#ff5252" />
+        <rect x="38" y="95" width="6" height="3.5" rx="1.5" fill="#ff5252" />
+      </g>
+    </svg>
+  )
+}
 
 // What can scroll toward the car. Mud is harmless — it just slows things.
 const ITEMS = [
@@ -193,7 +254,7 @@ export default function StarRacing() {
           style={{ left: `${((lane + 0.5) / LANES) * 100}%`, top: `${CAR_Y * 100}%` }}
           aria-hidden="true"
         >
-          {vehicle.emoji}
+          <Vehicle v={vehicle} />
         </span>
 
         <button

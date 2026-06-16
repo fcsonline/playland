@@ -68,6 +68,32 @@
   outline-offset: -2px;
   animation: mosaic-pop 0.22s ease;
 }
+/* Painted with the wrong color: a bold red ring + ✗ so the mistake is obvious
+   (and easy to find and fix). No penalty — repaint with the right color. */
+.mosaic__cell.is-wrong {
+  position: relative;
+  outline: 3px solid #ff2b43;
+  outline-offset: -3px;
+  animation: mosaic-wrong 0.32s ease;
+}
+.mosaic__cell.is-wrong::after {
+  content: '✕';
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-size: 0.8em;
+  font-weight: 900;
+  color: #fff;
+  -webkit-text-stroke: 2px #ff2b43;
+  paint-order: stroke fill;
+  pointer-events: none;
+}
+@keyframes mosaic-wrong {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-3px); }
+  75% { transform: translateX(3px); }
+}
 
 /* Palette. */
 .mosaic__palette {

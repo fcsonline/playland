@@ -65,10 +65,10 @@ export default function GameFrame({ gameId, onBack }) {
         <button className="game-frame__close" onClick={onBack} aria-label="Close game">
           <svg className="game-frame__close-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path
-              d="M7 7 L17 17 M17 7 L7 17"
+              d="M6.5 6.5 L17.5 17.5 M17.5 6.5 L6.5 17.5"
               fill="none"
               stroke="currentColor"
-              strokeWidth="3"
+              strokeWidth="4.2"
               strokeLinecap="round"
             />
           </svg>

@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
-import { shuffle, sample } from '../../lib/random.js'
+import { shuffle, sample, pick } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import './memory.css'
 
@@ -10,15 +10,22 @@ const THEMES = {
   Ocean: ['🐠', '🐙', '🦀', '🐳', '🐬', '🦈', '🐢', '⭐'],
   Sky: ['☀️', '🌙', '⭐', '☁️', '🌈', '🪁', '🎈', '🦋'],
 }
+const THEME_KEYS = Object.keys(THEMES)
 
-const SIZES = [
-  { label: 'Easy', pairs: 3 },
-  { label: 'Medium', pairs: 6 },
-  { label: 'Big', pairs: 8 },
+// Difficulty ladder: each completed board advances to the next, harder one.
+// Column counts evenly divide the card count so every board is a tidy, full
+// rectangle (no ragged last row). After the last rung it stays at the max.
+const LEVELS = [
+  { pairs: 3, cols: 3 }, // 6 cards  → 3×2
+  { pairs: 4, cols: 4 }, // 8 cards  → 4×2
+  { pairs: 6, cols: 4 }, // 12 cards → 4×3
+  { pairs: 8, cols: 4 }, // 16 cards → 4×4
 ]
+const levelAt = (n) => LEVELS[Math.min(n, LEVELS.length - 1)]
 
-function makeDeck(theme, pairs) {
-  const faces = sample(THEMES[theme], pairs)
+// A fresh board: a random theme + the level's pair count, shuffled.
+function makeDeck(pairs) {
+  const faces = sample(THEMES[pick(THEME_KEYS)], pairs)
   const cards = faces.flatMap((face, i) => [
     { id: `${i}a`, face, matched: false },
     { id: `${i}b`, face, matched: false },
@@ -28,17 +35,19 @@ function makeDeck(theme, pairs) {
 
 export default function MemoryMatch() {
   const { earn, award } = useGame()
-  const [theme, setTheme] = useState('Animals')
-  const [size, setSize] = useState(SIZES[1])
-  const [deck, setDeck] = useState(() => makeDeck('Animals', 6))
+  const [level, setLevel] = useState(0)
+  const [deck, setDeck] = useState(() => makeDeck(levelAt(0).pairs))
   const [flipped, setFlipped] = useState([]) // indices currently face-up & unresolved
   const [busy, setBusy] = useState(false)
 
   const matchedCount = deck.filter((c) => c.matched).length
-  const done = matchedCount === deck.length
+  const done = deck.length > 0 && matchedCount === deck.length
+  const pairs = deck.length / 2
 
-  function newGame(nextTheme = theme, nextSize = size) {
-    setDeck(makeDeck(nextTheme, nextSize.pairs))
+  // Load a new board for the given level (always a random theme).
+  function newBoard(nextLevel) {
+    setLevel(nextLevel)
+    setDeck(makeDeck(levelAt(nextLevel).pairs))
     setFlipped([])
     setBusy(false)
   }
@@ -73,54 +82,26 @@ export default function MemoryMatch() {
     }
   }
 
+  // Finishing a board celebrates, then automatically deals the next, harder one.
   useEffect(() => {
-    if (done) {
-      const t = setTimeout(() => {
-        sfx.win()
-        // More pairs → more celebration stars.
-        const stars = Math.min(3, Math.ceil(size.pairs / 3))
-        award(stars, { count: 24 })
-        earn(stars + 1)
-      }, 450)
-      return () => clearTimeout(t)
+    if (!done) return
+    const cheer = setTimeout(() => {
+      sfx.win()
+      const stars = Math.min(3, Math.ceil(pairs / 3))
+      award(stars, { count: 24 })
+      earn(stars + 1)
+    }, 450)
+    const advance = setTimeout(() => newBoard(level + 1), 1700)
+    return () => {
+      clearTimeout(cheer)
+      clearTimeout(advance)
     }
   }, [done]) // eslint-disable-line react-hooks/exhaustive-deps
 
-  const cols = useMemo(() => (deck.length <= 6 ? 3 : deck.length <= 12 ? 4 : 4), [deck.length])
+  const cols = useMemo(() => levelAt(level).cols, [level])
 
   return (
     <div className="memory">
-      <div className="memory__controls">
-        <div className="memory__group">
-          {Object.keys(THEMES).map((t) => (
-            <button
-              key={t}
-              className={`memory__pill ${t === theme ? 'is-on' : ''}`}
-              onClick={() => {
-                setTheme(t)
-                newGame(t, size)
-              }}
-            >
-              {THEMES[t][0]} {t}
-            </button>
-          ))}
-        </div>
-        <div className="memory__group">
-          {SIZES.map((s) => (
-            <button
-              key={s.label}
-              className={`memory__pill ${s.label === size.label ? 'is-on' : ''}`}
-              onClick={() => {
-                setSize(s)
-                newGame(theme, s)
-              }}
-            >
-              {s.label}
-            </button>
-          ))}
-        </div>
-      </div>
-
       <div className="memory__board play-surface" style={{ '--cols': cols }}>
         {deck.map((card, i) => {
           const isUp = card.matched || flipped.includes(i)
@@ -143,9 +124,7 @@ export default function MemoryMatch() {
       {done && (
         <div className="memory__win">
           <p>You found them all! 🎉</p>
-          <button className="btn btn--good" onClick={() => newGame()}>
-            Play again
-          </button>
+          <p className="memory__next">Next board…</p>
         </div>
       )}
     </div>

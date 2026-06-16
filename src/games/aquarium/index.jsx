@@ -38,6 +38,7 @@ function makeFish(emoji) {
     craving: null, // a food emoji when hungry, else null
     sparkle: 0, // seconds of sparkle left after eating
     shake: 0, // seconds of "no" head-shake left
+    nope: 0, // seconds of red ✗ "wrong food" badge left
     flips: 0, // seconds of happy-flip animation left
   }
 }
@@ -50,9 +51,9 @@ const quotaFor = (round) => 5 + round
 const cravePeriod = (round) => Math.max(1.4, 3.2 - round * 0.35)
 
 export default function HungryFish() {
-  const { earn, award } = useGame()
-  const cbs = useRef({ earn, award })
-  cbs.current = { earn, award }
+  const { earn, award, oops } = useGame()
+  const cbs = useRef({ earn, award, oops })
+  cbs.current = { earn, award, oops }
 
   const tankRef = useRef(null)
   const roundRef = useRef(1)
@@ -173,7 +174,8 @@ export default function HungryFish() {
     }
     if (!f.craving) {
       // this fish isn't hungry — small "no", keep the food
-      f.shake = 0.5
+      f.shake = 0.6
+      f.nope = 0.7
       tone(294, { duration: 0.1, type: 'sine', gain: 0.07 })
       return
     }
@@ -192,9 +194,12 @@ export default function HungryFish() {
       setFed(fedRef.current)
       if (!awardedRef.current && fedRef.current >= quotaRef.current) winRound()
     } else {
-      // wrong food — fish shakes its head, no penalty, keep the food.
-      f.shake = 0.5
+      // wrong food — clear, obvious "no": head-shake, a red ✗ over the fish, and
+      // the big ✕ overlay. Still no penalty, the food stays in hand to retry.
+      f.shake = 0.6
+      f.nope = 0.7
       tone(247, { duration: 0.12, type: 'sine', gain: 0.07 })
+      cbs.current.oops()
     }
   }
 
@@ -225,6 +230,7 @@ export default function HungryFish() {
         f.born = false
         if (f.sparkle > 0) f.sparkle = Math.max(0, f.sparkle - dt)
         if (f.shake > 0) f.shake = Math.max(0, f.shake - dt)
+        if (f.nope > 0) f.nope = Math.max(0, f.nope - dt)
         if (f.flips > 0) f.flips = Math.max(0, f.flips - dt)
         // gentle wander
         f.vy += rand(-7, 7) * dt
@@ -306,6 +312,7 @@ export default function HungryFish() {
               {f.emoji}
             </button>
             {f.sparkle > 0 && <span className="aquarium__sparkle" aria-hidden="true">✨</span>}
+            {f.nope > 0 && <span className="aquarium__nope" aria-hidden="true">✗</span>}
           </span>
         ))}
 

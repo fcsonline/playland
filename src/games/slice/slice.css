@@ -42,6 +42,21 @@
   60% { transform: translateX(-5px); }
   80% { transform: translateX(5px); }
 }
+/* Red flash that washes the whole field when a bomb is sliced — unmistakable. */
+.slice__field.is-boom::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 45%, rgba(255, 40, 60, 0.55), rgba(255, 40, 60, 0) 70%);
+  animation: slice-boom 0.45s ease-out forwards;
+}
+@keyframes slice-boom {
+  0% { opacity: 0; }
+  25% { opacity: 1; }
+  100% { opacity: 0; }
+}
 
 .slice__fruit {
   position: absolute;
@@ -98,8 +113,9 @@
   to { transform: scale(1.8); opacity: 0; }
 }
 .slice__splash--bomb {
-  font-size: 2.6rem;
-  animation: slice-juice 0.48s ease-out forwards;
+  font-size: 4rem;
+  z-index: 6;
+  animation: slice-juice 0.5s ease-out forwards;
 }
 
 /* The fading swipe trail, drawn as an SVG polyline filling the field. */

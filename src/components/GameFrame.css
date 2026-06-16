@@ -19,15 +19,17 @@
   padding-right: max(14px, env(safe-area-inset-right));
 }
 
-/* Big, fancy close button on the right — leaves the game. */
+/* Big, bold close button on the right — leaves the game. A white ring + thick
+   X make it unmistakable on any background. */
 .game-frame__close {
   flex: none;
-  width: 54px;
-  height: 54px;
+  width: 56px;
+  height: 56px;
   border-radius: 50%;
-  background: linear-gradient(135deg, #ff6a88, #ff99ac);
+  background: linear-gradient(135deg, #ff4d6d, #ff7a90);
   color: #fff;
-  box-shadow: 0 6px 16px rgba(255, 106, 136, 0.5);
+  border: 3px solid #fff;
+  box-shadow: 0 6px 18px rgba(255, 61, 83, 0.55);
   display: grid;
   place-items: center;
   transition: transform 0.12s ease, box-shadow 0.15s ease;
@@ -36,8 +38,9 @@
   transform: scale(0.88) rotate(90deg);
 }
 .game-frame__close-icon {
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
 }
 
 .game-frame__title {
@@ -123,13 +126,14 @@
   }
   .game-frame__close {
     pointer-events: auto;
-    width: 42px;
-    height: 42px;
-    box-shadow: 0 3px 10px rgba(255, 106, 136, 0.5);
+    width: 46px;
+    height: 46px;
+    border-width: 2.5px;
+    box-shadow: 0 3px 10px rgba(255, 61, 83, 0.55);
   }
   .game-frame__close-icon {
-    width: 20px;
-    height: 20px;
+    width: 26px;
+    height: 26px;
   }
   .game-frame__stage {
     padding: 6px 10px 8px;

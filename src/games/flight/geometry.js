@@ -14,8 +14,8 @@ export function makeRoute(W, H, level = 0) {
   const innerW = Math.max(40, W - padX * 2)
   const innerH = Math.max(40, H - padY * 2)
 
-  // 2 interior waypoints at level 0, growing slowly and capped so it stays fair.
-  const mids = Math.min(5, 2 + Math.floor(level / 2))
+  // 3 interior waypoints at level 0, growing and capped so it stays fair.
+  const mids = Math.min(6, 3 + Math.floor(level / 2))
   const cols = mids + 1 // number of horizontal slots between start and end
 
   const start = { x: padX, y: padY + innerH * (0.3 + Math.random() * 0.4) }
@@ -23,9 +23,11 @@ export function makeRoute(W, H, level = 0) {
 
   const waypoints = [start]
   // Bigger vertical swings at higher levels (but always inside the field).
-  const swing = Math.min(0.92, 0.5 + level * 0.07)
+  const swing = Math.min(0.96, 0.6 + level * 0.06)
   for (let i = 1; i <= mids; i++) {
-    const x = padX + (innerW * i) / cols
+    // A little horizontal jitter so the route isn't an even, grid-like zig-zag.
+    const jitter = (Math.random() - 0.5) * (innerW / cols) * 0.34
+    const x = Math.max(padX + 12, Math.min(padX + innerW - 12, padX + (innerW * i) / cols + jitter))
     const lo = padY
     const hi = padY + innerH
     // Alternate up/down-ish to guarantee a real wiggle.
@@ -38,8 +40,55 @@ export function makeRoute(W, H, level = 0) {
   }
   waypoints.push(end)
 
-  const points = catmullRom(waypoints, 14)
+  let points = catmullRom(waypoints, 14)
+  // From the second level on, curl a full loop-the-loop into the middle of the
+  // route for an extra-fun, more complex path.
+  if (level >= 1) points = withLoop(points, level, padY, innerW, innerH)
   return { points, start: points[0], end: points[points.length - 1], waypoints }
+}
+
+/**
+ * Splice a circular loop into the middle of a dense polyline. The loop is
+ * inserted at the mid-route point closest to the field's vertical centre (so the
+ * circle has room above and below to stay inside the field), and it enters and
+ * exits exactly at that point, so the plane keeps gliding smoothly through it.
+ */
+function withLoop(points, level, padY, innerW, innerH) {
+  if (points.length < 8) return points
+  const cy0 = padY + innerH / 2
+  const lo = Math.floor(points.length * 0.34)
+  const hi = Math.floor(points.length * 0.66)
+  let i = Math.floor(points.length * 0.5)
+  let bestD = Infinity
+  for (let k = lo; k <= hi; k++) {
+    const d = Math.abs(points[k].y - cy0)
+    if (d < bestD) {
+      bestD = d
+      i = k
+    }
+  }
+  const c = points[i]
+  const prev = points[Math.max(0, i - 1)]
+  const ang0 = Math.atan2(c.y - prev.y, c.x - prev.x) // travel direction at c
+  // Radius grows gently with level, but is capped to always fit inside the field.
+  const radius = Math.min(
+    Math.min(innerW, innerH) * (0.14 + level * 0.012),
+    innerH * 0.22,
+    innerW * 0.22,
+  )
+  // Bend the loop toward whichever vertical side has more room.
+  const turn = c.y <= cy0 ? 1 : -1
+  const perp = ang0 + (turn * Math.PI) / 2
+  const cx = c.x + Math.cos(perp) * radius // loop centre (radius away from c)
+  const cyc = c.y + Math.sin(perp) * radius
+  const startAng = Math.atan2(c.y - cyc, c.x - cx) // angle from centre back to c
+  const steps = 30
+  const loop = []
+  for (let s = 1; s <= steps; s++) {
+    const a = startAng + (turn * (Math.PI * 2 * s)) / steps
+    loop.push({ x: cx + Math.cos(a) * radius, y: cyc + Math.sin(a) * radius })
+  }
+  return [...points.slice(0, i + 1), ...loop, ...points.slice(i + 1)]
 }
 
 /** Sample a Catmull-Rom spline through `pts` into a dense polyline. */

@@ -89,9 +89,9 @@ function freshState() {
 }
 
 export default function RhythmBand() {
-  const { earn, award } = useGame()
-  const cbs = useRef({ earn, award })
-  cbs.current = { earn, award }
+  const { earn, award, oops } = useGame()
+  const cbs = useRef({ earn, award, oops })
+  cbs.current = { earn, award, oops }
 
   const fieldRef = useRef(null)
   const g = useRef(freshState())
@@ -160,8 +160,10 @@ export default function RhythmBand() {
         missed = true
       }
     }
-    if (missed && s.combo !== 0) {
+    if (missed) {
       s.combo = 0
+      // Same "that's not it" feedback as the math games: a red cross/veil.
+      cbs.current.oops()
     }
 
     if (s.elapsed >= s.songLen) {

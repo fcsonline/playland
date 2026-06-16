@@ -14,6 +14,9 @@
 
   --radius: 24px;
   --radius-sm: 16px;
+  /* One padding scale shared by cards (.play-surface), chips and buttons, so
+     their inner spacing stays consistent across the app. */
+  --pad: 16px;
   --shadow: 0 10px 24px rgba(108, 92, 231, 0.18);
   --shadow-lg: 0 18px 40px rgba(108, 92, 231, 0.28);
 
@@ -79,7 +82,7 @@ h3 {
   align-items: center;
   justify-content: center;
   gap: 8px;
-  padding: 14px 22px;
+  padding: calc(var(--pad) - 2px) calc(var(--pad) + 8px);
   font-size: 1.1rem;
   font-weight: 800;
   color: var(--white);
@@ -113,7 +116,7 @@ h3 {
   display: inline-flex;
   align-items: center;
   gap: 6px;
-  padding: 8px 14px;
+  padding: calc(var(--pad) - 6px) var(--pad);
   border-radius: 999px;
   background: var(--white);
   box-shadow: var(--shadow);

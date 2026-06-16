@@ -18,14 +18,17 @@ const BALLOONS_PER_ROUND = 5
 const GROW_RATE = 18 // size units per second while held (0..100 scale)
 const COLORS = ['#ff6b6b', '#ffa94d', '#69db7c', '#4dabf7', '#b197fc', '#f783ac']
 
-// Each balloon: a target size, a green zone around it, and a pop point above.
-// `low` (where the green zone starts) is kept at ~30% of the pop point so the
-// "too small" wrong zone at the bottom of the gauge is short — the green band
-// fills most of the gauge and is reached quickly.
+// Each balloon: a target size with a SMALL green band [low, high] around it, and
+// a pop point a little above the band. The tight band makes hitting the green a
+// real (but fair) challenge — let go too early (below low) or too late (above
+// high, or all the way to the pop) and it's a gentle miss.
 function makeBalloon() {
-  const target = randInt(54, 78)
-  const popAt = target + randInt(18, 26)
-  return { target, popAt, low: Math.round(popAt * 0.3) }
+  const target = randInt(48, 70)
+  const half = randInt(6, 8) // half-height of the green band — a small target
+  const low = target - half
+  const high = target + half
+  const popAt = high + randInt(12, 18)
+  return { target, low, high, popAt }
 }
 
 const scaleFor = (v) => 0.4 + (Math.min(100, v) / 100) * 1.05
@@ -41,11 +44,16 @@ export default function BalloonPump() {
   const awardedRef = useRef(false)
   const scoreRef = useRef(0)
   const awardTimerRef = useRef(0)
+  const nextTimerRef = useRef(0) // auto-advance to the next balloon after an outcome
 
   const [, force] = useState(0)
   const tick = () => force((n) => (n + 1) & 0xffff)
 
   const [balloonNo, setBalloonNo] = useState(1)
+  // Mirror in a ref so the once-created rAF loop (popBalloon) reads the live
+  // value instead of a stale closure when it auto-advances the round.
+  const balloonNoRef = useRef(1)
+  balloonNoRef.current = balloonNo
   const [color, setColor] = useState(() => pick(COLORS))
   const [score, setScore] = useState(0)
   const [outcome, setOutcome] = useState(null) // null | 'perfect' | 'good' | 'small' | 'popped'
@@ -74,8 +82,15 @@ export default function BalloonPump() {
     return () => {
       cancelAnimationFrame(rafRef.current)
       clearTimeout(awardTimerRef.current)
+      clearTimeout(nextTimerRef.current)
     }
   }, []) // eslint-disable-line react-hooks/exhaustive-deps
+
+  // After an outcome, automatically move on to the next balloon (no button).
+  function scheduleNext() {
+    clearTimeout(nextTimerRef.current)
+    nextTimerRef.current = setTimeout(() => nextBalloon(), 1200)
+  }
 
   function startHold() {
     const s = stateRef.current
@@ -89,18 +104,25 @@ export default function BalloonPump() {
     if (!s.holding || s.settled) return
     s.holding = false
     s.settled = true
-    if (s.size >= s.low) {
-      const perfect = Math.abs(s.size - s.target) <= 8
+    if (s.size < s.low) {
+      // Let go too early — gentle miss, no points lost.
+      sfx.tap()
+      cbs.current.oops()
+      setOutcome('small')
+    } else if (s.size > s.high) {
+      // Overshot the band (but didn't pop) — gentle miss.
+      sfx.tap()
+      cbs.current.oops()
+      setOutcome('big')
+    } else {
+      const perfect = Math.abs(s.size - s.target) <= 4
       scoreRef.current += perfect ? 3 : 2
       setScore(scoreRef.current)
       sfx.good()
       cbs.current.earn(perfect ? 2 : 1)
       setOutcome(perfect ? 'perfect' : 'good')
-    } else {
-      // Let go too early — gentle, just a smaller balloon, no points lost.
-      sfx.tap()
-      setOutcome('small')
     }
+    scheduleNext()
     tick()
   }
 
@@ -119,11 +141,12 @@ export default function BalloonPump() {
     setTimeout(() => setConfetti([]), 800)
     setOutcome('popped')
     cbs.current.oops({ word: 'Pop!' })
+    scheduleNext()
     tick()
   }
 
   function nextBalloon() {
-    if (balloonNo >= BALLOONS_PER_ROUND) {
+    if (balloonNoRef.current >= BALLOONS_PER_ROUND) {
       endRound()
       return
     }
@@ -151,6 +174,7 @@ export default function BalloonPump() {
 
   function resetRound() {
     clearTimeout(awardTimerRef.current)
+    clearTimeout(nextTimerRef.current)
     const s = stateRef.current
     s.size = 0
     s.holding = false
@@ -170,16 +194,16 @@ export default function BalloonPump() {
   const size = Math.min(100, s.size)
   const scale = scaleFor(size)
   const danger = Math.min(1, s.size / s.popAt)
-  const inZone = !s.settled && s.size >= s.low && s.size < s.popAt
+  const inZone = !s.settled && s.size >= s.low && s.size <= s.high
   const popped = outcome === 'popped'
   const banked = outcome === 'perfect' || outcome === 'good'
-  // Gauge geometry as fractions of the pop point.
+  // Gauge geometry as fractions of the pop point — just the small green band.
   const okBottom = (s.low / s.popAt) * 100
-  const okHeight = ((s.popAt - s.low) / s.popAt) * 100
+  const okHeight = ((s.high - s.low) / s.popAt) * 100
 
   let resultText = 'Balloon champion! 🌟'
-  if (score < 7) resultText = 'Nice pumping! 🎈'
-  else if (score < 13) resultText = 'Great fills! 🎉'
+  if (score < 6) resultText = 'Nice pumping! 🎈'
+  else if (score < 11) resultText = 'Great fills! 🎉'
 
   const message = roundOver
     ? resultText
@@ -188,20 +212,17 @@ export default function BalloonPump() {
       : outcome === 'good'
         ? 'Nice one! 👍'
         : outcome === 'small'
-          ? 'A bit more next time! 🎈'
-          : popped
-            ? '💥 Pop! Too big — try the next one 😄'
-            : inZone
-              ? 'In the green — let go now! 👍'
-              : 'Hold Pump to fill it to the green zone! 💨'
+          ? 'Too small — pump a bit more! 🎈'
+          : outcome === 'big'
+            ? 'Too big — let go sooner! 🎈'
+            : popped
+              ? '💥 Pop! Too big — try the next one 😄'
+              : inZone
+                ? 'In the green — let go now! 👍'
+                : 'Hold Pump to fill it to the green zone! 💨'
 
   return (
     <div className="balloon">
-      <div className="balloon__hud">
-        <span className="chip balloon__chip">🎈 {balloonNo} / {BALLOONS_PER_ROUND}</span>
-        <span className="chip balloon__chip">⭐ Score {score}</span>
-      </div>
-
       <div className="balloon__stage play-surface">
         <div className="balloon__arena">
           {!popped && (
@@ -244,13 +265,10 @@ export default function BalloonPump() {
           <button className="btn btn--good" onClick={resetRound}>
             🎈 Play again
           </button>
-        ) : outcome ? (
-          <button className="btn btn--good" onClick={nextBalloon}>
-            {balloonNo >= BALLOONS_PER_ROUND ? 'See result 🏁' : 'Next balloon ➡️'}
-          </button>
         ) : (
           <button
             className="btn btn--accent balloon__pump"
+            disabled={!!outcome}
             onPointerDown={(e) => {
               e.preventDefault()
               startHold()

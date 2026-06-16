@@ -295,11 +295,6 @@ export default function FlightPath() {
       <div className="flight__bar" aria-hidden="true">
         <div className="flight__bar-fill" style={{ width: `${Math.round(progress * 100)}%` }} />
       </div>
-      <p className="flight__hint">
-        {status === 'win'
-          ? 'Perfect landing! Next level…'
-          : 'Press the ✈️ and trace the sky route to the 🏁'}
-      </p>
     </div>
   )
 }

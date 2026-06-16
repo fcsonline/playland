@@ -69,11 +69,11 @@ function makeProblem(solved) {
 }
 
 export default function AddItUp() {
-  const { earn, award } = useGame()
+  const { earn, award, oops } = useGame()
   const [solved, setSolved] = useState(0)
   const [problem, setProblem] = useState(() => makeProblem(0))
-  const [wrongChoice, setWrongChoice] = useState(null)
-  const [justRight, setJustRight] = useState(false)
+  const [picked, setPicked] = useState(null) // the value tapped this problem
+  const [result, setResult] = useState(null) // 'right' | 'wrong' | null
   const lock = useRef(false)
 
   const fruitsA = useMemo(() => Array.from({ length: problem.a }), [problem])
@@ -81,30 +81,33 @@ export default function AddItUp() {
 
   function next(n) {
     setProblem(makeProblem(n))
-    setWrongChoice(null)
-    setJustRight(false)
+    setPicked(null)
+    setResult(null)
     lock.current = false
   }
 
+  // One answer per problem. Right or wrong, we show clear feedback (and reveal
+  // the correct choice on a miss), then move on to a new problem — no retry.
   function choose(val, e) {
     if (lock.current) return
-    if (val !== problem.answer) {
-      sfx.tap()
-      setWrongChoice(val)
-      setTimeout(() => setWrongChoice(null), 450)
-      return
-    }
-    // Correct!
     lock.current = true
-    setJustRight(true)
-    sfx.good()
-    const x = e?.clientX
-    const y = e?.clientY
-    earn(1, x != null ? { x, y } : {})
-    const n = solved + 1
-    setSolved(n)
-    if (n % 5 === 0) award(n % 10 === 0 ? 3 : 2, { count: 20 })
-    setTimeout(() => next(n), 850)
+    setPicked(val)
+    if (val === problem.answer) {
+      setResult('right')
+      sfx.good()
+      const x = e?.clientX
+      const y = e?.clientY
+      earn(1, x != null ? { x, y } : {})
+      const n = solved + 1
+      setSolved(n)
+      if (n % 5 === 0) award(n % 10 === 0 ? 3 : 2, { count: 20 })
+      setTimeout(() => next(n), 950)
+    } else {
+      setResult('wrong')
+      sfx.tap()
+      oops()
+      setTimeout(() => next(solved), 1150)
+    }
   }
 
   const promptText =
@@ -112,7 +115,11 @@ export default function AddItUp() {
 
   return (
     <div className="math">
-      <div className={`math__stage play-surface ${justRight ? 'is-right' : ''}`}>
+      <div
+        className={`math__stage play-surface ${result === 'right' ? 'is-right' : ''} ${
+          result === 'wrong' ? 'is-wrong' : ''
+        }`}
+      >
         <p className="math__prompt">{promptText}</p>
 
         <div className="math__picture">
@@ -158,15 +165,28 @@ export default function AddItUp() {
       </div>
 
       <div className="math__choices">
-        {problem.choices.map((val) => (
-          <button
-            key={val}
-            className={`math__choice ${wrongChoice === val ? 'is-wrong' : ''}`}
-            onClick={(e) => choose(val, e)}
-          >
-            {val}
-          </button>
-        ))}
+        {problem.choices.map((val) => {
+          const isCorrect = val === problem.answer
+          const isPicked = picked === val
+          // On reveal, the correct choice turns green; a wrong pick turns red.
+          const cls = result ? (isCorrect ? 'is-correct' : isPicked ? 'is-wrong' : 'is-dim') : ''
+          return (
+            <button
+              key={val}
+              className={`math__choice ${cls}`}
+              onClick={(e) => choose(val, e)}
+              disabled={!!result}
+            >
+              {val}
+              {result && isCorrect && (
+                <span className="math__badge math__badge--ok" aria-hidden="true">✓</span>
+              )}
+              {result && isPicked && !isCorrect && (
+                <span className="math__badge math__badge--no" aria-hidden="true">✕</span>
+              )}
+            </button>
+          )
+        })}
       </div>
     </div>
   )

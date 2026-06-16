@@ -54,9 +54,9 @@ function makeRound() {
   return Array.from({ length: ROUND_LEN }, (_, i) => makeQuestion(i))
 }
 
-function starsFor(firstTry) {
-  if (firstTry >= 9) return 3
-  if (firstTry >= 6) return 2
+function starsFor(correct) {
+  if (correct >= 9) return 3
+  if (correct >= 6) return 2
   return 1
 }
 
@@ -78,12 +78,10 @@ export default function MathQuiz() {
   const [flash, setFlash] = useState(null) // 'right' | 'wrong' | null (problem card)
   const [shake, setShake] = useState(false)
   const [score, setScore] = useState(0) // correct answers this round
-  const [firstTry, setFirstTry] = useState(0) // solved on the first attempt
   const [done, setDone] = useState(false)
 
   // Refs to avoid stale closures in timers and to guard per-question state.
-  const attemptedRef = useRef(false) // has there been a wrong attempt on this question?
-  const lockRef = useRef(false) // ignore input during the correct->next transition
+  const lockRef = useRef(false) // one answer per question, then we move on
   const timers = useRef([])
 
   function clearTimers() {
@@ -99,61 +97,56 @@ export default function MathQuiz() {
 
   const q = questions[index]
 
+  // One answer per question. Whether right or wrong, we reveal the correct
+  // answer, then move on — there is no retry.
+  function advance(finalScore) {
+    const isLast = index >= ROUND_LEN - 1
+    later(() => {
+      setFlash(null)
+      setShake(false)
+      if (isLast) {
+        finishRound(finalScore)
+      } else {
+        setIndex((i) => i + 1)
+        setPicked(null)
+        setRevealed(null)
+        lockRef.current = false
+      }
+    }, 950)
+  }
+
   function correct(val) {
-    if (lockRef.current) return
-    lockRef.current = true
     setPicked(val)
     setRevealed(q.answer)
     setFlash('right')
     sfx.good()
     cbs.current.earn(1)
-    setScore((s) => s + 1)
-    const wasFirstTry = !attemptedRef.current
-    const nextFirstTry = firstTry + (wasFirstTry ? 1 : 0)
-    if (wasFirstTry) setFirstTry(nextFirstTry)
-
-    const isLast = index >= ROUND_LEN - 1
-    later(() => {
-      setFlash(null)
-      if (isLast) {
-        // Award is computed synchronously here from the locally-derived
-        // first-try count (not stale state).
-        finishRound(nextFirstTry)
-      } else {
-        setIndex((i) => i + 1)
-        setPicked(null)
-        setRevealed(null)
-        attemptedRef.current = false
-        lockRef.current = false
-      }
-    }, 750)
+    const next = score + 1
+    setScore(next)
+    advance(next)
   }
 
   function wrong(val) {
-    if (lockRef.current) return
-    attemptedRef.current = true
     setPicked(val)
+    setRevealed(q.answer) // show the right answer so the child learns it
     setFlash('wrong')
     setShake(true)
     sfx.tap()
     cbs.current.oops()
-    later(() => {
-      setShake(false)
-      setFlash(null)
-      setPicked(null)
-    }, 700)
+    advance(score)
   }
 
   function chooseOption(val) {
     if (lockRef.current || done) return
+    lockRef.current = true
     if (val === q.answer) correct(val)
     else wrong(val)
   }
 
-  function finishRound(finalFirstTry) {
+  function finishRound(finalScore) {
     setDone(true)
     sfx.win()
-    const stars = starsFor(finalFirstTry)
+    const stars = starsFor(finalScore)
     const e = END[stars]
     cbs.current.award(stars, { praise: e.praise, count: e.count })
     lockRef.current = false
@@ -168,14 +161,12 @@ export default function MathQuiz() {
     setFlash(null)
     setShake(false)
     setScore(0)
-    setFirstTry(0)
     setDone(false)
-    attemptedRef.current = false
     lockRef.current = false
   }
 
   if (done) {
-    const stars = starsFor(firstTry)
+    const stars = starsFor(score)
     const e = END[stars]
     return (
       <div className="mathquiz">
@@ -187,8 +178,7 @@ export default function MathQuiz() {
               <span key={n} className={`mathquiz__star ${n <= stars ? 'is-on' : ''}`}>★</span>
             ))}
           </div>
-          <p className="mathquiz__big">You solved {score}/{ROUND_LEN}!</p>
-          <p className="mathquiz__sub">{firstTry} right on the first try</p>
+          <p className="mathquiz__big">You got {score}/{ROUND_LEN}!</p>
           <button className="btn btn--good mathquiz__again" onClick={playAgain}>
             Play again 🔁
           </button>
@@ -228,19 +218,24 @@ export default function MathQuiz() {
         <span className="mathquiz__zonetag mathquiz__zonetag--a">👇 Tap the answer</span>
         <div className="mathquiz__options">
           {q.options.map((val) => {
+            const answered = revealed != null
+            const isCorrect = val === q.answer
             const isPicked = picked === val
-            const state = isPicked ? (val === q.answer ? 'is-correct' : 'is-wrong') : ''
+            // On reveal, always light up the correct answer green; the wrongly
+            // picked option turns red.
+            const state = answered ? (isCorrect ? 'is-correct' : isPicked ? 'is-wrong' : '') : ''
             return (
               <button
                 key={val}
                 className={`mathquiz__option ${state}`}
                 onClick={() => chooseOption(val)}
+                disabled={answered}
               >
                 <span className="mathquiz__option-val">{val}</span>
-                {isPicked && val === q.answer && (
+                {answered && isCorrect && (
                   <span className="mathquiz__badge mathquiz__badge--ok" aria-hidden="true">✓</span>
                 )}
-                {isPicked && val !== q.answer && (
+                {answered && isPicked && !isCorrect && (
                   <span className="mathquiz__badge mathquiz__badge--no" aria-hidden="true">✕</span>
                 )}
               </button>

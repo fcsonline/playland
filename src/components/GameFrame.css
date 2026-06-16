@@ -89,7 +89,7 @@
   background: var(--white);
   border-radius: var(--radius);
   box-shadow: var(--shadow-lg);
-  padding: 16px;
+  padding: var(--pad);
   display: flex;
   flex-direction: column;
   min-height: 0;

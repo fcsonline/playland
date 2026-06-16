@@ -2,6 +2,7 @@ import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { pick, shuffle, randInt } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
+import Countdown from '../../components/Countdown.jsx'
 import './count.css'
 
 /**
@@ -14,12 +15,13 @@ import './count.css'
  * award + cheer, wrong is gentle and still earns a little. A "Next" button
  * rolls a slightly harder round. There is no fail state.
  *
- * Phases: 'show' (watch the parade) -> 'quiz' (pick a number) -> 'reveal'.
+ * Phases: 'ready' (3·2·1 countdown) -> 'show' (watch the parade) ->
+ * 'quiz' (pick a number) -> 'reveal'.
  */
 
 const EMOJIS = ['🐠', '🦋', '🐝', '🍎', '⭐', '🐱', '🐢', '🐞', '🦆', '🐙']
 
-const CROSS_MS = 3600 // how long the parade lasts
+const CROSS_MS = 4200 // how long the parade lasts (a little extra time to count)
 const STAGGER_MS = 360 // delay between each critter entering
 
 let moverUid = 0
@@ -66,10 +68,10 @@ function makeChoices(n) {
 }
 
 export default function CountEm() {
-  const { earn, award } = useGame()
+  const { earn, award, oops } = useGame()
 
   const [round, setRound] = useState(0)
-  const [phase, setPhase] = useState('show') // 'show' | 'quiz' | 'reveal'
+  const [phase, setPhase] = useState('ready') // 'ready' | 'show' | 'quiz' | 'reveal'
   const [emoji, setEmoji] = useState(() => pick(EMOJIS))
   const [count, setCount] = useState(() => countForRound(0))
   const [movers, setMovers] = useState(() => makeMovers(countForRound(0)))
@@ -89,7 +91,8 @@ export default function CountEm() {
     setChoices(makeChoices(n))
     setPicked(null)
     setMovers(makeMovers(n))
-    setPhase('show')
+    // Start with a 3·2·1 countdown so the child is ready before the parade.
+    setPhase('ready')
   }
 
   // ---- Parade animation: drift each mover across the field with rAF. ----
@@ -141,15 +144,18 @@ export default function CountEm() {
       award(stars, { count: 20 })
       earn(2)
     } else {
-      // Gentle: no penalty, still a little reward for trying.
-      sfx.good()
-      earn(1)
+      // Gentle "not quite" — the same soft red feedback the other games use. No
+      // penalty; the reveal still shows the right number.
+      oops()
     }
   }
 
   return (
     <div className="count">
       <div className="count__hud">
+        {phase === 'ready' && (
+          <span className="count__hint chip">👀 Get ready to count…</span>
+        )}
         {phase === 'show' && (
           <span className="count__hint chip">👀 Watch carefully…</span>
         )}
@@ -170,6 +176,8 @@ export default function CountEm() {
       </div>
 
       <div className="count__field play-surface" ref={fieldRef}>
+        {phase === 'ready' && <Countdown key={round} onDone={() => setPhase('show')} />}
+
         {phase === 'show' &&
           movers.map((m) => (
             <span

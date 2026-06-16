@@ -170,7 +170,9 @@
     max-height: 100%;
     max-width: 100%;
   }
+  /* Keep the "Copy this" sample about the same size as in portrait, so it stays
+     easy to read when the layout switches to a side-by-side row. */
   .mosaic__refgrid {
-    width: clamp(56px, 16vh, 96px);
+    width: clamp(86px, 24vh, 120px);
   }
 }

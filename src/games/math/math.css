@@ -19,6 +19,12 @@
 .math__stage.is-right {
   animation: math-pop 0.5s ease;
   background: #eafff1;
+  box-shadow: inset 0 0 0 4px rgba(46, 204, 113, 0.4), var(--shadow);
+}
+.math__stage.is-wrong {
+  animation: math-shake 0.45s ease;
+  background: #ffeef0;
+  box-shadow: inset 0 0 0 4px rgba(255, 59, 83, 0.4), var(--shadow);
 }
 @keyframes math-pop {
   0%,
@@ -82,6 +88,7 @@
   justify-content: center;
 }
 .math__choice {
+  position: relative;
   flex: 1;
   max-width: 130px;
   aspect-ratio: 1 / 0.8;
@@ -91,16 +98,62 @@
   font-size: clamp(2rem, 10vw, 3rem);
   font-weight: 900;
   color: var(--primary);
-  transition: transform 0.08s ease, box-shadow 0.15s ease;
+  transition: transform 0.08s ease, box-shadow 0.15s ease, background 0.15s ease,
+    color 0.15s ease;
 }
 .math__choice:active {
   transform: translateY(3px) scale(0.96);
   box-shadow: 0 4px 10px rgba(108, 92, 231, 0.25);
 }
+/* On reveal: the correct choice goes green, a wrong pick goes red, others dim. */
+.math__choice.is-correct {
+  background: linear-gradient(180deg, #54e08a, #19b46a);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(43, 213, 118, 0.35), var(--shadow);
+  animation: math-pop 0.5s ease;
+}
 .math__choice.is-wrong {
   animation: math-shake 0.4s ease;
-  background: #ffe6e9;
-  color: #ff5b6e;
+  background: linear-gradient(180deg, #ff8a98, #ff3b53);
+  color: #fff;
+  box-shadow: 0 0 0 4px rgba(255, 59, 83, 0.3), var(--shadow);
+}
+.math__choice.is-dim {
+  opacity: 0.5;
+}
+
+/* ✓ / ✗ corner badge on the chosen choice — matches the Math Quiz badges. */
+.math__badge {
+  position: absolute;
+  top: 6px;
+  right: 8px;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  font-size: 1.1rem;
+  line-height: 1;
+  color: #fff;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  animation: math-badge 0.35s cubic-bezier(0.18, 1.5, 0.4, 1);
+}
+.math__badge--ok {
+  background: #0f9d58;
+}
+.math__badge--no {
+  background: #c62336;
+}
+@keyframes math-badge {
+  0% {
+    transform: scale(0);
+  }
+  60% {
+    transform: scale(1.25);
+  }
+  100% {
+    transform: scale(1);
+  }
 }
 @keyframes math-shake {
   0%,

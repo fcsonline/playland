@@ -3,7 +3,6 @@ import Home from './screens/Home.jsx'
 import Splash from './screens/Splash.jsx'
 import GameFrame from './components/GameFrame.jsx'
 import { GAME_BY_ID } from './games/registry.js'
-import { enterFullscreen, fullscreenSupported, isFullscreen } from './lib/fullscreen.js'
 
 // Restore the current game from history on load (so a reload inside a game
 // keeps you there, and the back button stays in sync).
@@ -17,16 +16,6 @@ export default function App() {
   const [gameId, setGameId] = useState(gameFromHistory)
   // Show the welcome splash once on a fresh open (not when reloading into a game).
   const [showSplash, setShowSplash] = useState(() => !gameFromHistory())
-
-  // Go immersive on the very first tap (fullscreen needs a user gesture).
-  useEffect(() => {
-    if (!fullscreenSupported()) return
-    const onFirstTap = () => {
-      if (!isFullscreen()) enterFullscreen()
-    }
-    window.addEventListener('pointerdown', onFirstTap, { once: true })
-    return () => window.removeEventListener('pointerdown', onFirstTap)
-  }, [])
 
   // One always-on listener keeps the view matched to the browser/device back &
   // forward buttons: the view is whatever the current history entry says.

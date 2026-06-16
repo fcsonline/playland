@@ -3,7 +3,6 @@ import { GAME_BY_ID, GAME_COMPONENTS } from '../games/registry.js'
 import { GameContext } from '../state/game.jsx'
 import { useProgress } from '../state/progress.jsx'
 import { useReward } from '../state/reward.jsx'
-import FullscreenToggle from './FullscreenToggle.jsx'
 import './GameFrame.css'
 
 /**
@@ -63,7 +62,6 @@ export default function GameFrame({ gameId, onBack }) {
         <span className="game-frame__wallet chip" aria-label={`${wallet} stars`}>
           ⭐ {wallet}
         </span>
-        <FullscreenToggle className="fs-toggle--bar" />
         <button className="game-frame__close" onClick={onBack} aria-label="Close game">
           <svg className="game-frame__close-icon" viewBox="0 0 24 24" aria-hidden="true">
             <path

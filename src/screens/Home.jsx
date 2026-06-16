@@ -1,15 +1,10 @@
 import { GAMES } from '../games/registry.js'
 import ART from '../games/thumbnails.js'
-import FullscreenToggle from '../components/FullscreenToggle.jsx'
 import './Home.css'
 
 export default function Home({ onOpen }) {
   return (
     <div className="home">
-      <div className="home__actions">
-        <FullscreenToggle />
-      </div>
-
       <div className="home__grid" role="list">
         {GAMES.map((g, i) => (
           <button

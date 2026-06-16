@@ -118,8 +118,7 @@
     pointer-events: none;
   }
   .game-frame__title,
-  .game-frame__bar .game-frame__wallet,
-  .fs-toggle--bar {
+  .game-frame__bar .game-frame__wallet {
     display: none;
   }
   .game-frame__close {

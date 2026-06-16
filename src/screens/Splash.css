@@ -2,21 +2,19 @@
   position: fixed;
   inset: 0;
   z-index: 200;
-  display: grid;
-  place-items: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: clamp(18px, 5vh, 44px);
   overflow: hidden;
-  /* Cream backdrop matches the logo's own background, so the letterboxing
-     around the wide image blends seamlessly on any screen. */
+  /* Cream backdrop matches the logo's own background. */
   background: radial-gradient(circle at 50% 40%, #fff9f0, #ffe9d6);
-  animation: splash-out 0.45s ease 3.55s forwards;
-}
-@keyframes splash-out {
-  to { opacity: 0; }
 }
 
 .splash__img {
-  max-width: 94%;
-  max-height: 88%;
+  max-width: 92%;
+  max-height: 58%;
   object-fit: contain;
   -webkit-user-drag: none;
   user-select: none;
@@ -27,4 +25,25 @@
   0% { transform: scale(0.62); opacity: 0; }
   60% { transform: scale(1.04); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
+}
+
+.splash__start {
+  font-family: var(--font);
+  font-weight: 900;
+  font-size: clamp(1.5rem, 6vw, 2.3rem);
+  color: #fff;
+  padding: clamp(14px, 2.4vh, 20px) clamp(40px, 12vw, 64px);
+  border-radius: 999px;
+  background: linear-gradient(180deg, #54e08a, #1faa55);
+  box-shadow: 0 12px 26px rgba(31, 170, 85, 0.5), inset 0 -4px 0 rgba(0, 0, 0, 0.12);
+  animation: splash-pulse 1.3s ease-in-out infinite;
+  transition: transform 0.1s ease, filter 0.1s ease;
+}
+.splash__start:active {
+  transform: scale(0.94);
+  filter: brightness(1.05);
+}
+@keyframes splash-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.05); }
 }

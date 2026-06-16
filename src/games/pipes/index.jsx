@@ -199,28 +199,6 @@ export default function PipeConnect() {
 
   return (
     <div className="pipes">
-      <div className="pipes__hud">
-        <span className="chip pipes__legend">
-          <span className="pipes__swatch pipes__swatch--start" />
-          Start
-          <span className="pipes__arrow">→</span>
-          <span className="pipes__swatch pipes__swatch--end" />
-          End
-        </span>
-        <span className="pipes__levels">
-          {LEVELS.map((_, i) => (
-            <button
-              key={i}
-              className={`pipes__dot ${i === levelIndex ? 'is-on' : ''}`}
-              onClick={() => loadLevel(i)}
-              aria-label={`level ${i + 1}`}
-            >
-              {i + 1}
-            </button>
-          ))}
-        </span>
-      </div>
-
       <div
         className={`pipes__board play-surface ${solved ? 'is-solved' : ''}`}
         style={{ '--cols': level.cols, '--rows': level.rows }}
@@ -247,8 +225,8 @@ export default function PipeConnect() {
         })}
       </div>
 
-      <div className="pipes__footer">
-        {solved ? (
+      {solved && (
+        <div className="pipes__footer">
           <div className="pipes__win">
             <p>{level.happy} 🎉</p>
             {hasNext ? (
@@ -261,12 +239,8 @@ export default function PipeConnect() {
               </button>
             )}
           </div>
-        ) : (
-          <button className="btn btn--ghost" onClick={() => loadLevel(levelIndex)}>
-            🔄 New puzzle
-          </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

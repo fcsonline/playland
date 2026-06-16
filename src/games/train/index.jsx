@@ -178,10 +178,6 @@ export default function RailRoutes() {
 
   return (
     <div className="train">
-      <div className="train__hud">
-        <span className="chip">🚂 Connect each train to its station! ({connectedCount}/{level.trains.length})</span>
-      </div>
-
       <div
         className={`train__board play-surface ${solved ? 'is-solved' : ''}`}
         style={{ '--cols': level.cols, '--rows': level.rows }}
@@ -229,20 +225,16 @@ export default function RailRoutes() {
         })}
       </div>
 
-      <div className="train__footer">
-        {solved ? (
+      {solved && (
+        <div className="train__footer">
           <div className="train__win">
             <p>All aboard! 🎉</p>
             <button className="btn btn--good" onClick={() => loadLevel(hasNext ? levelIndex + 1 : 0)}>
               {hasNext ? 'Next level ▶' : 'Play again 🔄'}
             </button>
           </div>
-        ) : (
-          <button className="btn btn--ghost" onClick={() => loadLevel(levelIndex)} disabled={running}>
-            🔄 New
-          </button>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   )
 }

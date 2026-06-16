@@ -80,24 +80,6 @@
   text-shadow: 0 3px 10px rgba(0, 0, 0, 0.35);
 }
 
-.pong__pad {
-  display: flex;
-  justify-content: center;
-  gap: 12px;
-}
-.pong__arrow {
-  width: 76px;
-  height: 44px;
-  border-radius: 14px;
-  background: rgba(255, 255, 255, 0.9);
-  font-size: 1.4rem;
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.14);
-  transition: transform 0.08s ease;
-}
-.pong__arrow:active {
-  transform: scale(0.88);
-  background: #fff;
-}
 .pong__hint {
   margin: 0;
   text-align: center;
@@ -114,10 +96,5 @@
   }
   .pong__field {
     max-width: min(100%, 48vh);
-  }
-  .pong__arrow {
-    width: 64px;
-    height: 46px;
-    font-size: 1.3rem;
   }
 }

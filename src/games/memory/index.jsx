@@ -99,10 +99,12 @@ export default function MemoryMatch() {
   }, [done]) // eslint-disable-line react-hooks/exhaustive-deps
 
   const cols = useMemo(() => levelAt(level).cols, [level])
+  // Rows are derived so the grid can fill the whole stage (cols × rows tracks).
+  const rows = Math.ceil(deck.length / cols)
 
   return (
     <div className="memory">
-      <div className="memory__board play-surface" style={{ '--cols': cols }}>
+      <div className="memory__board play-surface" style={{ '--cols': cols, '--rows': rows }}>
         {deck.map((card, i) => {
           const isUp = card.matched || flipped.includes(i)
           return (

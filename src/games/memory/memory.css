@@ -6,23 +6,24 @@
   flex: 1;
 }
 
-/* The board is a centered, perfectly-tiled grid: fixed 1fr tracks inside a
-   width capped to the column count keep every card the same size and snugly
-   aligned, and the block is centered both ways inside the play surface. */
+/* The board fills the whole stage: cols × rows of 1fr tracks so the cards grow
+   to use all the available width and height, with comfy gaps between them. */
 .memory__board {
   flex: 1;
   display: grid;
   grid-template-columns: repeat(var(--cols, 4), 1fr);
-  gap: clamp(8px, 2.4vw, 14px);
+  grid-template-rows: repeat(var(--rows, 2), 1fr);
+  gap: clamp(10px, 3vw, 20px);
   width: 100%;
-  max-width: calc(var(--cols, 4) * 116px);
-  margin: 0 auto;
-  place-content: center;
+  height: 100%;
+  min-height: 0;
+  padding: 4px;
 }
 
 .mcard {
   width: 100%;
-  aspect-ratio: 3 / 4;
+  height: 100%;
+  min-height: 0;
   perspective: 600px;
   background: none;
 }
@@ -83,15 +84,14 @@
   opacity: 0.9;
 }
 
-/* Landscape phones are wide & short — cap the board by height so every card
-   stays on screen, still as a tidy centered grid. */
+/* Landscape phones are wide & short — tighten gaps and shrink the faces so the
+   filled grid still reads cleanly on a short viewport. */
 @media (orientation: landscape) and (max-height: 600px) {
   .memory {
     gap: 8px;
   }
   .memory__board {
-    max-width: calc(var(--cols, 4) * 76px);
-    gap: 6px;
+    gap: clamp(6px, 1.6vh, 12px);
   }
   .mcard__back,
   .mcard__front {

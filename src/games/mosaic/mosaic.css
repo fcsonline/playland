@@ -118,6 +118,16 @@
   transform: scale(1.14);
 }
 
+/* Eraser tool — sits in the palette beside the colors; tap then drag to clear
+   filled cells and fix mistakes. */
+.mosaic__swatch--erase {
+  display: grid;
+  place-items: center;
+  background: #fff;
+  font-size: 1.4rem;
+  line-height: 1;
+}
+
 .mosaic__win {
   text-align: center;
   font-weight: 800;

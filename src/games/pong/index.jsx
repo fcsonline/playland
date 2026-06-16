@@ -72,11 +72,6 @@ export default function Pong() {
     onMove: (p) => movePlayerTo(p.x),
   })
 
-  const nudge = useCallback((dir) => {
-    playerXRef.current = clampPaddle(playerXRef.current + dir * 0.12)
-    sfx.tap()
-  }, [])
-
   const resetBall = (towardBottom) => {
     ballRef.current = serve(towardBottom)
   }
@@ -274,14 +269,6 @@ export default function Pong() {
         )}
       </div>
 
-      <div className="pong__pad">
-        <button className="pong__arrow" onClick={() => nudge(-1)} aria-label="left">
-          ⬅️
-        </button>
-        <button className="pong__arrow" onClick={() => nudge(1)} aria-label="right">
-          ➡️
-        </button>
-      </div>
       <p className="pong__hint">Slide your finger to move the paddle</p>
     </div>
   )

@@ -61,6 +61,8 @@ const SONGS = [
 
 // Generous hit window (kids): a note within this many ms of the line counts.
 const HIT_WINDOW = 320
+// How long a missed note flashes red at the hit line before it fades away.
+const MISS_FLASH = 520
 
 function buildNotes(song) {
   // Spawn the first note after one fall-time so it lands on the beat.
@@ -154,6 +156,7 @@ export default function RhythmBand() {
     for (const n of s.notes) {
       if (n.state === 'fall' && s.elapsed - n.hitTime > HIT_WINDOW) {
         n.state = 'miss'
+        n.missAt = s.elapsed // when it was missed, so we can flash it briefly
         missed = true
       }
     }
@@ -228,18 +231,25 @@ export default function RhythmBand() {
             <div className="music__lane" key={li} style={{ '--lane': L.color }}>
               {playing &&
                 s.notes
-                  .filter((n) => n.lane === li && n.state === 'fall')
+                  .filter(
+                    (n) =>
+                      n.lane === li &&
+                      (n.state === 'fall' ||
+                        (n.state === 'miss' && s.elapsed - n.missAt < MISS_FLASH)),
+                  )
                   .map((n) => {
-                    const top = noteTopPct(n)
-                    if (top < -12) return null
+                    const isMiss = n.state === 'miss'
+                    // A missed note is pinned to the hit line, flashed red, then fades.
+                    const top = isMiss ? HIT_LINE_PCT : noteTopPct(n)
+                    if (!isMiss && top < -12) return null
                     return (
                       <span
                         key={n.id}
-                        className="music__note"
+                        className={`music__note ${isMiss ? 'is-miss' : ''}`}
                         style={{ top: `${top}%` }}
                         aria-hidden="true"
                       >
-                        <span className="music__note-emoji">{L.emoji}</span>
+                        <span className="music__note-emoji">{isMiss ? '✗' : L.emoji}</span>
                       </span>
                     )
                   })}

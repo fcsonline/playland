@@ -269,12 +269,6 @@ export default function FindTheWay() {
 
   return (
     <div className="maze" style={maze.theme.vars}>
-      <div className="maze__hud">
-        <span className="chip">
-          Help {maze.theme.avatar} reach the {maze.theme.goal}!
-        </span>
-      </div>
-
       <div className="maze__wrap">
         <div
           ref={boardRef}

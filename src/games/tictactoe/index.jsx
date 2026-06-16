@@ -168,8 +168,6 @@ export default function TicTacToe() {
 
   return (
     <div className="ttt">
-      <div className={`ttt__status ${status.cls}`}>{status.text}</div>
-
       <div className="ttt__boardwrap">
         <div className="ttt__board play-surface" role="group" aria-label="Tic Tac Toe board">
           {board.map((mark, i) => {

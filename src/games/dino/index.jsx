@@ -57,11 +57,6 @@ export default function DinoRun() {
     }
   }
 
-  function reset() {
-    g.current = freshGame()
-    setTick((t) => t + 1)
-  }
-
   useEffect(() => {
     const onKey = (e) => {
       if (e.code === 'Space' || e.code === 'ArrowUp') {
@@ -173,12 +168,6 @@ export default function DinoRun() {
 
   return (
     <div className="dino">
-      <div className="dino__hud">
-        <button className="dino__reset" onClick={reset} aria-label="start over">
-          🔄
-        </button>
-      </div>
-
       <div
         ref={fieldRef}
         className="dino__field play-surface"

@@ -71,6 +71,34 @@
   line-height: 1;
 }
 
+/* A missed note flashes red with an ✗ at the hit line, then fades — so a child
+   can see exactly which note slipped past. No penalty, just clear feedback. */
+.music__note.is-miss {
+  background: radial-gradient(circle at 38% 32%, #fff, #ff2b43);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.35), 0 0 16px #ff2b43;
+  animation: music-miss 0.52s ease forwards;
+}
+.music__note.is-miss .music__note-emoji {
+  color: #fff;
+  font-weight: 900;
+  -webkit-text-stroke: 1.5px #ff2b43;
+  paint-order: stroke fill;
+}
+@keyframes music-miss {
+  0% {
+    transform: translate(-50%, -50%) scale(0.9);
+    opacity: 1;
+  }
+  30% {
+    transform: translate(-50%, -50%) scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(0.6);
+    opacity: 0;
+  }
+}
+
 /* ---- Overlay (ready / done) ---- */
 .music__overlay {
   position: absolute;

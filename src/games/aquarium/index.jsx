@@ -258,12 +258,6 @@ export default function HungryFish() {
 
   return (
     <div className="aquarium">
-      <div className="aquarium__hud">
-        <span className="chip aquarium__chip">
-          {held ? <>Holding {held} — tap a hungry fish!</> : 'Pick a food below 👇'}
-        </span>
-      </div>
-
       <div className="aquarium__meter">
         <span className="aquarium__meterlabel">Feed {quota}! 🐟</span>
         <span className="aquarium__meterbar" aria-hidden="true">

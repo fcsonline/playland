@@ -6,6 +6,9 @@ import { sfx } from '../../lib/audio.js'
 import { PICTURES, COLORS, PALETTE } from './pictures.js'
 import './mosaic.css'
 
+// Sentinel "color" for the eraser tool (clears a cell instead of painting it).
+const ERASE = 'erase'
+
 // Pick a random picture index, avoiding an immediate repeat of `avoid`.
 function randomPicIdx(avoid = -1) {
   const choices = PICTURES.map((_, i) => i).filter((i) => i !== avoid)
@@ -51,6 +54,14 @@ export default function MosaicArt() {
     if (done) return
     const targetKey = keyAt(pic, idx)
     setPainted((prev) => {
+      // Eraser: clear a filled cell so a mistake can be fixed. No reward, no win.
+      if (color === ERASE) {
+        if (prev[idx] == null) return prev
+        sfx.tap()
+        const next = { ...prev }
+        delete next[idx]
+        return next
+      }
       if (prev[idx] === color) return prev
       const wasRight = prev[idx] === targetKey
       const isRight = color === targetKey
@@ -162,6 +173,16 @@ export default function MosaicArt() {
             aria-label={`color ${key}`}
           />
         ))}
+        <button
+          className={`mosaic__swatch mosaic__swatch--erase ${color === ERASE ? 'is-on' : ''}`}
+          onClick={() => {
+            setColor(ERASE)
+            sfx.tap()
+          }}
+          aria-label="eraser"
+        >
+          🧽
+        </button>
       </div>
 
       {done && (

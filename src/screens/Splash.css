@@ -12,13 +12,14 @@
   background: radial-gradient(circle at 50% 40%, #fff9f0, #ffe9d6);
 }
 
-/* Full-bleed: the welcome art covers the whole screen, centered on the wordmark. */
+/* The welcome art is always shown in full (never cropped) — it scales to fit
+   inside the screen in BOTH orientations, letterboxed by the cream backdrop. */
 .splash__img {
   position: absolute;
   inset: 0;
   width: 100%;
   height: 100%;
-  object-fit: cover;
+  object-fit: contain;
   object-position: center;
   -webkit-user-drag: none;
   user-select: none;

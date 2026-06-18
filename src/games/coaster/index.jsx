@@ -1,19 +1,22 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { sfx, tone, noiseBurst } from '../../lib/audio.js'
-import { randInt, pick } from '../../lib/random.js'
+import { randInt } from '../../lib/random.js'
 import './coaster.css'
 
 /**
  * Ball Run — a draw-the-ramp gravity game (no-fail).
  *
- * A ball ⚪ rests near the top-left. A goal ⭐ sits lower down. The child draws
- * one or more ramp strokes with a finger; pressing "Drop!" releases the ball,
- * which falls under gentle gravity and bounces/rolls along every drawn segment.
+ * A drawn ball rests near the top-left. One or more drawn gold stars sit lower
+ * down. The child draws AT MOST TWO ramp strokes with a finger; pressing
+ * "Drop!" releases the ball, which falls under gentle gravity and bounces/rolls
+ * along every drawn segment. The ball must touch ALL stars in a single run to
+ * win the round.
  *
  * There is NO game over. If the ball falls off the bottom or stalls, it simply
- * resets to the start so the child can try a new ramp. Reaching the goal wins
- * the round → celebrate, then a fresh layout (new goal spot + maybe a peg).
+ * resets to the start (and the collected-stars set clears) so the child can try
+ * again. Collecting every star wins the round → celebrate, then a fresh layout
+ * (new star spots + maybe a peg, and more stars on later rounds).
  *
  * All physics live in refs and run in ONE requestAnimationFrame loop. A tick
  * state counter is bumped each frame to repaint positions from the refs.
@@ -28,8 +31,16 @@ const MAX_SPEED = 760 // speed cap so it never tunnels through a ramp
 const WALL_BOUNCE = 0.4 // side/top wall energy kept
 const STALL_TIME = 1.4 // seconds of near-stillness before a kind reset
 const STALL_SPEED = 26 // below this speed counts as "barely moving"
-const GOAL_HIT = 42 // generous goal capture radius (px)
+const GOAL_HIT = 42 // generous star capture radius (px)
 const MIN_STROKE_LEN = 8 // min finger travel before a segment is recorded (px)
+const MAX_STROKES = 2 // the child may draw at most two ramp strokes
+
+// How many stars a given round has (level 0 = 1 star, then ramp up, cap at 3).
+function starCountForRound(round) {
+  if (round <= 0) return 1
+  if (round === 1) return 2
+  return 3
+}
 
 // Distance from point P to segment AB, plus the closest point on the segment.
 function closestOnSegment(px, py, ax, ay, bx, by) {
@@ -51,17 +62,43 @@ function closestOnSegment(px, py, ax, ay, bx, by) {
 // Build a fresh layout for the given size + round number.
 function makeLayout(w, h, round) {
   const start = { x: Math.max(34, w * 0.16), y: Math.max(40, h * 0.12) }
-  // Goal lives in the lower portion; nudge it around per round but stay on-screen.
-  const goalSpots = [
+  // Candidate spots for stars, all in the lower portion and on-screen.
+  const candidates = [
     { x: w * 0.82, y: h * 0.82 },
     { x: w * 0.78, y: h * 0.7 },
     { x: w * 0.5, y: h * 0.86 },
     { x: w * 0.2, y: h * 0.8 },
     { x: w * 0.86, y: h * 0.58 },
+    { x: w * 0.34, y: h * 0.62 },
+    { x: w * 0.62, y: h * 0.74 },
   ]
-  const goal = pick(goalSpots)
-  goal.x = Math.max(40, Math.min(w - 40, goal.x))
-  goal.y = Math.max(h * 0.45, Math.min(h - 40, goal.y))
+  const clamp = (s) => ({
+    x: Math.max(40, Math.min(w - 40, s.x)),
+    y: Math.max(h * 0.45, Math.min(h - 40, s.y)),
+  })
+
+  // Pick N distinct spots, keeping them spread out so they don't overlap.
+  const wantedRaw = starCountForRound(round)
+  const wanted = Math.max(1, Math.min(candidates.length, wantedRaw))
+  const pool = candidates.slice()
+  const stars = []
+  const MIN_GAP = Math.max(70, Math.min(w, h) * 0.22)
+  let guard = 0
+  while (stars.length < wanted && pool.length && guard < 200) {
+    guard++
+    const idx = randInt(0, pool.length - 1)
+    const cand = clamp(pool[idx])
+    pool.splice(idx, 1)
+    const tooClose = stars.some((s) => Math.hypot(s.x - cand.x, s.y - cand.y) < MIN_GAP)
+    if (tooClose) continue
+    stars.push(cand)
+  }
+  // If spacing was too strict to fill the quota, top up ignoring the gap.
+  while (stars.length < wanted && pool.length) {
+    const idx = randInt(0, pool.length - 1)
+    stars.push(clamp(pool[idx]))
+    pool.splice(idx, 1)
+  }
 
   // After the first round, drop in a fixed round peg the ball can bonk off of.
   let peg = null
@@ -72,7 +109,7 @@ function makeLayout(w, h, round) {
       r: 20,
     }
   }
-  return { start, goal, peg }
+  return { start, stars, peg }
 }
 
 function freshBall(start) {
@@ -93,6 +130,9 @@ export default function Coaster() {
   const [tick, setTick] = useState(0) // bump to repaint from refs
   const [running, setRunning] = useState(false) // is the ball dropping?
   const [won, setWon] = useState(false)
+  // Which stars are collected this run — array<boolean> mirrored from a ref.
+  const [collected, setCollected] = useState([false])
+  const [strokeCount, setStrokeCount] = useState(0)
 
   // Live physics / geometry in refs (kept out of React state for smoothness).
   const layoutRef = useRef(makeLayout(340, 520, 0))
@@ -102,9 +142,18 @@ export default function Coaster() {
   const wonRef = useRef(false)
   const stallRef = useRef(0) // seconds the ball has been ~still
   const drawingRef = useRef(false)
+  // Collected flags live in a ref for the rAF loop; state mirrors it for paint.
+  const collectedRef = useRef([false])
 
   const [, setStrokeVer] = useState(0) // bump to redraw strokes
   const redrawStrokes = () => setStrokeVer((n) => (n + 1) % 1e6)
+
+  // Reset the collected-stars set to all-false for the current layout.
+  function resetCollected() {
+    const arr = layoutRef.current.stars.map(() => false)
+    collectedRef.current = arr
+    setCollected(arr)
+  }
 
   // Measure the field; rebuild the layout the first time we know the size.
   useLayoutEffect(() => {
@@ -130,6 +179,9 @@ export default function Coaster() {
     layoutRef.current = layout
     ballRef.current = freshBall(layout.start)
     stallRef.current = 0
+    const fresh = layout.stars.map(() => false)
+    collectedRef.current = fresh
+    setCollected(fresh)
     setRunning(() => {
       runningRef.current = false
       return false
@@ -147,6 +199,11 @@ export default function Coaster() {
   // ---- Drawing ramp strokes with the finger -------------------------------
   function onPointerDown(e) {
     if (wonRef.current) return
+    // At most two strokes — a third pointerdown is gently refused.
+    if (strokesRef.current.length >= MAX_STROKES) {
+      tone(220, { duration: 0.09, type: 'sine', gain: 0.05 })
+      return
+    }
     const p = localPoint(e)
     if (!p) return
     try {
@@ -156,6 +213,7 @@ export default function Coaster() {
     }
     drawingRef.current = true
     strokesRef.current.push([{ x: p.x, y: p.y }])
+    setStrokeCount(strokesRef.current.length)
     tone(360, { duration: 0.06, type: 'sine', gain: 0.06 })
     redrawStrokes()
   }
@@ -180,16 +238,19 @@ export default function Coaster() {
     const strokes = strokesRef.current
     const last = strokes[strokes.length - 1]
     if (last && last.length < 2) strokes.pop()
+    setStrokeCount(strokes.length)
     redrawStrokes()
   }
 
   // ---- Controls ------------------------------------------------------------
   function eraseStrokes() {
     strokesRef.current = []
+    setStrokeCount(0)
     runningRef.current = false
     setRunning(false)
     ballRef.current = freshBall(layoutRef.current.start)
     stallRef.current = 0
+    resetCollected()
     sfx.tap()
     redrawStrokes()
   }
@@ -197,6 +258,7 @@ export default function Coaster() {
   function resetBall() {
     ballRef.current = freshBall(layoutRef.current.start)
     stallRef.current = 0
+    resetCollected()
   }
 
   function drop() {
@@ -207,7 +269,7 @@ export default function Coaster() {
     tone(520, { duration: 0.1, type: 'sine', gain: 0.1 })
   }
 
-  // Gentle, no-fail reset: ball goes home, ready to drop again.
+  // Gentle, no-fail reset: ball goes home, ready to drop again (stars reset too).
   function softReset() {
     resetBall()
     runningRef.current = false
@@ -224,10 +286,11 @@ export default function Coaster() {
     sfx.win()
     const stars = randInt(2, 3)
     const rect = fieldRef.current?.getBoundingClientRect()
-    if (rect) {
+    const last = layoutRef.current.stars[layoutRef.current.stars.length - 1]
+    if (rect && last) {
       cbs.current.earn(stars, {
-        x: rect.left + layoutRef.current.goal.x,
-        y: rect.top + layoutRef.current.goal.y,
+        x: rect.left + last.x,
+        y: rect.top + last.y,
       })
     } else {
       cbs.current.earn(stars)
@@ -240,6 +303,7 @@ export default function Coaster() {
     if (!won) return
     const id = setTimeout(() => {
       strokesRef.current = []
+      setStrokeCount(0)
       wonRef.current = false
       setWon(false)
       setRound((r) => r + 1)
@@ -303,9 +367,25 @@ export default function Coaster() {
           softBonk()
         }
 
-        // Goal capture (generous radius).
-        if (Math.hypot(b.x - layout.goal.x, b.y - layout.goal.y) <= GOAL_HIT) {
-          onWin()
+        // Star capture (generous radius). Collect any star within reach; win
+        // only once EVERY star this run has been collected.
+        const flags = collectedRef.current
+        const stars = layout.stars
+        let changed = false
+        for (let i = 0; i < stars.length; i++) {
+          if (flags[i]) continue
+          if (Math.hypot(b.x - stars[i].x, b.y - stars[i].y) <= GOAL_HIT) {
+            flags[i] = true
+            changed = true
+          }
+        }
+        if (changed) {
+          // Mirror to state for paint; a happy chime per star collected.
+          setCollected(flags.slice())
+          tone(784, { duration: 0.12, type: 'triangle', gain: 0.12 })
+          if (flags.every(Boolean)) {
+            onWin()
+          }
         }
 
         // Stall detection → kind reset (no scary feedback).
@@ -400,15 +480,31 @@ export default function Coaster() {
   const strokes = strokesRef.current
   void tick // tick drives repaint; referenced so linters keep the dependency
 
+  const linesLeft = MAX_STROKES - strokeCount
+
   return (
     <div className="coaster">
       <div className="coaster__toolbar">
         <button className="btn btn--good coaster__btn" onClick={drop}>
-          {running ? 'Drop again ⤵️' : 'Drop! ⤵️'}
+          {running ? 'Drop again' : 'Drop!'} ⤵️
         </button>
         <button className="btn btn--ghost coaster__btn" onClick={eraseStrokes}>
           Erase 🧽
         </button>
+        <span className="coaster__lines" aria-label={`${linesLeft} lines left`}>
+          <span className="coaster__lines-label">Lines</span>
+          <span className="coaster__pips">
+            {Array.from({ length: MAX_STROKES }).map((_, i) => (
+              <span
+                key={i}
+                className={`coaster__pip ${i < strokeCount ? 'is-used' : ''}`}
+              />
+            ))}
+          </span>
+          <span className="coaster__lines-count">
+            {strokeCount}/{MAX_STROKES}
+          </span>
+        </span>
       </div>
 
       <div
@@ -419,11 +515,11 @@ export default function Coaster() {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
-        {/* Decorative starry sky */}
-        <span className="coaster__deco coaster__deco--a" aria-hidden="true">☁️</span>
-        <span className="coaster__deco coaster__deco--b" aria-hidden="true">✨</span>
-        <span className="coaster__deco coaster__deco--c" aria-hidden="true">🪐</span>
-        <span className="coaster__deco coaster__deco--d" aria-hidden="true">✨</span>
+        {/* Decorative drawn sky: a soft cloud, twinkles and a little planet */}
+        <span className="coaster__deco coaster__cloud" aria-hidden="true" />
+        <span className="coaster__deco coaster__twinkle coaster__twinkle--a" aria-hidden="true" />
+        <span className="coaster__deco coaster__twinkle coaster__twinkle--b" aria-hidden="true" />
+        <span className="coaster__deco coaster__planet" aria-hidden="true" />
 
         {/* Drawn ramps */}
         <svg
@@ -464,25 +560,46 @@ export default function Coaster() {
           aria-hidden="true"
         />
 
-        {/* Goal */}
-        <span
-          className={`coaster__goal ${won ? 'is-won' : ''}`}
-          style={{ left: layout.goal.x, top: layout.goal.y }}
-          aria-hidden="true"
-        >
-          ⭐
-        </span>
+        {/* Stars — drawn SVG, dimmed + checked once collected */}
+        {layout.stars.map((s, i) => {
+          const isGot = !!collected[i]
+          return (
+            <span
+              key={i}
+              className={`coaster__star ${isGot ? 'is-collected' : ''} ${
+                won ? 'is-won' : ''
+              }`}
+              style={{ left: s.x, top: s.y }}
+              aria-hidden="true"
+            >
+              <svg viewBox="0 0 24 24" className="coaster__star-svg">
+                <path
+                  className="coaster__star-shape"
+                  d="M12 1.6l3.09 6.26 6.91 1-5 4.87 1.18 6.87L12 17.27 5.82 20.6 7 13.73l-5-4.87 6.91-1L12 1.6z"
+                />
+              </svg>
+              {isGot && (
+                <svg viewBox="0 0 24 24" className="coaster__star-check" aria-hidden="true">
+                  <path
+                    className="coaster__star-check-mark"
+                    d="M5 12.5l4 4 10-10"
+                  />
+                </svg>
+              )}
+            </span>
+          )
+        })}
 
-        {/* Ball */}
+        {/* Ball — drawn sphere with radial gradient + highlight */}
         <span
           className="coaster__ball"
           style={{ left: ball.x, top: ball.y, width: R * 2, height: R * 2 }}
           aria-hidden="true"
         >
-          ⚪
+          <span className="coaster__ball-shine" />
         </span>
 
-        {won && <div className="coaster__toast">Nice run! ⭐ Yay!</div>}
+        {won && <div className="coaster__toast">Nice run! All stars! ⭐</div>}
       </div>
     </div>
   )

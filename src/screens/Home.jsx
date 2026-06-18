@@ -1,5 +1,6 @@
 import { GAMES } from '../games/registry.js'
 import ART from '../games/thumbnails.js'
+import { GAME_ART } from '../games/artwork.jsx'
 import './Home.css'
 
 export default function Home({ onOpen }) {
@@ -22,6 +23,8 @@ export default function Home({ onOpen }) {
             <div className="card__thumb">
               {ART[g.id] ? (
                 <img className="card__art" src={ART[g.id]} alt="" loading="lazy" draggable="false" />
+              ) : GAME_ART[g.id] ? (
+                GAME_ART[g.id]()
               ) : (
                 <span className="card__emoji" aria-hidden="true">
                   {g.emoji}

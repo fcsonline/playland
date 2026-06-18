@@ -10,12 +10,51 @@
   display: flex;
   gap: 10px;
   justify-content: center;
+  align-items: center;
   flex-wrap: wrap;
 }
 
 .coaster__btn {
   font-size: clamp(0.95rem, 4vw, 1.15rem);
   padding: 10px 18px;
+}
+
+/* "Lines x/2" chip with two fill-in pips. */
+.coaster__lines {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.16);
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(0.85rem, 3.6vw, 1rem);
+  line-height: 1;
+}
+.coaster__lines-label {
+  opacity: 0.9;
+}
+.coaster__pips {
+  display: inline-flex;
+  gap: 5px;
+}
+.coaster__pip {
+  width: 12px;
+  height: 12px;
+  border-radius: 50%;
+  border: 2px solid rgba(255, 255, 255, 0.7);
+  background: transparent;
+  transition: background 0.15s ease, box-shadow 0.15s ease;
+}
+.coaster__pip.is-used {
+  background: #ffd23f;
+  border-color: #ffd23f;
+  box-shadow: 0 0 6px rgba(255, 210, 63, 0.8);
+}
+.coaster__lines-count {
+  font-variant-numeric: tabular-nums;
+  opacity: 0.95;
 }
 
 .coaster__field {
@@ -50,28 +89,95 @@
   filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
 }
 
+/* ---- Decorative drawn sky (no emoji) ----------------------------------- */
 .coaster__deco {
   position: absolute;
-  font-size: clamp(1rem, 5vw, 1.6rem);
   pointer-events: none;
+}
+
+/* Soft fluffy cloud built from overlapping white blobs. */
+.coaster__cloud {
+  left: 10%;
+  top: 8%;
+  width: 64px;
+  height: 24px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.78);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
   opacity: 0.85;
 }
-.coaster__deco--a {
-  left: 12%;
-  top: 8%;
+.coaster__cloud::before,
+.coaster__cloud::after {
+  content: '';
+  position: absolute;
+  background: rgba(255, 255, 255, 0.78);
+  border-radius: 50%;
 }
-.coaster__deco--b {
-  right: 14%;
+.coaster__cloud::before {
+  width: 28px;
+  height: 28px;
+  left: 8px;
+  top: -14px;
+}
+.coaster__cloud::after {
+  width: 22px;
+  height: 22px;
+  right: 10px;
+  top: -10px;
+}
+
+/* Twinkles: tiny soft glowing dots. */
+.coaster__twinkle {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background: #fff;
+  box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.85);
+  opacity: 0.9;
+  animation: coaster-twinkle 2.4s ease-in-out infinite;
+}
+.coaster__twinkle--a {
+  right: 16%;
   top: 22%;
 }
-.coaster__deco--c {
-  right: 8%;
-  top: 6%;
-  font-size: clamp(1.4rem, 7vw, 2.2rem);
-}
-.coaster__deco--d {
+.coaster__twinkle--b {
   left: 22%;
-  bottom: 18%;
+  bottom: 16%;
+  animation-delay: 1.1s;
+}
+
+/* Little ringed planet. */
+.coaster__planet {
+  right: 9%;
+  top: 7%;
+  width: 30px;
+  height: 30px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffd9a0, #e89b54 60%, #b96f33);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+}
+.coaster__planet::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 46px;
+  height: 14px;
+  transform: translate(-50%, -50%) rotate(-22deg);
+  border: 3px solid rgba(255, 255, 255, 0.65);
+  border-radius: 50%;
+}
+
+@keyframes coaster-twinkle {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scale(0.7);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.1);
+  }
 }
 
 .coaster__start {
@@ -94,30 +200,84 @@
   pointer-events: none;
 }
 
-.coaster__goal {
+/* ---- Drawn gold stars -------------------------------------------------- */
+.coaster__star {
   position: absolute;
   transform: translate(-50%, -50%);
+  width: clamp(34px, 9vw, 52px);
+  height: clamp(34px, 9vw, 52px);
   display: grid;
   place-items: center;
-  font-size: clamp(1.8rem, 9vw, 2.8rem);
-  line-height: 1;
   pointer-events: none;
-  filter: drop-shadow(0 0 10px rgba(255, 210, 63, 0.9));
   animation: coaster-goal-pulse 1.4s ease-in-out infinite;
 }
-.coaster__goal.is-won {
-  animation: coaster-goal-pop 0.7s ease-out;
+.coaster__star-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.coaster__star-shape {
+  fill: #ffd23f;
+  stroke: #f4a623;
+  stroke-width: 1;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 0 8px rgba(255, 210, 63, 0.85));
 }
 
+/* Collected: dim it and freeze the pulse; a green check appears on top. */
+.coaster__star.is-collected {
+  animation: none;
+  opacity: 0.45;
+}
+.coaster__star.is-collected .coaster__star-shape {
+  fill: #cdb863;
+  stroke: #9c8a3e;
+  filter: none;
+}
+.coaster__star-check {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+}
+.coaster__star-check-mark {
+  fill: none;
+  stroke: #2ecc71;
+  stroke-width: 3.4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+}
+
+/* On win, every star glows bright and gives a happy pop. */
+.coaster__star.is-won {
+  animation: coaster-goal-pop 0.7s ease-out;
+  opacity: 1;
+}
+.coaster__star.is-won .coaster__star-shape {
+  fill: #ffe066;
+  stroke: #f4a623;
+  filter: drop-shadow(0 0 14px rgba(255, 224, 102, 1));
+}
+
+/* ---- Drawn ball (radial-gradient sphere + highlight) ------------------- */
 .coaster__ball {
   position: absolute;
   transform: translate(-50%, -50%);
-  display: grid;
-  place-items: center;
-  font-size: 28px;
-  line-height: 1;
+  border-radius: 50%;
+  background: radial-gradient(circle at 32% 28%, #ffffff 0%, #dfe6f5 38%, #9aa6c9 78%, #6d78a0 100%);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4), inset -3px -4px 6px rgba(0, 0, 0, 0.25);
   pointer-events: none;
-  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4));
+}
+.coaster__ball-shine {
+  position: absolute;
+  left: 26%;
+  top: 20%;
+  width: 30%;
+  height: 24%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+  filter: blur(0.5px);
 }
 
 .coaster__toast {

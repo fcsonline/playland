@@ -7,11 +7,15 @@ import './cups.css'
 /**
  * Find the Ball — the classic 3-cups shell game, made gentle for little kids.
  *
- * Three cups sit over three evenly-spaced positions. A ball ⚪ hides under one.
- * A round goes: SHOW (lift the cup with the ball so the child sees where it is)
- * → SHUFFLE (cups slide around each other a few times) → GUESS (tap a cup, it
- * lifts) → REVEAL. A correct guess celebrates; a wrong one gently shows the
- * empty cup, then reveals where the ball really was — no game over, ever.
+ * Three identical cups sit over three evenly-spaced positions. A ball hides
+ * under one. A round goes: SHOW (lift the cup with the ball so the child sees
+ * where it is) → SHUFFLE (cups hop past each other a few times) → GUESS (tap a
+ * cup, it lifts) → REVEAL. A correct guess celebrates; a wrong one gently shows
+ * the empty cup, then reveals where the ball really was — no game over, ever.
+ *
+ * Because all cups look the same, the only way to win is to follow the moving
+ * cup with your eyes — so each swap lifts the two cups into a little 3D hop, one
+ * passing clearly in front of the other.
  *
  * The trick to tracking the ball: each cup has a stable `id`, and we track the
  * `ballCup` id (never a position). Shuffling only swaps which *position* each
@@ -20,8 +24,8 @@ import './cups.css'
  */
 
 const CUP_IDS = [0, 1, 2]
-// Cup tint per id — just for friendly variety; the ball is what matters.
-const CUP_COLORS = ['#ff7eb3', '#5ec5ff', '#ffce4f']
+// All three cups share ONE identical look (a shell game only works if the cups
+// are indistinguishable). No per-cup color — the ball is what matters.
 
 // Three evenly-spaced slots across the stage (left %, as a center point).
 const SLOT_LEFT = [18, 50, 82]
@@ -47,6 +51,13 @@ export default function FindTheBall() {
   const [ballCup, setBallCup] = useState(() => randInt(0, 2))
   // Set of cup ids currently lifted (showing what's underneath).
   const [lifted, setLifted] = useState([])
+  // During a swap, the two cups in motion hop past each other. We track which
+  // cup ids are mid-hop and which one passes IN FRONT (higher z-index) so the
+  // motion reads as real 3D depth. null when nothing is hopping.
+  const [hop, setHop] = useState(null) // { ids: [a, b], front: cupId } | null
+  // Current swap speed (ms). Drives the slot slide + hop animation durations so
+  // the 3D hop always finishes within one swap, even at the faster rounds.
+  const [swapMs, setSwapMs] = useState(820)
   // Outcome after a guess: null | 'win' | 'miss'
   const [outcome, setOutcome] = useState(null)
   const [pickedCup, setPickedCup] = useState(null)
@@ -76,6 +87,7 @@ export default function FindTheBall() {
     setPos([0, 1, 2])
     setPickedCup(null)
     setOutcome(null)
+    setHop(null)
     setPhase('show')
     // SHOW: lift the ball's cup so the child sees where it starts, then lower.
     setLifted([ball])
@@ -99,27 +111,39 @@ export default function FindTheBall() {
   function startShuffle() {
     setPhase('show') // keep taps disabled
     const { swaps, speed } = roundPlan(round)
+    setSwapMs(speed)
     setPhase('shuffle')
 
     const step = (n) => {
       if (n <= 0) {
         // Done shuffling — let the child guess.
+        setHop(null)
         after(speed, () => setPhase('guess'))
         return
       }
       // Pick two distinct slots to swap.
       const [a, b] = shuffle([0, 1, 2]).slice(0, 2)
-      setPos((prev) => {
-        const next = prev.slice()
-        // Find which cup ids are at slots a and b, and swap their slots.
-        const cupAtA = next.indexOf(a)
-        const cupAtB = next.indexOf(b)
-        next[cupAtA] = b
-        next[cupAtB] = a
-        return next
+      // Which cup ids sit at those two slots right now (the pair that moves).
+      const cupAtA = posRef.current.indexOf(a)
+      const cupAtB = posRef.current.indexOf(b)
+      // One cup hops IN FRONT of the other — randomize which, for natural feel.
+      const front = randInt(0, 1) === 0 ? cupAtA : cupAtB
+      // Lift the moving pair into a hop just before they trade places, so the
+      // slide happens while they're up in the air (the 3D move cue).
+      setHop({ ids: [cupAtA, cupAtB], front })
+      after(speed * 0.18, () => {
+        setPos((prev) => {
+          const next = prev.slice()
+          // Swap which slot each of the two cups sits at.
+          next[cupAtA] = b
+          next[cupAtB] = a
+          return next
+        })
       })
       // Soft swishy blip on each swap.
       tone(randInt(360, 520), { duration: 0.08, type: 'sine', gain: 0.06 })
+      // Let the pair settle back down before the next swap begins.
+      after(speed * 0.82, () => setHop(null))
       after(speed, () => step(n - 1))
     }
 
@@ -161,11 +185,11 @@ export default function FindTheBall() {
   }
 
   let hint
-  if (phase === 'show') hint = 'Watch the ball! 👀'
-  else if (phase === 'shuffle') hint = 'Shuffling… ✨'
-  else if (phase === 'guess') hint = 'Where is the ball? Tap a cup! 👆'
+  if (phase === 'show') hint = 'Watch the ball!'
+  else if (phase === 'shuffle') hint = 'Shuffling…'
+  else if (phase === 'guess') hint = 'Where is the ball? Tap a cup!'
   else if (outcome === 'win') hint = 'You found it! 🎉'
-  else hint = 'There it was! 🙂'
+  else hint = 'There it was!'
 
   const canTap = phase === 'guess'
 
@@ -173,7 +197,12 @@ export default function FindTheBall() {
     <div className="cups">
       <div className={`cups__hint ${outcome === 'win' ? 'is-win' : ''}`}>{hint}</div>
 
-      <div className="cups__stage play-surface" role="group" aria-label="Find the ball">
+      <div
+        className="cups__stage play-surface"
+        role="group"
+        aria-label="Find the ball"
+        style={{ '--swap-ms': `${swapMs}ms` }}
+      >
         <div className="cups__table" aria-hidden="true" />
 
         {/* The ball sits at the slot of whichever cup is hiding it. It shows
@@ -184,27 +213,32 @@ export default function FindTheBall() {
           const hasBall = cupId === ballCup
           const isPick = pickedCup === cupId
           const wrongPick = outcome === 'miss' && isPick && !hasBall
+          const isHopping = hop && hop.ids.includes(cupId)
+          const isFront = hop && hop.front === cupId
+          // Raised cups (mid-hop or lifted to reveal) ride above the others so
+          // the moving cup clearly passes in front. The hop "front" cup wins.
+          const z = isLifted ? 6 : isFront ? 5 : isHopping ? 4 : 2
           return (
             <div
               key={cupId}
               className="cups__slot"
-              style={{ left: `${SLOT_LEFT[slot]}%` }}
+              style={{ left: `${SLOT_LEFT[slot]}%`, zIndex: z }}
             >
-              {/* Ball — revealed under a lifted cup. */}
+              {/* Ball — a drawn 3D sphere revealed under a lifted cup. */}
               <div
                 className={`cups__ball ${isLifted && hasBall ? 'is-shown' : ''} ${
                   isLifted && hasBall && outcome === 'win' ? 'is-happy' : ''
                 }`}
                 aria-hidden="true"
               >
-                ⚪
+                <span className="cups__ball-orb" />
+                <span className="cups__ball-shadow" />
               </div>
 
               <button
                 className={`cups__cup ${isLifted ? 'is-lifted' : ''} ${
                   wrongPick ? 'is-wrong' : ''
-                } ${phase === 'shuffle' ? 'is-shuffling' : ''}`}
-                style={{ '--cup-color': CUP_COLORS[cupId] }}
+                } ${isHopping ? 'is-hopping' : ''}`}
                 onPointerDown={(e) => {
                   e.preventDefault()
                   guess(cupId)
@@ -212,7 +246,10 @@ export default function FindTheBall() {
                 disabled={!canTap}
                 aria-label={canTap ? `cup ${cupId + 1}` : 'cup'}
               >
+                {/* Soft cast shadow on the table; shrinks/softens when raised. */}
+                <span className="cups__cup-cast" aria-hidden="true" />
                 <span className="cups__cup-shape" aria-hidden="true">
+                  <span className="cups__cup-rim" />
                   <span className="cups__cup-shine" />
                 </span>
               </button>

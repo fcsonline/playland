@@ -1,0 +1,294 @@
+.cannon {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+.cannon__field {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  max-width: min(100%, 96vh);
+  margin: 0 auto;
+  align-self: center;
+  padding: 0;
+  /* Sunny sky → soft ground glow. */
+  background: linear-gradient(180deg, #aee3ff 0%, #d6f1ff 55%, #eafbe6 100%);
+  overflow: hidden;
+  touch-action: none;
+  min-height: 0;
+  border-radius: var(--radius);
+}
+
+/* ---- Decoration ---- */
+.cannon__sun {
+  position: absolute;
+  top: 4%;
+  right: 6%;
+  font-size: clamp(1.8rem, 9vw, 3rem);
+  filter: drop-shadow(0 2px 6px rgba(255, 200, 0, 0.35));
+  animation: cannon-spin 22s linear infinite;
+}
+@keyframes cannon-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+.cannon__cloud {
+  position: absolute;
+  font-size: clamp(1.6rem, 8vw, 2.6rem);
+  opacity: 0.92;
+  filter: drop-shadow(0 3px 6px rgba(0, 0, 0, 0.08));
+  animation: cannon-drift 14s ease-in-out infinite alternate;
+}
+.cannon__cloud--a {
+  top: 12%;
+  left: 14%;
+}
+.cannon__cloud--b {
+  top: 26%;
+  left: 56%;
+  animation-duration: 18s;
+}
+@keyframes cannon-drift {
+  from {
+    transform: translateX(-8px);
+  }
+  to {
+    transform: translateX(12px);
+  }
+}
+
+/* Rolling green ground at the bottom. */
+.cannon__hills {
+  position: absolute;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 18%;
+  background:
+    radial-gradient(120% 120% at 20% 100%, #8fe06a 0%, #7ed957 60%, transparent 61%),
+    radial-gradient(120% 120% at 80% 100%, #8fe06a 0%, #7ed957 60%, transparent 61%),
+    linear-gradient(180deg, #9be878, #7ed957);
+  border-top: 3px solid rgba(255, 255, 255, 0.35);
+}
+
+/* ---- Predicted aim arc ---- */
+.cannon__dot {
+  position: absolute;
+  width: clamp(5px, 1.4vw, 8px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: rgba(58, 44, 90, 0.55);
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ---- Balloons ---- */
+.cannon__balloon {
+  position: absolute;
+  aspect-ratio: 3 / 4;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  animation: cannon-pop-in 0.3s ease;
+}
+.cannon__balloon-body {
+  position: absolute;
+  inset: 0 0 14% 0;
+  border-radius: 50% 50% 50% 50% / 46% 46% 54% 54%;
+  background:
+    radial-gradient(circle at 32% 28%, rgba(255, 255, 255, 0.75), rgba(255, 255, 255, 0) 42%),
+    var(--bcolor, #ff6b8b);
+  box-shadow: inset -4px -6px 10px rgba(0, 0, 0, 0.15),
+    0 4px 10px rgba(0, 0, 0, 0.18);
+}
+/* The little tied knot at the bottom. */
+.cannon__balloon-body::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  bottom: -7%;
+  width: 16%;
+  height: 12%;
+  transform: translateX(-50%);
+  background: var(--bcolor, #ff6b8b);
+  clip-path: polygon(50% 0, 100% 100%, 0 100%);
+}
+.cannon__balloon-string {
+  position: absolute;
+  left: 50%;
+  bottom: 0;
+  width: 2px;
+  height: 16%;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 2px;
+}
+
+@keyframes cannon-pop-in {
+  0% {
+    transform: translate(-50%, -50%) scale(0.4);
+    opacity: 0;
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+/* ---- Pop burst ---- */
+.cannon__burst {
+  position: absolute;
+  width: 0;
+  height: 0;
+  pointer-events: none;
+}
+.cannon__spark {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: clamp(7px, 2vw, 12px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  transform: translate(-50%, -50%) rotate(var(--ang)) translateY(0) scale(1);
+  animation: cannon-spark 0.6s ease-out forwards;
+}
+@keyframes cannon-spark {
+  0% {
+    transform: translate(-50%, -50%) rotate(var(--ang)) translateY(0) scale(1);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(-50%, -50%) rotate(var(--ang)) translateY(-34px) scale(0.3);
+    opacity: 0;
+  }
+}
+
+/* ---- Dart + trail ---- */
+.cannon__dart {
+  position: absolute;
+  font-size: clamp(1.2rem, 6vw, 2rem);
+  line-height: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.3));
+  z-index: 4;
+}
+.cannon__trail {
+  position: absolute;
+  width: clamp(6px, 1.6vw, 10px);
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background: #ff7eb3;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+}
+
+/* ---- Cannon rig ---- */
+.cannon__rig {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  pointer-events: none;
+  z-index: 5;
+  width: clamp(54px, 16vw, 84px);
+  height: clamp(54px, 16vw, 84px);
+}
+.cannon__barrel {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 70%;
+  height: 34%;
+  border-radius: 0 999px 999px 0;
+  background: linear-gradient(180deg, #6b7280, #3a3f4b);
+  box-shadow: inset 0 -3px 4px rgba(0, 0, 0, 0.35);
+  transform-origin: 10% 50%;
+  /* base transform is overridden inline with the live rotation */
+}
+.cannon__muzzle {
+  position: absolute;
+  right: -4%;
+  top: 50%;
+  width: 22%;
+  height: 130%;
+  transform: translateY(-50%);
+  border-radius: 6px;
+  background: #2a2e38;
+}
+.cannon__base {
+  position: absolute;
+  left: 50%;
+  top: 56%;
+  width: 64%;
+  height: 56%;
+  transform: translateX(-50%);
+  border-radius: 50% 50% 14px 14px;
+  background: radial-gradient(circle at 38% 30%, #ffd23f, #ff8a00);
+  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.25);
+}
+/* Wheel dot on the base for a toy-cannon look. */
+.cannon__base::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 52%;
+  width: 32%;
+  aspect-ratio: 1;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: #fff7ed;
+  box-shadow: inset 0 0 0 3px rgba(0, 0, 0, 0.15);
+}
+
+/* Power meter floats just above the cannon while aiming. */
+.cannon__power {
+  position: absolute;
+  left: 50%;
+  top: -34%;
+  width: 120%;
+  height: 12%;
+  min-height: 6px;
+  transform: translateX(-50%);
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  overflow: hidden;
+  box-shadow: 0 2px 5px rgba(0, 0, 0, 0.18);
+}
+.cannon__power-fill {
+  height: 100%;
+  background: linear-gradient(90deg, #7ed957, #ffce4f, #ff6b8b);
+  border-radius: 999px;
+  transition: width 0.05s linear;
+}
+
+/* ---- Counter chip ---- */
+.cannon__count {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  padding: 6px 12px;
+  font-size: clamp(0.85rem, 4vw, 1.05rem);
+  z-index: 6;
+}
+
+/* ---- Hint ---- */
+.cannon__hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: var(--white);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+/* Landscape phones: shrink the field so it + the hint stay on screen. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .cannon {
+    gap: 6px;
+  }
+  .cannon__field {
+    max-width: min(100%, 48vh);
+  }
+}

@@ -1,0 +1,219 @@
+.trace {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+.trace__top {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  flex: none;
+}
+
+/* Big bold glyph name in the corner ("A", "3", …). */
+.trace__name {
+  font-size: clamp(1.6rem, 9vw, 2.6rem);
+  font-weight: 900;
+  color: var(--glyph, var(--primary));
+  min-width: 56px;
+  justify-content: center;
+  padding: 4px 18px;
+}
+
+.trace__next {
+  font-size: 1.4rem;
+  padding: 8px 18px;
+}
+
+.trace__board {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  touch-action: none;
+  cursor: pointer;
+  background:
+    radial-gradient(circle at 18% 18%, rgba(255, 206, 79, 0.18), transparent 40%),
+    radial-gradient(circle at 82% 84%, rgba(108, 92, 231, 0.14), transparent 42%),
+    linear-gradient(160deg, #fffdf6, #fff3fb);
+  transition: box-shadow 0.25s ease;
+}
+.trace__board.is-done {
+  box-shadow: inset 0 0 0 5px color-mix(in srgb, var(--glyph, #6c5ce7) 55%, transparent),
+    var(--shadow-lg);
+}
+
+.trace__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  z-index: 1;
+  pointer-events: none;
+}
+.trace__guide {
+  fill: none;
+  stroke: rgba(58, 44, 90, 0.16);
+  stroke-width: clamp(20px, 11vw, 40px);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  stroke-dasharray: 1 26;
+}
+.trace__glow {
+  fill: none;
+  stroke: var(--glyph, #6c5ce7);
+  stroke-width: clamp(14px, 8vw, 30px);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  transition: opacity 0.3s ease;
+}
+.trace__glow.is-on {
+  opacity: 0.9;
+  filter: drop-shadow(0 0 10px var(--glyph, #6c5ce7));
+  animation: trace-glow 0.6s ease;
+}
+@keyframes trace-glow {
+  0% {
+    opacity: 0;
+    stroke-width: 8px;
+  }
+  60% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0.9;
+  }
+}
+
+/* Fat, easy-to-hit waypoint dots. */
+.trace__dot {
+  position: absolute;
+  width: clamp(30px, 13vw, 48px);
+  height: clamp(30px, 13vw, 48px);
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: var(--white);
+  border: 4px solid rgba(58, 44, 90, 0.22);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.12);
+  z-index: 2;
+  transition: transform 0.12s ease, background 0.15s ease, border-color 0.15s ease;
+}
+.trace__dot.is-lit {
+  background: var(--glyph, #6c5ce7);
+  border-color: var(--white);
+  box-shadow: 0 0 0 3px color-mix(in srgb, var(--glyph, #6c5ce7) 40%, transparent),
+    0 4px 10px rgba(0, 0, 0, 0.2);
+  animation: trace-pop 0.3s cubic-bezier(0.18, 1.5, 0.4, 1);
+  z-index: 3;
+}
+@keyframes trace-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(0.5);
+  }
+  60% {
+    transform: translate(-50%, -50%) scale(1.25);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+}
+
+/* The first dot is green: "start here". */
+.trace__dot.is-start {
+  border-color: var(--good, #2ecc71);
+  background: #eafff1;
+  z-index: 4;
+}
+.trace__dot.is-start.is-lit {
+  background: var(--glyph, #6c5ce7);
+  border-color: var(--white);
+}
+
+/* Pulsing ring inviting the child to press the green start dot. */
+.trace__startring {
+  position: absolute;
+  inset: -10px;
+  border-radius: 50%;
+  border: 4px solid var(--good, #2ecc71);
+  animation: trace-ring 1.2s ease-out infinite;
+}
+@keyframes trace-ring {
+  0% {
+    transform: scale(0.7);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.7);
+    opacity: 0;
+  }
+}
+
+.trace__deco {
+  position: absolute;
+  font-size: 1.6rem;
+  opacity: 0.5;
+  z-index: 0;
+  animation: trace-bob 3.5s ease-in-out infinite;
+}
+.trace__deco--a {
+  top: 8px;
+  left: 10px;
+}
+.trace__deco--b {
+  bottom: 10px;
+  right: 12px;
+  animation-delay: -1.6s;
+}
+@keyframes trace-bob {
+  0%,
+  100% {
+    transform: translateY(0) rotate(-6deg);
+  }
+  50% {
+    transform: translateY(-6px) rotate(6deg);
+  }
+}
+
+.trace__cheer {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  font-weight: 900;
+  font-size: clamp(1.6rem, 8vw, 2.8rem);
+  color: var(--white);
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.3);
+  background: color-mix(in srgb, var(--glyph, #6c5ce7) 22%, transparent);
+  z-index: 6;
+  animation: pop-in 0.3s ease;
+}
+
+.trace__bar {
+  height: 14px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.6);
+  overflow: hidden;
+  box-shadow: inset 0 1px 3px rgba(0, 0, 0, 0.15);
+  flex: none;
+}
+.trace__bar-fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, color-mix(in srgb, var(--glyph, #6c5ce7) 60%, #fff), var(--glyph, #6c5ce7));
+  transition: width 0.18s ease;
+}
+
+/* Landscape / short viewports: trim chrome so the board stays fully visible. */
+@media (max-height: 600px) and (orientation: landscape) {
+  .trace {
+    gap: 6px;
+  }
+  .trace__bar {
+    display: none;
+  }
+}

@@ -1,0 +1,193 @@
+.circuit {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* The scene holding the lamp sockets along the top. */
+.circuit__scene {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  justify-content: flex-start;
+  background: linear-gradient(180deg, #2b2358, #3a2c5a);
+  overflow: hidden;
+  transition: background 0.5s ease, box-shadow 0.5s ease;
+}
+/* Everything brightens once all bulbs are lit. */
+.circuit__scene.is-bright {
+  background: linear-gradient(180deg, #fff4c2, #ffe08a);
+  box-shadow: var(--shadow-lg), inset 0 0 90px rgba(255, 224, 120, 0.9);
+}
+
+.circuit__sockets {
+  display: flex;
+  gap: clamp(8px, 4vw, 22px);
+  justify-content: center;
+  align-items: flex-start;
+  padding-top: 4px;
+}
+
+/* One lamp: wire + socket collar + seated bulb. */
+.circuit__socket {
+  position: relative;
+  width: clamp(72px, 26vw, 110px);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+/* The drooping wire that glows when the bulb is in. */
+.circuit__wire {
+  width: 4px;
+  height: clamp(14px, 5vw, 26px);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.18);
+  transition: background 0.3s ease, box-shadow 0.3s ease;
+}
+.circuit__socket.is-lit .circuit__wire {
+  background: var(--glow);
+  box-shadow: 0 0 10px var(--glow), 0 0 18px var(--glow);
+}
+
+/* Where the bulb sits — also the visible empty holder when unlit. */
+.circuit__seat {
+  width: clamp(64px, 22vw, 96px);
+  height: clamp(78px, 28vw, 120px);
+  display: grid;
+  place-items: center;
+  border-radius: 50% 50% 14px 14px;
+  background: rgba(255, 255, 255, 0.05);
+  border: 3px dashed rgba(255, 255, 255, 0.28);
+  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease,
+    box-shadow 0.15s ease;
+}
+/* The colored collar marks each socket's target color. */
+.circuit__collar {
+  width: clamp(40px, 15vw, 60px);
+  height: clamp(12px, 4.5vw, 18px);
+  margin-top: -4px;
+  border-radius: 0 0 8px 8px;
+  background: linear-gradient(180deg, var(--glass), rgba(0, 0, 0, 0.25));
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
+}
+
+/* Highlight a socket the finger is hovering (only if it can accept a bulb). */
+.circuit__socket.is-hot .circuit__seat {
+  border-color: var(--glass);
+  background: rgba(255, 255, 255, 0.14);
+  transform: scale(1.07) translateY(-2px);
+  box-shadow: 0 0 16px var(--glow);
+}
+/* Once lit: warm glow + a gentle brightness pulse. */
+.circuit__socket.is-lit .circuit__seat {
+  border-style: solid;
+  border-color: transparent;
+  background: transparent;
+  animation: circuit-pulse 1.8s ease-in-out infinite;
+}
+@keyframes circuit-pulse {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 10px var(--glow)) brightness(1);
+  }
+  50% {
+    filter: drop-shadow(0 0 22px var(--glow)) brightness(1.18);
+  }
+}
+
+/* Bulb tray at the bottom. */
+.circuit__tray {
+  display: flex;
+  gap: clamp(8px, 4vw, 20px);
+  justify-content: center;
+  align-items: flex-end;
+  min-height: clamp(96px, 30vw, 140px);
+  padding: 6px;
+}
+.circuit__bulb {
+  width: clamp(64px, 22vw, 96px);
+  height: clamp(80px, 28vw, 120px);
+  display: grid;
+  place-items: center;
+  background: none;
+  touch-action: none;
+  animation: pop-in 0.25s ease;
+  transition: transform 0.1s ease;
+}
+.circuit__bulb:active {
+  transform: scale(0.92);
+}
+.circuit__bulb.is-dragging {
+  opacity: 0.25;
+}
+.circuit__bulb.is-wrong {
+  animation: wiggle 0.44s ease;
+}
+
+/* The bulb SVG itself. */
+.circuit__bulb-svg {
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+.circuit__glass {
+  fill: var(--dim);
+  transition: fill 0.2s ease;
+}
+.circuit__glass.is-lit {
+  fill: var(--glow);
+  filter: drop-shadow(0 0 8px var(--glow)) drop-shadow(0 0 16px var(--glow));
+}
+.circuit__filament {
+  stroke: rgba(255, 255, 255, 0.35);
+  transition: stroke 0.2s ease;
+}
+.circuit__filament.is-lit {
+  stroke: #fff7d6;
+  filter: drop-shadow(0 0 4px #fff7d6);
+}
+.circuit__shine {
+  fill: rgba(255, 255, 255, 0.45);
+}
+.circuit__base {
+  fill: #b9b9c4;
+}
+.circuit__base-line {
+  fill: #8d8d9a;
+}
+
+/* Floating dragged bulb following the finger. */
+.circuit__floater {
+  position: fixed;
+  z-index: 5000;
+  width: clamp(72px, 24vw, 104px);
+  height: clamp(90px, 30vw, 130px);
+  transform: translate(-50%, -50%) scale(1.1);
+  pointer-events: none;
+  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35));
+}
+
+/* Win banner overlaid on the brightened scene. */
+.circuit__win {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  height: max-content;
+  width: max-content;
+  text-align: center;
+  font-weight: 800;
+  font-size: 1.4rem;
+  color: var(--ink);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  animation: pop-in 0.3s ease;
+}
+.circuit__win p {
+  margin: 0;
+  text-shadow: 0 2px 6px rgba(255, 255, 255, 0.6);
+}

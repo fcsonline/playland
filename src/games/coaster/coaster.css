@@ -1,0 +1,169 @@
+.coaster {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+  min-height: 0;
+  flex: 1;
+}
+
+.coaster__toolbar {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
+.coaster__btn {
+  font-size: clamp(0.95rem, 4vw, 1.15rem);
+  padding: 10px 18px;
+}
+
+.coaster__field {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  max-width: min(100%, 96vh);
+  margin: 0 auto;
+  align-self: center;
+  padding: 0;
+  /* Dreamy night sky */
+  background: radial-gradient(120% 80% at 80% 10%, #5b6bd6 0%, #3a3f8f 45%, #232452 100%);
+  overflow: hidden;
+  touch-action: none;
+  min-height: 0;
+}
+
+.coaster__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+
+.coaster__ramp {
+  fill: none;
+  stroke: #ffd23f;
+  stroke-width: 10;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
+}
+
+.coaster__deco {
+  position: absolute;
+  font-size: clamp(1rem, 5vw, 1.6rem);
+  pointer-events: none;
+  opacity: 0.85;
+}
+.coaster__deco--a {
+  left: 12%;
+  top: 8%;
+}
+.coaster__deco--b {
+  right: 14%;
+  top: 22%;
+}
+.coaster__deco--c {
+  right: 8%;
+  top: 6%;
+  font-size: clamp(1.4rem, 7vw, 2.2rem);
+}
+.coaster__deco--d {
+  left: 22%;
+  bottom: 18%;
+}
+
+.coaster__start {
+  position: absolute;
+  width: 38px;
+  height: 14px;
+  transform: translate(-50%, -50%);
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  pointer-events: none;
+}
+
+.coaster__peg {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ff9ec7, #e8528e);
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+.coaster__goal {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  font-size: clamp(1.8rem, 9vw, 2.8rem);
+  line-height: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 0 10px rgba(255, 210, 63, 0.9));
+  animation: coaster-goal-pulse 1.4s ease-in-out infinite;
+}
+.coaster__goal.is-won {
+  animation: coaster-goal-pop 0.7s ease-out;
+}
+
+.coaster__ball {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  display: grid;
+  place-items: center;
+  font-size: 28px;
+  line-height: 1;
+  pointer-events: none;
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4));
+}
+
+.coaster__toast {
+  position: absolute;
+  left: 50%;
+  bottom: 16px;
+  transform: translateX(-50%);
+  padding: 10px 18px;
+  border-radius: 999px;
+  background: rgba(46, 204, 113, 0.95);
+  color: #fff;
+  font-weight: 900;
+  font-size: clamp(1rem, 5vw, 1.4rem);
+  white-space: nowrap;
+  box-shadow: 0 6px 18px rgba(0, 0, 0, 0.3);
+  animation: pop-in 0.3s ease;
+  pointer-events: none;
+}
+
+@keyframes coaster-goal-pulse {
+  0%,
+  100% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  50% {
+    transform: translate(-50%, -50%) scale(1.18);
+  }
+}
+@keyframes coaster-goal-pop {
+  0% {
+    transform: translate(-50%, -50%) scale(1);
+  }
+  40% {
+    transform: translate(-50%, -50%) scale(1.6) rotate(12deg);
+  }
+  100% {
+    transform: translate(-50%, -50%) scale(1.25) rotate(0deg);
+  }
+}
+
+/* Landscape phones: keep the field within the short height. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .coaster {
+    gap: 6px;
+  }
+  .coaster__field {
+    max-width: min(100%, 60vh);
+  }
+}

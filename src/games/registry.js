@@ -191,6 +191,55 @@ export const GAMES = [
     colors: ['#ff9a9e', '#fecfef'],
     tagline: 'Type or tap the answer!',
   },
+  {
+    id: 'doctor',
+    title: 'Tiny Doctor',
+    emoji: '🩺',
+    colors: ['#ff9a9e', '#fad0c4'],
+    tagline: 'Put each piece back in!',
+  },
+  {
+    id: 'cannon',
+    title: 'Sky Cannon',
+    emoji: '🎯',
+    colors: ['#56ccf2', '#2f80ed'],
+    tagline: 'Aim and pop the balloons!',
+  },
+  {
+    id: 'trace',
+    title: 'Trace It!',
+    emoji: '✏️',
+    colors: ['#a18cd1', '#fbc2eb'],
+    tagline: 'Trace letters and numbers!',
+  },
+  {
+    id: 'cups',
+    title: 'Find the Ball',
+    emoji: '🥤',
+    colors: ['#f6d365', '#fda085'],
+    tagline: 'Which cup hides the ball?',
+  },
+  {
+    id: 'popit',
+    title: 'Quick Pop',
+    emoji: '🫧',
+    colors: ['#43e97b', '#38f9d7'],
+    tagline: 'Pop the glowing bubble!',
+  },
+  {
+    id: 'circuit',
+    title: 'Light It Up',
+    emoji: '💡',
+    colors: ['#f7971e', '#ffd200'],
+    tagline: 'Match the bulbs to light them!',
+  },
+  {
+    id: 'coaster',
+    title: 'Ball Run',
+    emoji: '🎢',
+    colors: ['#84fab0', '#8fd3f4'],
+    tagline: 'Draw ramps, roll to the star!',
+  },
 ]
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -220,6 +269,13 @@ export const GAME_COMPONENTS = {
   tictactoe: lazy(() => import('./tictactoe/index.jsx')),
   flight: lazy(() => import('./flight/index.jsx')),
   mathquiz: lazy(() => import('./mathquiz/index.jsx')),
+  doctor: lazy(() => import('./doctor/index.jsx')),
+  cannon: lazy(() => import('./cannon/index.jsx')),
+  trace: lazy(() => import('./trace/index.jsx')),
+  cups: lazy(() => import('./cups/index.jsx')),
+  popit: lazy(() => import('./popit/index.jsx')),
+  circuit: lazy(() => import('./circuit/index.jsx')),
+  coaster: lazy(() => import('./coaster/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

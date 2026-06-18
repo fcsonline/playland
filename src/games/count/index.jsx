@@ -1,4 +1,4 @@
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { pick, shuffle, randInt } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
@@ -26,27 +26,27 @@ const STAGGER_MS = 360 // delay between each critter entering
 
 let moverUid = 0
 
-// Count grows gently with the round: ~3-5 early, creeping up to a friendly max.
+// Count grows gently with the round: ~3-5 early, creeping up to a friendly max
+// (capped low enough that every critter gets a roomy lane).
 function countForRound(round) {
-  const lo = 3 + Math.min(3, Math.floor(round / 2)) // 3..6
-  const hi = 5 + Math.min(4, Math.floor(round / 1.5)) // 5..9
-  return randInt(lo, Math.min(9, Math.max(lo, hi)))
+  const lo = 3 + Math.min(2, Math.floor(round / 2)) // 3..5
+  const hi = 5 + Math.min(3, Math.floor(round / 1.5)) // 5..8
+  return randInt(lo, Math.min(8, Math.max(lo, hi)))
 }
 
-// Build N movers that drift across the field, each on its own lane & delay so
-// they stay separated and countable.
+// Build N movers that drift across the field. Each critter gets its OWN clean,
+// evenly-spaced horizontal lane (no y-jitter), so two critters can never end up
+// on the same row and overlap — which would make them miscount.
 function makeMovers(n) {
   const dir = Math.random() < 0.5 ? 1 : -1 // 1 = left→right, -1 = right→left
-  // Spread lanes evenly down the field, then jitter a touch.
   const lanes = shuffle(Array.from({ length: n }, (_, i) => i))
   return Array.from({ length: n }, (_, i) => {
     const laneFrac = (lanes[i] + 0.5) / n // center of this critter's lane
-    const y = 0.1 + laneFrac * 0.8 + (Math.random() - 0.5) * (0.5 / n)
     return {
       key: ++moverUid,
       dir,
-      y: Math.min(0.92, Math.max(0.08, y)),
-      delay: i * STAGGER_MS + randInt(0, 120), // staggered entrance
+      y: 0.1 + laneFrac * 0.8,
+      delay: i * STAGGER_MS + randInt(0, 100), // staggered entrance
       bob: Math.random() * Math.PI * 2, // gentle vertical wobble phase
       x: dir === 1 ? -0.12 : 1.12, // start just off-screen
     }
@@ -81,6 +81,20 @@ export default function CountEm() {
   const fieldRef = useRef(null)
   const moverEls = useRef({}) // key -> DOM node, positioned imperatively via rAF
 
+  // Measure the field so each critter can be sized to fit inside its own lane
+  // band (and never spill over into the neighbouring row).
+  const [fieldH, setFieldH] = useState(0)
+  useLayoutEffect(() => {
+    const el = fieldRef.current
+    if (!el) return
+    const measure = () => setFieldH(el.clientHeight)
+    measure()
+    const ro = new ResizeObserver(measure)
+    ro.observe(el)
+    return () => ro.disconnect()
+  }, [])
+  const moverSize = fieldH ? Math.max(24, Math.min(60, fieldH * (0.8 / count) * 0.62)) : 38
+
   // Kick off a fresh round at the given difficulty.
   function startRound(nextRound) {
     const n = countForRound(nextRound)
@@ -104,6 +118,8 @@ export default function CountEm() {
     const tick = (now) => {
       if (!start) start = now
       const elapsed = now - start
+      // Keep the vertical wobble well within a lane so rows never touch.
+      const bobAmp = Math.min(0.016, 0.1 / movers.length)
       for (const m of movers) {
         const node = moverEls.current[m.key]
         if (!node) continue
@@ -117,7 +133,7 @@ export default function CountEm() {
         const fromX = m.dir === 1 ? -0.12 : 1.12
         const toX = m.dir === 1 ? 1.12 : -0.12
         const x = fromX + (toX - fromX) * p
-        const bobY = m.y + Math.sin(now / 420 + m.bob) * 0.02
+        const bobY = m.y + Math.sin(now / 420 + m.bob) * bobAmp
         node.style.left = `${x * 100}%`
         node.style.top = `${bobY * 100}%`
         // Fade in at the edges so entrances/exits feel soft but stay countable.
@@ -187,7 +203,7 @@ export default function CountEm() {
                 else delete moverEls.current[m.key]
               }}
               className="count__mover"
-              style={{ left: `${m.x * 100}%`, top: `${m.y * 100}%`, opacity: 0 }}
+              style={{ left: `${m.x * 100}%`, top: `${m.y * 100}%`, opacity: 0, fontSize: `${moverSize}px` }}
               aria-hidden="true"
             >
               {emoji}

@@ -8,9 +8,10 @@ import './racing.css'
 /**
  * Star Racing — a friendly endless lane racer.
  * The road scrolls down past 3 lanes; tap left/right to hop lanes and scoop up
- * stars and coins. Mud just slows the scroll for a moment — there is no crash
- * and no game over. Collect to unlock new vehicles — the newest unlocked one
- * is driven automatically; the child never picks.
+ * stars and coins. Slower cars and oil slicks are obstacles to overtake by
+ * changing lanes — bumping one just slows the scroll for a moment, there is no
+ * crash and no game over. Collect to unlock new vehicles — the newest unlocked
+ * one is driven automatically; the child never picks.
  */
 
 const LANES = 3
@@ -84,11 +85,22 @@ function Vehicle({ v }) {
   )
 }
 
-// What can scroll toward the car. Mud is harmless — it just slows things.
+// What can scroll toward the car. Obstacles (value 0) are harmless — they just
+// slow things briefly, so they're things to overtake, not crash into.
 const ITEMS = [
-  { kind: 'star', emoji: '⭐', value: 1, weight: 5 },
-  { kind: 'coin', emoji: '🪙', value: 1, weight: 4 },
-  { kind: 'mud',  emoji: '💧', value: 0, weight: 2 },
+  { kind: 'star',    emoji: '⭐', value: 1, weight: 5 },
+  { kind: 'coin',    emoji: '🪙', value: 1, weight: 4 },
+  { kind: 'traffic', value: 0, weight: 2 }, // a slower car to overtake
+  { kind: 'oil',     value: 0, weight: 1 }, // an oil slick to dodge
+]
+
+// Friendly paint jobs for the slower traffic cars (never the player's colors).
+const TRAFFIC_CARS = [
+  { color: '#ffd23f', dark: '#c99700' }, // yellow taxi
+  { color: '#34c759', dark: '#1f8f3e' }, // green
+  { color: '#9aa3b2', dark: '#646b78' }, // gray
+  { color: '#ff8fb3', dark: '#d65f86' }, // pink
+  { color: '#26c6da', dark: '#1593a3' }, // teal
 ]
 
 let itemUid = 0
@@ -101,6 +113,7 @@ function rollItem() {
     kind: it.kind,
     emoji: it.emoji,
     value: it.value,
+    car: it.kind === 'traffic' ? pick(TRAFFIC_CARS) : null,
     lane: randInt(0, LANES - 1),
     y: -0.1, // normalized 0 (top) .. 1 (bottom); starts just above the road
     gone: false,
@@ -163,7 +176,7 @@ export default function StarRacing() {
       else if (t === 35) award(3, { count: 24 })
       else if (t > 0 && t % 60 === 0) award(3, { count: 28 })
     } else {
-      // Mud puddle: a gentle, brief slow — never a crash.
+      // A slower car or oil slick: a gentle, brief slow — never a crash.
       sfx.tap()
       slowRef.current = 0.9
       setBoost(true)
@@ -235,19 +248,29 @@ export default function StarRacing() {
           <span /><span />
         </div>
 
-        {items.map((it) => (
-          <span
-            key={it.key}
-            className={`racing__item racing__item--${it.kind}`}
-            style={{
-              left: `${((it.lane + 0.5) / LANES) * 100}%`,
-              top: `${it.y * 100}%`,
-            }}
-            aria-hidden="true"
-          >
-            {it.emoji}
-          </span>
-        ))}
+        {items.map((it) => {
+          const pos = {
+            left: `${((it.lane + 0.5) / LANES) * 100}%`,
+            top: `${it.y * 100}%`,
+          }
+          if (it.kind === 'traffic') {
+            return (
+              <span key={it.key} className="racing__item racing__item--traffic" style={pos} aria-hidden="true">
+                <Vehicle v={it.car} />
+              </span>
+            )
+          }
+          if (it.kind === 'oil') {
+            return (
+              <span key={it.key} className="racing__item racing__item--oil" style={pos} aria-hidden="true" />
+            )
+          }
+          return (
+            <span key={it.key} className={`racing__item racing__item--${it.kind}`} style={pos} aria-hidden="true">
+              {it.emoji}
+            </span>
+          )
+        })}
 
         <span
           className="racing__car"
@@ -273,7 +296,7 @@ export default function StarRacing() {
         </button>
       </div>
 
-      <p className="racing__hint">Tap left or right to grab the stars! 🌟</p>
+      <p className="racing__hint">Tap left or right — grab stars, overtake the cars! 🌟</p>
     </div>
   )
 }

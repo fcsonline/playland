@@ -40,6 +40,8 @@
   stroke: rgba(47, 128, 237, 0.22);
   stroke-linecap: round;
   stroke-linejoin: round;
+  /* Soft shadow so the route gently lifts off the sky. */
+  filter: drop-shadow(0 4px 6px rgba(47, 128, 237, 0.28));
 }
 .flight__centerline {
   fill: none;

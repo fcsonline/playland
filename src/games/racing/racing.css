@@ -63,6 +63,28 @@
   50%      { transform: translate(-50%, -50%) scale(1.18); }
 }
 
+/* Slower traffic car to overtake — same top-down art as the player, recoloured. */
+.racing__item--traffic {
+  width: clamp(44px, 13vw, 62px);
+  filter: drop-shadow(0 4px 6px rgba(0, 0, 0, 0.4));
+}
+.racing__item--traffic .racing__carart {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Oil slick to dodge — a dark, glossy puddle lying flat on the road. */
+.racing__item--oil {
+  width: clamp(42px, 13vw, 60px);
+  height: clamp(28px, 9vw, 40px);
+  border-radius: 50%;
+  background: radial-gradient(ellipse at 38% 32%, #565663 0%, #20202a 58%, #0c0c12 100%);
+  box-shadow: inset 0 2px 7px rgba(255, 255, 255, 0.14), inset 0 -3px 8px rgba(0, 0, 0, 0.5);
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+  opacity: 0.94;
+}
+
 .racing__car {
   position: absolute;
   transform: translate(-50%, -50%);

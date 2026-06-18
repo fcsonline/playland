@@ -223,18 +223,16 @@ export default function RailRoutes() {
             </span>
           )
         })}
-      </div>
 
-      {solved && (
-        <div className="train__footer">
-          <div className="train__win">
+        {solved && (
+          <div className="train__overlay">
             <p>All aboard! 🎉</p>
             <button className="btn btn--good" onClick={() => loadLevel(hasNext ? levelIndex + 1 : 0)}>
               {hasNext ? 'Next level ▶' : 'Play again 🔄'}
             </button>
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

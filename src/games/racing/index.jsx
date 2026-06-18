@@ -2,7 +2,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { useProgress } from '../../state/progress.jsx'
 import { pick, randInt } from '../../lib/random.js'
-import { sfx } from '../../lib/audio.js'
+import { sfx, noiseBurst } from '../../lib/audio.js'
 import './racing.css'
 
 /**
@@ -144,9 +144,10 @@ export default function StarRacing() {
   // logic reads it.
   const totalRef = useRef(0)
 
-  // Mud slowdown timer (seconds remaining of "slow").
+  // Slowdown timer (seconds remaining of "slow").
   const slowRef = useRef(0)
   const [boost, setBoost] = useState(false) // visual flag while slowed
+  const [bump, setBump] = useState(0) // bumps on each crash to flash + shake
 
   function changeLane(delta) {
     setLane((l) => {
@@ -176,10 +177,13 @@ export default function StarRacing() {
       else if (t === 35) award(3, { count: 24 })
       else if (t > 0 && t % 60 === 0) award(3, { count: 28 })
     } else {
-      // A slower car or oil slick: a gentle, brief slow — never a crash.
+      // A slower car or oil slick: a gentle bump — slow down + a clear thud,
+      // flash and shake so the crash is obvious. Still no game over.
       sfx.tap()
+      noiseBurst({ duration: 0.2, gain: 0.22, type: 'lowpass', freq: 380 })
       slowRef.current = 0.9
       setBoost(true)
+      setBump((b) => b + 1)
     }
   }
 
@@ -273,12 +277,24 @@ export default function StarRacing() {
         })}
 
         <span
-          className="racing__car"
+          className={`racing__car ${boost ? 'is-bumped' : ''}`}
           style={{ left: `${((lane + 0.5) / LANES) * 100}%`, top: `${CAR_Y * 100}%` }}
           aria-hidden="true"
         >
           <Vehicle v={vehicle} />
         </span>
+
+        {bump > 0 && (
+          <span
+            key={bump}
+            className="racing__crash"
+            style={{ left: `${((lane + 0.5) / LANES) * 100}%`, top: `${CAR_Y * 100}%` }}
+            aria-hidden="true"
+          >
+            💥
+          </span>
+        )}
+        {bump > 0 && <span key={`flash-${bump}`} className="racing__crashflash" aria-hidden="true" />}
 
         <button
           className="racing__arrow racing__arrow--left"

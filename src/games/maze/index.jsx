@@ -40,8 +40,9 @@ const THEMES = [
   },
 ]
 
-// Cell counts grow gently; rendered on a (2*cells+1) tile grid (7..13 wide).
-const LEVELS = [3, 3, 4, 4, 5, 5, 6]
+// Cell counts grow; rendered on a (2*cells+1) tile grid (7..19 wide). Bigger
+// mazes later make for trickier, more interesting paths.
+const LEVELS = [3, 4, 5, 6, 7, 8, 9]
 
 const key = (t) => `${t.x},${t.y}`
 

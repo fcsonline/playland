@@ -267,7 +267,7 @@ export default function BalloonPump() {
           </button>
         ) : (
           <button
-            className="btn btn--accent balloon__pump"
+            className="btn balloon__pump"
             disabled={!!outcome}
             onPointerDown={(e) => {
               e.preventDefault()

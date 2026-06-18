@@ -42,9 +42,15 @@ export function makeRoute(W, H, level = 0) {
 
   let points = catmullRom(waypoints, 14)
   // From the second level on, curl a full loop-the-loop into the middle of the
-  // route for an extra-fun, more complex path.
-  if (level >= 1) points = withLoop(points, level, padY, innerW, innerH)
-  return { points, start: points[0], end: points[points.length - 1], waypoints }
+  // route for an extra-fun, more complex path. `loop` marks the spliced range so
+  // the renderer can draw it on top with a shadow (clear over/under crossing).
+  let loop = null
+  if (level >= 1) {
+    const res = withLoop(points, level, padY, innerW, innerH)
+    points = res.points
+    loop = res.loop
+  }
+  return { points, start: points[0], end: points[points.length - 1], waypoints, loop }
 }
 
 /**
@@ -54,7 +60,7 @@ export function makeRoute(W, H, level = 0) {
  * exits exactly at that point, so the plane keeps gliding smoothly through it.
  */
 function withLoop(points, level, padY, innerW, innerH) {
-  if (points.length < 8) return points
+  if (points.length < 8) return { points, loop: null }
   const cy0 = padY + innerH / 2
   const lo = Math.floor(points.length * 0.34)
   const hi = Math.floor(points.length * 0.66)
@@ -88,7 +94,9 @@ function withLoop(points, level, padY, innerW, innerH) {
     const a = startAng + (turn * (Math.PI * 2 * s)) / steps
     loop.push({ x: cx + Math.cos(a) * radius, y: cyc + Math.sin(a) * radius })
   }
-  return [...points.slice(0, i + 1), ...loop, ...points.slice(i + 1)]
+  const out = [...points.slice(0, i + 1), ...loop, ...points.slice(i + 1)]
+  // The loop occupies indices [i+1 .. i+steps] in the spliced array.
+  return { points: out, loop: { from: i + 1, to: i + loop.length } }
 }
 
 /** Sample a Catmull-Rom spline through `pts` into a dense polyline. */

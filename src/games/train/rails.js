@@ -24,11 +24,14 @@ export const openingsOf = (type, rot) => BASE[type].map((d) => (d + rot) % 4)
 
 export const TRAIN_COLORS = ['#ff5b6e', '#4cc9f0', '#ffd23f', '#7bd651']
 
+// Portrait-oriented grids (taller than wide) so the board fills a phone's tall
+// viewport, growing bigger and busier each level.
 export const LEVELS = [
-  { cols: 5, rows: 4, trains: 2 },
-  { cols: 6, rows: 5, trains: 2 },
-  { cols: 6, rows: 5, trains: 3 },
-  { cols: 7, rows: 6, trains: 3 },
+  { cols: 4, rows: 6, trains: 2 },
+  { cols: 5, rows: 7, trains: 3 },
+  { cols: 5, rows: 8, trains: 3 },
+  { cols: 6, rows: 8, trains: 4 },
+  { cols: 6, rows: 9, trains: 4 },
 ]
 
 export const key = (c, r) => `${c},${r}`
@@ -55,7 +58,7 @@ function randomWalk(cols, rows, used) {
   const free = []
   for (let r = 0; r < rows; r++) for (let c = 0; c < cols; c++) if (!used.has(key(c, r))) free.push({ c, r })
   if (free.length < 3) return null
-  const targetLen = randInt(3, Math.min(6, free.length))
+  const targetLen = randInt(4, Math.min(9, free.length))
   for (let s = 0; s < 10; s++) {
     const start = pick(free)
     const path = [start]

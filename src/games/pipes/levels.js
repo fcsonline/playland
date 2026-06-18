@@ -26,9 +26,11 @@ export const BASE = {
 /** Open sides of a piece given its rotation (quarter turns clockwise). */
 export const openingsOf = (type, rot) => BASE[type].map((d) => (d + rot) % 4)
 
-/** Gentle progression: bigger grids. */
+/** Gentle progression: bigger, taller grids that fill the screen. */
 export const LEVELS = [
-  { cols: 3, rows: 3, happy: 'The water made it!' },
-  { cols: 4, rows: 4, happy: 'Great pipework!' },
-  { cols: 5, rows: 5, happy: 'You connected it all!' },
+  { cols: 4, rows: 4, happy: 'The water made it!' },
+  { cols: 4, rows: 5, happy: 'Great pipework!' },
+  { cols: 5, rows: 6, happy: 'You connected it all!' },
+  { cols: 5, rows: 7, happy: 'Master plumber!' },
+  { cols: 6, rows: 7, happy: 'Incredible pipework!' },
 ]

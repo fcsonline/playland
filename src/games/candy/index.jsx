@@ -21,6 +21,7 @@ export default function SweetMatch() {
   const [cells, setCells] = useState(() => makeBoard())
   const [selected, setSelected] = useState(null) // flat index or null
   const [clearing, setClearing] = useState(() => new Set()) // indices popping right now
+  const [badPair, setBadPair] = useState(null) // [a, b] of a no-match swap, to shake
   const [, setScore] = useState(0) // score still tracked for milestone rewards (not shown)
   const [busy, setBusy] = useState(false)
 
@@ -117,14 +118,16 @@ export default function SweetMatch() {
       setCells(swapped)
       setTimeout(() => resolveCascades(swapped), 130)
     } else {
-      // No match — swap back gently, no penalty.
+      // No match — shake the pair, then swap back gently. No penalty.
       sfx.tap()
       setBusy(true)
+      setBadPair([from, i])
       setCells(swapped)
       setTimeout(() => {
         setCells(swap(swapped, from, i))
         setBusy(false)
-      }, 240)
+        setBadPair(null)
+      }, 360)
     }
   }
 
@@ -139,7 +142,7 @@ export default function SweetMatch() {
             key={i}
             className={`candy__cell ${selected === i ? 'is-selected' : ''} ${
               clearing.has(i) ? 'is-clearing' : ''
-            }`}
+            } ${badPair && badPair.includes(i) ? 'is-bad' : ''}`}
             onClick={() => tapCell(i)}
             aria-label={`candy ${candy}`}
           >

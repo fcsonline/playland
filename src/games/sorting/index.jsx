@@ -9,6 +9,13 @@ import './sorting.css'
 
 const BATCH = 6 // items per conveyor batch
 
+// A facet value can be a single value or an array (e.g. a two-colour emoji).
+// Always read it as an array so matching/grouping treats both the same way.
+function facetValues(item, facet) {
+  const v = item[facet]
+  return Array.isArray(v) ? v : [v]
+}
+
 // Build a batch that has at least one item for each bin of the active rule,
 // so every batch is always finishable.
 function makeBatch(ruleKey) {
@@ -16,7 +23,7 @@ function makeBatch(ruleKey) {
   const bins = RULES[ruleKey].bins
   const byValue = {}
   for (const it of ITEMS) {
-    ;(byValue[it[facet]] ||= []).push(it)
+    for (const v of facetValues(it, facet)) (byValue[v] ||= []).push(it)
   }
   let chosen = bins
     .filter((b) => byValue[b.value]?.length)
@@ -63,6 +70,13 @@ export default function SortingFactory() {
     [isUnlocked, sortedCount], // eslint-disable-line react-hooks/exhaustive-deps
   )
 
+  // Cycle to the next unlocked rule, so the sorting changes itself batch to
+  // batch — no manual rule picker needed (the bins always show the current rule).
+  function nextRuleKey() {
+    const i = availableRules.indexOf(ruleKey)
+    return availableRules[(i + 1) % availableRules.length]
+  }
+
   function newBatch(nextRule = ruleKey) {
     setItems(makeBatch(nextRule))
     setBatchDone(false)
@@ -73,7 +87,7 @@ export default function SortingFactory() {
   }
 
   function dropOnBin(item, binValue) {
-    if (item[facet] === binValue) {
+    if (facetValues(item, facet).includes(binValue)) {
       // Correct! Pop it away.
       setItems((prev) => {
         const next = prev.filter((it) => it.key !== item.key)
@@ -130,29 +144,12 @@ export default function SortingFactory() {
 
   return (
     <div className="sorting">
-      <div className="sorting__controls">
-        <div className="sorting__group">
-          {availableRules.map((k) => (
-            <button
-              key={k}
-              className={`sorting__pill ${k === ruleKey ? 'is-on' : ''}`}
-              onClick={() => newBatch(k)}
-            >
-              {RULES[k].label}
-            </button>
-          ))}
-          {availableRules.length < RULE_ORDER.length && (
-            <span className="sorting__pill sorting__pill--locked">🔒 keep sorting!</span>
-          )}
-        </div>
-      </div>
-
       {/* Conveyor: the loose items waiting to be sorted. */}
       <div className="sorting__belt play-surface">
         {batchDone ? (
           <div className="sorting__win">
             <p>All sorted! 🎉</p>
-            <button className="btn btn--good" onClick={() => newBatch()}>
+            <button className="btn btn--good" onClick={() => newBatch(nextRuleKey())}>
               More items ➡️
             </button>
           </div>

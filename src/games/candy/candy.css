@@ -37,7 +37,22 @@
 .candy__cell.is-selected {
   background: var(--white);
   outline-color: var(--primary);
-  transform: scale(1.06);
+  animation: candy-bounce 0.5s ease-in-out infinite;
+}
+@keyframes candy-bounce {
+  0%, 100% { transform: scale(1.05); }
+  50% { transform: scale(1.13); }
+}
+
+/* No-match swap: a quick red-tinted shake so the "that won't work" reads. */
+.candy__cell.is-bad {
+  background: #ffe7ea;
+  animation: candy-shake 0.34s ease;
+}
+@keyframes candy-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-6px) rotate(-5deg); }
+  75% { transform: translateX(6px) rotate(5deg); }
 }
 
 .candy__face {
@@ -46,11 +61,26 @@
   display: block;
   transition: transform 0.18s ease, opacity 0.18s ease;
 }
+
+/* Clearing: a bright flash + a radiating ring behind the popping candy. */
 .candy__cell.is-clearing {
-  background: #fff7da;
+  background: #fff3b0;
+  position: relative;
+  z-index: 1;
+}
+.candy__cell.is-clearing::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: radial-gradient(circle, rgba(255, 211, 63, 0.95), rgba(255, 211, 63, 0) 70%);
+  animation: candy-burst 0.4s ease-out forwards;
+  pointer-events: none;
 }
 .candy__cell.is-clearing .candy__face {
-  animation: candy-pop 0.22s ease forwards;
+  position: relative;
+  z-index: 2;
+  animation: candy-pop 0.32s ease forwards;
 }
 
 @keyframes candy-pop {
@@ -58,14 +88,18 @@
     transform: scale(1);
     opacity: 1;
   }
-  60% {
-    transform: scale(1.4) rotate(12deg);
+  45% {
+    transform: scale(1.5) rotate(14deg);
     opacity: 1;
   }
   100% {
-    transform: scale(0) rotate(40deg);
+    transform: scale(0) rotate(48deg);
     opacity: 0;
   }
+}
+@keyframes candy-burst {
+  0% { transform: scale(0.4); opacity: 0.9; }
+  100% { transform: scale(1.8); opacity: 0; }
 }
 
 .candy__hint {

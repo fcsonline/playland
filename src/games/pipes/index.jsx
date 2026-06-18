@@ -223,11 +223,9 @@ export default function PipeConnect() {
             </button>
           )
         })}
-      </div>
 
-      {solved && (
-        <div className="pipes__footer">
-          <div className="pipes__win">
+        {solved && (
+          <div className="pipes__overlay">
             <p>{level.happy} 🎉</p>
             {hasNext ? (
               <button className="btn btn--good" onClick={() => loadLevel(levelIndex + 1)}>
@@ -239,8 +237,8 @@ export default function PipeConnect() {
               </button>
             )}
           </div>
-        </div>
-      )}
+        )}
+      </div>
     </div>
   )
 }

@@ -249,6 +249,15 @@ export default function FlightPath() {
               d={toPathD(route.points)}
               style={{ strokeWidth: tol * 2 }}
             />
+            {/* The loop drawn again on top with a stronger shadow, so its
+                crossing clearly reads as passing over the rest of the route. */}
+            {route.loop && (
+              <path
+                className="flight__loop"
+                d={toPathD(route.points.slice(Math.max(0, route.loop.from - 1), route.loop.to + 2))}
+                style={{ strokeWidth: tol * 2 }}
+              />
+            )}
             {/* Dashed center guide line. */}
             <path className="flight__centerline" d={toPathD(route.points)} />
           </svg>

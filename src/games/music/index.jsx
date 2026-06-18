@@ -111,6 +111,7 @@ export default function RhythmBand() {
     cancelAnimationFrame(rafRef.current)
     const song = SONGS[idx]
     songRef.current = song
+    setSongIdx(idx)
     awardedRef.current = false
     const s = freshState()
     s.notes = buildNotes(song)
@@ -270,14 +271,17 @@ export default function RhythmBand() {
                 </div>
                 <button
                   className="btn btn--good music__start"
-                  onClick={() => start(songIdx)}
+                  onClick={() => start((songIdx + 1) % SONGS.length)}
                 >
-                  Again 🔄
+                  Next song 🔄
                 </button>
               </>
             ) : (
               <>
-                <div className="music__big">Pick a song!</div>
+                <div className="music__big">Tap to play! 🎵</div>
+                <div className="music__sub">
+                  {SONGS[songIdx].emoji} {SONGS[songIdx].name}
+                </div>
                 <button className="btn btn--good music__start" onClick={() => start(songIdx)}>
                   ▶ Start
                 </button>
@@ -302,24 +306,6 @@ export default function RhythmBand() {
         ))}
       </div>
 
-      {/* Song chooser (disabled while playing). */}
-      <div className="music__songs">
-        {SONGS.map((sg, i) => (
-          <button
-            key={sg.name}
-            className={`music__songbtn ${songIdx === i ? 'is-on' : ''}`}
-            onClick={() => {
-              if (playing) return
-              setSongIdx(i)
-              sfx.tap()
-            }}
-            disabled={playing}
-          >
-            <span className="music__songbtn-emoji">{sg.emoji}</span>
-            <span className="music__songbtn-name">{sg.name}</span>
-          </button>
-        ))}
-      </div>
     </div>
   )
 }

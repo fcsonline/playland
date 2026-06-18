@@ -43,6 +43,16 @@
   /* Soft shadow so the route gently lifts off the sky. */
   filter: drop-shadow(0 4px 6px rgba(47, 128, 237, 0.28));
 }
+/* The loop, redrawn on top of the corridor with a stronger drop-shadow so the
+   strand visibly crosses OVER the rest of the route (the shadow falls onto the
+   corridor below at the crossing). */
+.flight__loop {
+  fill: none;
+  stroke: rgba(64, 140, 230, 0.34);
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 5px 7px rgba(18, 60, 120, 0.5));
+}
 .flight__centerline {
   fill: none;
   stroke: rgba(255, 255, 255, 0.95);

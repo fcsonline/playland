@@ -2,28 +2,29 @@
  * Sortable items for the Sorting Factory.
  *
  * Every item carries three facets so the same pool can be sorted three ways:
- *   - color:    red / yellow / blue / green
+ *   - color:    red / yellow / blue / green (an array when the emoji clearly
+ *               shows two of these — either bin is then accepted)
  *   - shape:    round / long / pointy
  *   - category: fruit / animal / vehicle
  *
- * The active "rule" picks which facet the bins sort by. Rules unlock in order
- * (color -> shape -> category) as the child sorts more.
+ * The active "rule" picks which facet the bins sort by. Rules cycle in order
+ * (color -> shape -> category) as the child finishes batches.
  */
 
 export const ITEMS = [
   { emoji: '🍎', color: 'red', shape: 'round', category: 'fruit' },
-  { emoji: '🍓', color: 'red', shape: 'pointy', category: 'fruit' },
+  { emoji: '🍓', color: ['red', 'green'], shape: 'pointy', category: 'fruit' },
   { emoji: '🍌', color: 'yellow', shape: 'long', category: 'fruit' },
   { emoji: '🍋', color: 'yellow', shape: 'round', category: 'fruit' },
   { emoji: '🫐', color: 'blue', shape: 'round', category: 'fruit' },
   { emoji: '🥝', color: 'green', shape: 'round', category: 'fruit' },
-  { emoji: '🍉', color: 'green', shape: 'round', category: 'fruit' },
+  { emoji: '🍉', color: ['green', 'red'], shape: 'round', category: 'fruit' },
   { emoji: '🥕', color: 'red', shape: 'long', category: 'fruit' },
 
   { emoji: '🐸', color: 'green', shape: 'round', category: 'animal' },
   { emoji: '🐤', color: 'yellow', shape: 'round', category: 'animal' },
   { emoji: '🐝', color: 'yellow', shape: 'long', category: 'animal' },
-  { emoji: '🐠', color: 'blue', shape: 'long', category: 'animal' },
+  { emoji: '🐠', color: ['blue', 'yellow'], shape: 'long', category: 'animal' },
   { emoji: '🦀', color: 'red', shape: 'pointy', category: 'animal' },
   { emoji: '🐛', color: 'green', shape: 'long', category: 'animal' },
 

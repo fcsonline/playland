@@ -6,188 +6,194 @@
   flex: 1;
 }
 
-/* The scene holding the lamp sockets along the top. */
-.circuit__scene {
-  position: relative;
+/* The circuit board — a dark panel so the glowing wire & bulb pop. The wire
+   segments flex to fill the height, so the circuit always uses the viewport. */
+.circuit__board {
   flex: 1;
   min-height: 0;
-  justify-content: flex-start;
-  background: linear-gradient(180deg, #2b2358, #3a2c5a);
-  overflow: hidden;
-  transition: background 0.5s ease, box-shadow 0.5s ease;
-}
-/* Everything brightens once all bulbs are lit. */
-.circuit__scene.is-bright {
-  background: linear-gradient(180deg, #fff4c2, #ffe08a);
-  box-shadow: var(--shadow-lg), inset 0 0 90px rgba(255, 224, 120, 0.9);
-}
-
-.circuit__sockets {
-  display: flex;
-  gap: clamp(8px, 4vw, 22px);
-  justify-content: center;
-  align-items: flex-start;
-  padding-top: 4px;
-}
-
-/* One lamp: wire + socket collar + seated bulb. */
-.circuit__socket {
-  position: relative;
-  width: clamp(72px, 26vw, 110px);
   display: flex;
   flex-direction: column;
   align-items: center;
-}
-
-/* The drooping wire that glows when the bulb is in. */
-.circuit__wire {
-  width: 4px;
-  height: clamp(14px, 5vw, 26px);
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.18);
-  transition: background 0.3s ease, box-shadow 0.3s ease;
-}
-.circuit__socket.is-lit .circuit__wire {
-  background: var(--glow);
-  box-shadow: 0 0 10px var(--glow), 0 0 18px var(--glow);
-}
-
-/* Where the bulb sits — also the visible empty holder when unlit. */
-.circuit__seat {
-  width: clamp(64px, 22vw, 96px);
-  height: clamp(78px, 28vw, 120px);
-  display: grid;
-  place-items: center;
-  border-radius: 50% 50% 14px 14px;
-  background: rgba(255, 255, 255, 0.05);
-  border: 3px dashed rgba(255, 255, 255, 0.28);
-  transition: transform 0.15s ease, border-color 0.15s ease, background 0.15s ease,
-    box-shadow 0.15s ease;
-}
-/* The colored collar marks each socket's target color. */
-.circuit__collar {
-  width: clamp(40px, 15vw, 60px);
-  height: clamp(12px, 4.5vw, 18px);
-  margin-top: -4px;
-  border-radius: 0 0 8px 8px;
-  background: linear-gradient(180deg, var(--glass), rgba(0, 0, 0, 0.25));
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.35);
-}
-
-/* Highlight a socket the finger is hovering (only if it can accept a bulb). */
-.circuit__socket.is-hot .circuit__seat {
-  border-color: var(--glass);
-  background: rgba(255, 255, 255, 0.14);
-  transform: scale(1.07) translateY(-2px);
-  box-shadow: 0 0 16px var(--glow);
-}
-/* Once lit: warm glow + a gentle brightness pulse. */
-.circuit__socket.is-lit .circuit__seat {
-  border-style: solid;
-  border-color: transparent;
-  background: transparent;
-  animation: circuit-pulse 1.8s ease-in-out infinite;
-}
-@keyframes circuit-pulse {
-  0%,
-  100% {
-    filter: drop-shadow(0 0 10px var(--glow)) brightness(1);
-  }
-  50% {
-    filter: drop-shadow(0 0 22px var(--glow)) brightness(1.18);
-  }
-}
-
-/* Bulb tray at the bottom. */
-.circuit__tray {
-  display: flex;
-  gap: clamp(8px, 4vw, 20px);
   justify-content: center;
-  align-items: flex-end;
-  min-height: clamp(96px, 30vw, 140px);
-  padding: 6px;
+  padding: clamp(12px, 4vw, 22px) 12px;
+  background: radial-gradient(circle at 50% 16%, #2a2f5a, #14162e);
+  overflow: hidden;
+  position: relative;
+  transition: background 0.45s ease;
 }
-.circuit__bulb {
-  width: clamp(64px, 22vw, 96px);
-  height: clamp(80px, 28vw, 120px);
+.circuit__board.is-lit {
+  background: radial-gradient(circle at 50% 26%, #4a4378, #20223f);
+}
+
+/* Battery (power source) at the top. */
+.circuit__battery {
+  flex: none;
+  width: clamp(56px, 18vw, 78px);
+  height: clamp(30px, 9vw, 42px);
+  border-radius: 9px;
+  background: linear-gradient(180deg, #ffe27a, #f5a623);
   display: grid;
   place-items: center;
-  background: none;
-  touch-action: none;
-  animation: pop-in 0.25s ease;
-  transition: transform 0.1s ease;
+  position: relative;
+  box-shadow: 0 0 20px rgba(255, 200, 80, 0.7), inset 0 -4px 8px rgba(0, 0, 0, 0.18);
 }
-.circuit__bulb:active {
-  transform: scale(0.92);
+.circuit__battery::before {
+  content: '';
+  position: absolute;
+  top: -6px;
+  left: 50%;
+  transform: translateX(-50%);
+  width: 18px;
+  height: 6px;
+  border-radius: 3px 3px 0 0;
+  background: #f5a623;
 }
-.circuit__bulb.is-dragging {
-  opacity: 0.25;
-}
-.circuit__bulb.is-wrong {
-  animation: wiggle 0.44s ease;
-}
-
-/* The bulb SVG itself. */
-.circuit__bulb-svg {
-  width: 100%;
-  height: 100%;
-  overflow: visible;
-}
-.circuit__glass {
-  fill: var(--dim);
-  transition: fill 0.2s ease;
-}
-.circuit__glass.is-lit {
-  fill: var(--glow);
-  filter: drop-shadow(0 0 8px var(--glow)) drop-shadow(0 0 16px var(--glow));
-}
-.circuit__filament {
-  stroke: rgba(255, 255, 255, 0.35);
-  transition: stroke 0.2s ease;
-}
-.circuit__filament.is-lit {
-  stroke: #fff7d6;
-  filter: drop-shadow(0 0 4px #fff7d6);
-}
-.circuit__shine {
-  fill: rgba(255, 255, 255, 0.45);
-}
-.circuit__base {
-  fill: #b9b9c4;
-}
-.circuit__base-line {
-  fill: #8d8d9a;
+.circuit__battery-bolt {
+  width: 58%;
+  height: 58%;
+  fill: #8a4b00;
 }
 
-/* Floating dragged bulb following the finger. */
-.circuit__floater {
-  position: fixed;
-  z-index: 5000;
-  width: clamp(72px, 24vw, 104px);
-  height: clamp(90px, 30vw, 130px);
-  transform: translate(-50%, -50%) scale(1.1);
-  pointer-events: none;
-  filter: drop-shadow(0 8px 10px rgba(0, 0, 0, 0.35));
+/* Vertical wire segments — grey when dark, glowing yellow with flowing sparks
+   when powered. They flex to share the leftover height evenly. */
+.circuit__wire {
+  flex: 1;
+  width: clamp(8px, 2.5vw, 11px);
+  min-height: 12px;
+  border-radius: 6px;
+  background: #363b66;
+  position: relative;
+  transition: background 0.25s ease, box-shadow 0.25s ease;
 }
-
-/* Win banner overlaid on the brightened scene. */
-.circuit__win {
+.circuit__wire.is-on {
+  background: linear-gradient(180deg, #fff0b0, #ffd23f);
+  box-shadow: 0 0 14px rgba(255, 210, 63, 0.75);
+}
+.circuit__wire.is-on::after {
+  content: '';
   position: absolute;
   inset: 0;
-  margin: auto;
-  height: max-content;
-  width: max-content;
+  border-radius: 6px;
+  background: repeating-linear-gradient(180deg, rgba(255, 255, 255, 0.65) 0 5px, transparent 5px 14px);
+  animation: circuit-flow 0.45s linear infinite;
+  opacity: 0.8;
+}
+@keyframes circuit-flow {
+  to {
+    background-position-y: 14px;
+  }
+}
+
+/* A switch in the wire. Tap to flip the lever open/closed. */
+.circuit__switch {
+  flex: none;
+  width: clamp(64px, 21vw, 86px);
+  height: clamp(42px, 12.5vw, 56px);
+  border-radius: 16px;
+  background: #1d2247;
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.08), 0 4px 10px rgba(0, 0, 0, 0.3);
+  display: grid;
+  place-items: center;
+  touch-action: manipulation;
+  transition: box-shadow 0.2s ease, transform 0.1s ease;
+}
+.circuit__switch:active {
+  transform: scale(0.94);
+}
+.circuit__sw {
+  width: auto;
+  height: 84%;
+  display: block;
+}
+.circuit__sw-pad {
+  fill: #5b6090;
+  transition: fill 0.2s ease;
+}
+/* The lever pivots from its bottom contact — vertical (connecting) when closed,
+   swung aside (a gap at the top contact) when open. */
+.circuit__sw-lever {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  transition: transform 0.2s cubic-bezier(0.3, 1.4, 0.5, 1);
+}
+.circuit__sw-lever line {
+  stroke: #9aa0d0;
+  stroke-width: 7;
+  stroke-linecap: round;
+  transition: stroke 0.2s ease;
+}
+.circuit__sw-lever.is-open {
+  transform: rotate(46deg);
+}
+.circuit__switch.is-lit {
+  box-shadow: inset 0 0 0 2px rgba(255, 210, 63, 0.6), 0 0 18px rgba(255, 210, 63, 0.45);
+}
+.circuit__switch.is-lit .circuit__sw-pad {
+  fill: #ffd23f;
+}
+.circuit__switch.is-lit .circuit__sw-lever line {
+  stroke: #ffd23f;
+}
+
+/* The bulb at the bottom. */
+.circuit__bulb {
+  flex: none;
+  width: clamp(58px, 19vw, 86px);
+  height: auto;
+  overflow: visible;
+}
+.circuit__bulb-glass {
+  fill: #363b66;
+  stroke: #565c93;
+  stroke-width: 2;
+  transition: fill 0.35s ease, stroke 0.35s ease;
+}
+.circuit__bulb-filament {
+  stroke: #565c93;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.35s ease;
+}
+.circuit__bulb-base {
+  fill: #8a8fb5;
+}
+.circuit__bulb.is-on .circuit__bulb-glass {
+  fill: #fff3a8;
+  stroke: #ffce4f;
+}
+.circuit__bulb.is-on .circuit__bulb-filament {
+  stroke: #ff7a00;
+}
+.circuit__bulb-glow {
+  fill: rgba(255, 221, 90, 0.55);
+  filter: blur(7px);
+  animation: circuit-bulbpulse 1.1s ease-in-out infinite;
+}
+@keyframes circuit-bulbpulse {
+  0%, 100% { opacity: 0.55; }
+  50% { opacity: 0.95; }
+}
+
+.circuit__hint {
+  margin: 0;
   text-align: center;
   font-weight: 800;
-  font-size: 1.4rem;
-  color: var(--ink);
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 12px;
-  animation: pop-in 0.3s ease;
+  color: var(--white);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
 }
-.circuit__win p {
-  margin: 0;
-  text-shadow: 0 2px 6px rgba(255, 255, 255, 0.6);
+.circuit__footer {
+  display: flex;
+  justify-content: center;
+}
+
+/* Landscape phones are short — shrink nodes and let the board scroll if needed. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .circuit__switch {
+    height: clamp(38px, 11vh, 54px);
+    width: clamp(56px, 16vh, 76px);
+  }
+  .circuit__board {
+    overflow-y: auto;
+  }
 }

@@ -33,14 +33,7 @@ const STALL_TIME = 1.4 // seconds of near-stillness before a kind reset
 const STALL_SPEED = 26 // below this speed counts as "barely moving"
 const GOAL_HIT = 42 // generous star capture radius (px)
 const MIN_STROKE_LEN = 8 // min finger travel before a segment is recorded (px)
-const MAX_STROKES = 2 // the child may draw at most two ramp strokes
-
-// How many stars a given round has (level 0 = 1 star, then ramp up, cap at 3).
-function starCountForRound(round) {
-  if (round <= 0) return 1
-  if (round === 1) return 2
-  return 3
-}
+const MAX_STROKES = 1 // one ramp per try — draw it and the ball drops itself
 
 // Distance from point P to segment AB, plus the closest point on the segment.
 function closestOnSegment(px, py, ax, ay, bx, by) {
@@ -60,56 +53,50 @@ function closestOnSegment(px, py, ax, ay, bx, by) {
 }
 
 // Build a fresh layout for the given size + round number.
+// Pre-built marble-run "fixtures" the ball bounces through: fixed ramps the
+// child can't erase + bumper pegs, with the star's spot. Coordinates are
+// normalized 0..1 and scaled to the field. They rotate by round, and each is
+// shaped so the dropped ball is caught and steered, leaving the child to draw
+// one ramp that finishes the journey to the star.
+const FIXTURES = [
+  {
+    ramps: [[{ x: 0.1, y: 0.32 }, { x: 0.46, y: 0.46 }]],
+    pegs: [{ x: 0.64, y: 0.56 }],
+    star: { x: 0.82, y: 0.82 },
+  },
+  {
+    ramps: [
+      [{ x: 0.58, y: 0.3 }, { x: 0.92, y: 0.42 }],
+      [{ x: 0.08, y: 0.54 }, { x: 0.42, y: 0.64 }],
+    ],
+    pegs: [{ x: 0.5, y: 0.4 }, { x: 0.74, y: 0.64 }],
+    star: { x: 0.2, y: 0.86 },
+  },
+  {
+    ramps: [[{ x: 0.14, y: 0.3 }, { x: 0.5, y: 0.42 }, { x: 0.86, y: 0.3 }]],
+    pegs: [{ x: 0.32, y: 0.56 }, { x: 0.5, y: 0.68 }, { x: 0.68, y: 0.56 }],
+    star: { x: 0.5, y: 0.86 },
+  },
+  {
+    ramps: [
+      [{ x: 0.12, y: 0.36 }, { x: 0.4, y: 0.3 }],
+      [{ x: 0.55, y: 0.5 }, { x: 0.9, y: 0.6 }],
+    ],
+    pegs: [{ x: 0.3, y: 0.6 }, { x: 0.62, y: 0.74 }],
+    star: { x: 0.84, y: 0.84 },
+  },
+]
+
 function makeLayout(w, h, round) {
   const start = { x: Math.max(34, w * 0.16), y: Math.max(40, h * 0.12) }
-  // Candidate spots for stars, all in the lower portion and on-screen.
-  const candidates = [
-    { x: w * 0.82, y: h * 0.82 },
-    { x: w * 0.78, y: h * 0.7 },
-    { x: w * 0.5, y: h * 0.86 },
-    { x: w * 0.2, y: h * 0.8 },
-    { x: w * 0.86, y: h * 0.58 },
-    { x: w * 0.34, y: h * 0.62 },
-    { x: w * 0.62, y: h * 0.74 },
-  ]
-  const clamp = (s) => ({
-    x: Math.max(40, Math.min(w - 40, s.x)),
-    y: Math.max(h * 0.45, Math.min(h - 40, s.y)),
-  })
+  const fx = FIXTURES[((round % FIXTURES.length) + FIXTURES.length) % FIXTURES.length]
 
-  // Pick N distinct spots, keeping them spread out so they don't overlap.
-  const wantedRaw = starCountForRound(round)
-  const wanted = Math.max(1, Math.min(candidates.length, wantedRaw))
-  const pool = candidates.slice()
-  const stars = []
-  const MIN_GAP = Math.max(70, Math.min(w, h) * 0.22)
-  let guard = 0
-  while (stars.length < wanted && pool.length && guard < 200) {
-    guard++
-    const idx = randInt(0, pool.length - 1)
-    const cand = clamp(pool[idx])
-    pool.splice(idx, 1)
-    const tooClose = stars.some((s) => Math.hypot(s.x - cand.x, s.y - cand.y) < MIN_GAP)
-    if (tooClose) continue
-    stars.push(cand)
-  }
-  // If spacing was too strict to fill the quota, top up ignoring the gap.
-  while (stars.length < wanted && pool.length) {
-    const idx = randInt(0, pool.length - 1)
-    stars.push(clamp(pool[idx]))
-    pool.splice(idx, 1)
-  }
+  const fixedRamps = fx.ramps.map((r) => r.map((p) => ({ x: p.x * w, y: p.y * h })))
+  const pegR = Math.max(14, Math.min(w, h) * 0.05)
+  const pegs = fx.pegs.map((p) => ({ x: p.x * w, y: p.y * h, r: pegR }))
+  const stars = [{ x: fx.star.x * w, y: fx.star.y * h }]
 
-  // After the first round, drop in a fixed round peg the ball can bonk off of.
-  let peg = null
-  if (round > 0 && w > 60 && h > 60) {
-    peg = {
-      x: randInt(Math.round(w * 0.3), Math.round(w * 0.7)),
-      y: randInt(Math.round(h * 0.35), Math.round(h * 0.62)),
-      r: 20,
-    }
-  }
-  return { start, stars, peg }
+  return { start, stars, fixedRamps, pegs }
 }
 
 function freshBall(start) {
@@ -196,10 +183,11 @@ export default function Coaster() {
     return { x: e.clientX - rect.left, y: e.clientY - rect.top }
   }
 
-  // ---- Drawing ramp strokes with the finger -------------------------------
+  // ---- Drawing the ramp with the finger -----------------------------------
   function onPointerDown(e) {
-    if (wonRef.current) return
-    // At most two strokes — a third pointerdown is gently refused.
+    // No drawing while the ball is rolling or after a win.
+    if (wonRef.current || runningRef.current) return
+    // One ramp at a time — a second pointerdown is gently refused.
     if (strokesRef.current.length >= MAX_STROKES) {
       tone(220, { duration: 0.09, type: 'sine', gain: 0.05 })
       return
@@ -240,19 +228,8 @@ export default function Coaster() {
     if (last && last.length < 2) strokes.pop()
     setStrokeCount(strokes.length)
     redrawStrokes()
-  }
-
-  // ---- Controls ------------------------------------------------------------
-  function eraseStrokes() {
-    strokesRef.current = []
-    setStrokeCount(0)
-    runningRef.current = false
-    setRunning(false)
-    ballRef.current = freshBall(layoutRef.current.start)
-    stallRef.current = 0
-    resetCollected()
-    sfx.tap()
-    redrawStrokes()
+    // Auto-drop: the moment a real ramp is finished, the ball rolls — no button.
+    if (strokes.length > 0 && !wonRef.current && !runningRef.current) drop()
   }
 
   function resetBall() {
@@ -269,12 +246,16 @@ export default function Coaster() {
     tone(520, { duration: 0.1, type: 'sine', gain: 0.1 })
   }
 
-  // Gentle, no-fail reset: ball goes home, ready to drop again (stars reset too).
+  // Gentle, no-fail reset: clear the ramp, send the ball home, and invite the
+  // child to simply draw a new ramp (there is no erase button).
   function softReset() {
+    strokesRef.current = []
+    setStrokeCount(0)
     resetBall()
     runningRef.current = false
     setRunning(false)
     tone(300, { duration: 0.12, type: 'sine', gain: 0.07 })
+    redrawStrokes()
   }
 
   function onWin() {
@@ -337,7 +318,7 @@ export default function Coaster() {
         b.x += b.vx * dt
         b.y += b.vy * dt
 
-        // Collide with every ramp segment.
+        // Collide with every drawn ramp segment.
         const strokes = strokesRef.current
         for (let s = 0; s < strokes.length; s++) {
           const pts = strokes[s]
@@ -346,10 +327,18 @@ export default function Coaster() {
           }
         }
 
-        // Collide with the fixed peg (treat as a point with radius).
-        if (layout.peg) {
-          collidePeg(b, layout.peg)
+        // Collide with the pre-built fixed ramps.
+        const fixed = layout.fixedRamps || []
+        for (let s = 0; s < fixed.length; s++) {
+          const pts = fixed[s]
+          for (let i = 0; i + 1 < pts.length; i++) {
+            collideSegment(b, pts[i].x, pts[i].y, pts[i + 1].x, pts[i + 1].y)
+          }
         }
+
+        // Collide with every bumper peg (treat as a point with radius).
+        const pegs = layout.pegs || []
+        for (let i = 0; i < pegs.length; i++) collidePeg(b, pegs[i])
 
         // Side + top walls.
         if (b.x < R) {
@@ -480,8 +469,6 @@ export default function Coaster() {
   const strokes = strokesRef.current
   void tick // tick drives repaint; referenced so linters keep the dependency
 
-  const linesLeft = MAX_STROKES - strokeCount
-
   // Teaching hints for newcomers: a banner whenever the field is empty + idle,
   // and a once-per-first-round animated example ramp with a tracing pencil that
   // shows exactly what to draw and which way it slopes toward the star.
@@ -499,29 +486,6 @@ export default function Coaster() {
 
   return (
     <div className="coaster">
-      <div className="coaster__toolbar">
-        <button className="btn btn--good coaster__btn" onClick={drop}>
-          {running ? 'Drop again' : 'Drop!'} ⤵️
-        </button>
-        <button className="btn btn--ghost coaster__btn" onClick={eraseStrokes}>
-          Erase 🧽
-        </button>
-        <span className="coaster__lines" aria-label={`${linesLeft} ramps left`}>
-          <span className="coaster__lines-label">Ramps</span>
-          <span className="coaster__pips">
-            {Array.from({ length: MAX_STROKES }).map((_, i) => (
-              <span
-                key={i}
-                className={`coaster__pip ${i < strokeCount ? 'is-used' : ''}`}
-              />
-            ))}
-          </span>
-          <span className="coaster__lines-count">
-            {strokeCount}/{MAX_STROKES}
-          </span>
-        </span>
-      </div>
-
       <div
         ref={fieldRef}
         className="coaster__field play-surface"
@@ -536,13 +500,20 @@ export default function Coaster() {
         <span className="coaster__deco coaster__twinkle coaster__twinkle--b" aria-hidden="true" />
         <span className="coaster__deco coaster__planet" aria-hidden="true" />
 
-        {/* Drawn ramps */}
+        {/* Ramps: pre-built fixed ramps (stone) + the child's drawn ramp (gold) */}
         <svg
           className="coaster__svg"
           viewBox={`0 0 ${size.w} ${size.h}`}
           preserveAspectRatio="none"
           aria-hidden="true"
         >
+          {(layout.fixedRamps || []).map((pts, i) => (
+            <polyline
+              key={`f${i}`}
+              className="coaster__fixed-ramp"
+              points={pts.map((p) => `${p.x},${p.y}`).join(' ')}
+            />
+          ))}
           {strokes.map((pts, i) =>
             pts.length >= 2 ? (
               <polyline
@@ -554,19 +525,15 @@ export default function Coaster() {
           )}
         </svg>
 
-        {/* Fixed peg obstacle */}
-        {layout.peg && (
+        {/* Bumper pegs */}
+        {(layout.pegs || []).map((peg, i) => (
           <span
+            key={i}
             className="coaster__peg"
-            style={{
-              left: layout.peg.x,
-              top: layout.peg.y,
-              width: layout.peg.r * 2,
-              height: layout.peg.r * 2,
-            }}
+            style={{ left: peg.x, top: peg.y, width: peg.r * 2, height: peg.r * 2 }}
             aria-hidden="true"
           />
-        )}
+        ))}
 
         {/* Start pad */}
         <span
@@ -653,7 +620,7 @@ export default function Coaster() {
           </div>
         )}
 
-        {won && <div className="coaster__toast">Nice run! All stars! ⭐</div>}
+        {won && <div className="coaster__toast">You got it! ⭐</div>}
       </div>
     </div>
   )

@@ -6,57 +6,6 @@
   flex: 1;
 }
 
-.coaster__toolbar {
-  display: flex;
-  gap: 10px;
-  justify-content: center;
-  align-items: center;
-  flex-wrap: wrap;
-}
-
-.coaster__btn {
-  font-size: clamp(0.95rem, 4vw, 1.15rem);
-  padding: 10px 18px;
-}
-
-/* "Lines x/2" chip with two fill-in pips. */
-.coaster__lines {
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
-  padding: 6px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.16);
-  color: #fff;
-  font-weight: 800;
-  font-size: clamp(0.85rem, 3.6vw, 1rem);
-  line-height: 1;
-}
-.coaster__lines-label {
-  opacity: 0.9;
-}
-.coaster__pips {
-  display: inline-flex;
-  gap: 5px;
-}
-.coaster__pip {
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  border: 2px solid rgba(255, 255, 255, 0.7);
-  background: transparent;
-  transition: background 0.15s ease, box-shadow 0.15s ease;
-}
-.coaster__pip.is-used {
-  background: #ffd23f;
-  border-color: #ffd23f;
-  box-shadow: 0 0 6px rgba(255, 210, 63, 0.8);
-}
-.coaster__lines-count {
-  font-variant-numeric: tabular-nums;
-  opacity: 0.95;
-}
-
 .coaster__field {
   flex: 1;
   position: relative;
@@ -87,6 +36,17 @@
   stroke-linecap: round;
   stroke-linejoin: round;
   filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.35));
+}
+
+/* Pre-built fixed ramps — a solid pale "track", clearly different from the
+   child's gold drawn ramp. */
+.coaster__fixed-ramp {
+  fill: none;
+  stroke: #e3e9f7;
+  stroke-width: 13;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4));
 }
 
 /* ---- Decorative drawn sky (no emoji) ----------------------------------- */

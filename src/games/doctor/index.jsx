@@ -5,76 +5,171 @@ import { shuffle } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import './doctor.css'
 
-// Hand-drawn organ & bone icons — no emoji. Each is a 0..100 viewBox SVG that
-// fills its container (the `.organ` class sizes it). Bold, rounded, friendly.
+// Detailed anatomical organ SVGs (no emoji, no simple icons). Each is a 0..100
+// viewBox that fills its container (sized by `.organ`), with gradients + surface
+// detail — vessels on the heart, gyri on the brain, lobes & bronchi on the lungs,
+// lobes + gallbladder on the liver, a femur with head & condyles, a molar with
+// cusps & roots. (Re-used ids are fine: every instance of an organ is identical.)
 function Organ({ id }) {
   switch (id) {
     case 'heart':
       return (
         <svg className="organ" viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="orgHeart" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#ff7180" />
+              <stop offset="1" stopColor="#d6304a" />
+            </linearGradient>
+          </defs>
+          {/* great vessels: aorta, pulmonary trunk, vena cava */}
+          <g fill="none" stroke="#a52138" strokeWidth="6" strokeLinecap="round">
+            <path d="M48 40 C46 28 40 26 36 20" />
+            <path d="M54 40 C56 26 62 24 64 18" />
+            <path d="M51 40 C51 30 47 27 43 23" />
+          </g>
+          {/* myocardium — lopsided, apex pointing down */}
           <path
-            d="M50 85 C16 59 8 38 22 25 C33 15 46 19 50 31 C54 19 67 15 78 25 C92 38 84 59 50 85 Z"
-            fill="#ff5b6e"
-            stroke="#d6304a"
-            strokeWidth="3.5"
+            d="M51 42 C59 30 79 33 78 51 C77 67 63 81 49 88 C39 82 25 70 24 53 C23 38 43 31 51 42 Z"
+            fill="url(#orgHeart)"
+            stroke="#a52138"
+            strokeWidth="2.4"
             strokeLinejoin="round"
           />
-          <path d="M33 30 C27 33 26 40 30 47" fill="none" stroke="#fff" strokeOpacity="0.65" strokeWidth="4.5" strokeLinecap="round" />
+          {/* left auricle bulge */}
+          <path d="M29 48 C21 46 21 56 30 57" fill="url(#orgHeart)" stroke="#a52138" strokeWidth="2" />
+          {/* coronary arteries */}
+          <path d="M52 46 C50 58 46 68 49 81" fill="none" stroke="#ffb3bd" strokeWidth="2.4" strokeLinecap="round" />
+          <path d="M53 57 C59 59 65 60 69 57" fill="none" stroke="#ffb3bd" strokeWidth="2" strokeLinecap="round" />
+          {/* sheen */}
+          <path d="M39 45 C33 49 33 57 37 63" fill="none" stroke="#fff" strokeOpacity="0.45" strokeWidth="3" strokeLinecap="round" />
         </svg>
       )
     case 'brain':
       return (
         <svg className="organ" viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="orgBrain" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#ffb2d1" />
+              <stop offset="1" stopColor="#e783aa" />
+            </linearGradient>
+          </defs>
+          {/* brain stem */}
+          <path d="M50 76 C50 85 54 90 59 92" fill="none" stroke="#d3658f" strokeWidth="6" strokeLinecap="round" />
+          {/* cerebrum outline */}
           <path
-            d="M50 16 C41 9 26 13 24 27 C12 31 12 48 24 53 C20 66 33 75 45 69 C48 73 52 73 55 69 C67 75 80 66 76 53 C88 48 88 31 76 27 C74 13 59 9 50 16 Z"
-            fill="#f79ac0"
-            stroke="#d86a99"
-            strokeWidth="3.5"
+            d="M50 15 C40 8 24 12 22 26 C10 30 12 46 22 50 C16 62 26 74 40 70 C44 76 56 76 60 70 C74 74 84 62 78 50 C88 46 90 30 78 26 C76 12 60 8 50 15 Z"
+            fill="url(#orgBrain)"
+            stroke="#cf5e8a"
+            strokeWidth="2.4"
             strokeLinejoin="round"
           />
-          <path
-            d="M50 18 V70 M34 28 C40 33 40 43 33 48 M66 28 C60 33 60 43 67 48"
-            fill="none"
-            stroke="#d86a99"
-            strokeWidth="3"
-            strokeLinecap="round"
-          />
+          {/* longitudinal fissure + gyri folds */}
+          <g fill="none" stroke="#cf5e8a" strokeWidth="2.2" strokeLinecap="round">
+            <path d="M50 17 V66" />
+            <path d="M34 26 C40 30 40 38 34 42" />
+            <path d="M30 46 C36 48 38 54 33 58" />
+            <path d="M66 26 C60 30 60 38 66 42" />
+            <path d="M70 46 C64 48 62 54 67 58" />
+            <path d="M43 24 C41 30 45 34 43 40" />
+            <path d="M57 24 C59 30 55 34 57 40" />
+            <path d="M40 67 C46 71 54 71 60 67" />
+          </g>
         </svg>
       )
     case 'lungs':
       return (
         <svg className="organ" viewBox="0 0 100 100" aria-hidden="true">
-          <path d="M50 14 V36" stroke="#e0758f" strokeWidth="6" strokeLinecap="round" />
-          <circle cx="50" cy="14" r="5" fill="#e0758f" />
-          <path d="M47 32 C31 33 23 48 25 65 C26 78 38 84 45 76 C49 71 48 50 47 32 Z" fill="#f7aebb" stroke="#e0758f" strokeWidth="3.5" strokeLinejoin="round" />
-          <path d="M53 32 C69 33 77 48 75 65 C74 78 62 84 55 76 C51 71 52 50 53 32 Z" fill="#f7aebb" stroke="#e0758f" strokeWidth="3.5" strokeLinejoin="round" />
+          <defs>
+            <linearGradient id="orgLung" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#f8b6c2" />
+              <stop offset="1" stopColor="#e6818f" />
+            </linearGradient>
+          </defs>
+          {/* trachea + bronchi */}
+          <g fill="none" stroke="#c45f74" strokeWidth="5" strokeLinecap="round">
+            <path d="M50 12 V34" />
+            <path d="M50 34 C44 38 40 42 38 49" />
+            <path d="M50 34 C56 38 60 42 62 49" />
+          </g>
+          <circle cx="50" cy="12" r="4.5" fill="#c45f74" />
+          {/* left + right lungs */}
+          <path d="M45 42 C31 42 23 56 25 71 C26 83 37 88 44 80 C48 75 47 66 46 58 C45 52 48 48 45 42 Z" fill="url(#orgLung)" stroke="#c45f74" strokeWidth="2.4" strokeLinejoin="round" />
+          <path d="M55 42 C69 42 77 56 75 71 C74 83 63 88 56 80 C52 75 53 66 54 58 C55 52 52 48 55 42 Z" fill="url(#orgLung)" stroke="#c45f74" strokeWidth="2.4" strokeLinejoin="round" />
+          {/* lobe fissures */}
+          <path d="M29 58 C35 60 39 64 41 70" fill="none" stroke="#c45f74" strokeWidth="1.9" strokeLinecap="round" opacity="0.7" />
+          <path d="M71 58 C65 60 61 64 59 70" fill="none" stroke="#c45f74" strokeWidth="1.9" strokeLinecap="round" opacity="0.7" />
+        </svg>
+      )
+    case 'liver':
+      return (
+        <svg className="organ" viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="orgLiver" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#ad474e" />
+              <stop offset="1" stopColor="#7c2730" />
+            </linearGradient>
+          </defs>
+          {/* gallbladder peeking under the right lobe */}
+          <ellipse cx="33" cy="63" rx="7" ry="9.5" fill="#62b150" stroke="#3f8a36" strokeWidth="2" />
+          {/* wedge body: big right lobe tapering to small left lobe */}
+          <path
+            d="M13 44 C26 33 52 31 76 36 C88 39 90 47 85 55 C78 64 60 68 42 67 C28 66 17 60 13 53 C11 50 11 47 13 44 Z"
+            fill="url(#orgLiver)"
+            stroke="#5f1d25"
+            strokeWidth="2.4"
+            strokeLinejoin="round"
+          />
+          {/* falciform ligament between the lobes */}
+          <path d="M63 34 L61 50" fill="none" stroke="#5f1d25" strokeWidth="2.2" strokeLinecap="round" />
+          {/* surface sheen */}
+          <path d="M24 42 C36 38 50 38 62 41" fill="none" stroke="#d2737a" strokeOpacity="0.6" strokeWidth="3" strokeLinecap="round" />
+        </svg>
+      )
+    case 'bone':
+      // Femur: ball head + greater trochanter at the top, two condyles at the
+      // bottom, a shaft between. Flat fill so the parts merge; a shading line +
+      // the `.organ` drop-shadow give it form. Tilted for a classic look.
+      return (
+        <svg className="organ" viewBox="0 0 100 100" aria-hidden="true">
+          <g transform="rotate(-34 50 50)" fill="#f3ead0">
+            <rect x="43" y="22" width="14" height="56" rx="7" />
+            <circle cx="36" cy="22" r="10" />
+            <circle cx="57" cy="19" r="7.5" />
+            <circle cx="40" cy="80" r="10" />
+            <circle cx="60" cy="80" r="10" />
+          </g>
+          <path
+            d="M48 34 L41 66"
+            transform="rotate(-34 50 50)"
+            fill="none"
+            stroke="#dccb96"
+            strokeWidth="2.4"
+            strokeLinecap="round"
+            opacity="0.7"
+          />
         </svg>
       )
     case 'tooth':
       return (
         <svg className="organ" viewBox="0 0 100 100" aria-hidden="true">
+          <defs>
+            <linearGradient id="orgTooth" x1="0" y1="0" x2="0" y2="1">
+              <stop offset="0" stopColor="#ffffff" />
+              <stop offset="1" stopColor="#dde6ef" />
+            </linearGradient>
+          </defs>
+          {/* molar: rounded crown splitting into two roots */}
           <path
-            d="M27 27 C27 12 73 12 73 27 C76 41 70 53 64 75 C61 87 53 85 51 66 C50 58 50 58 49 66 C47 85 39 87 36 75 C30 53 24 41 27 27 Z"
-            fill="#ffffff"
-            stroke="#bfcedd"
-            strokeWidth="3.5"
+            d="M27 31 C27 18 40 14 50 19 C60 14 73 18 73 31 C74 43 70 53 66 61 C63 73 57 85 53 70 C51 62 49 62 47 70 C43 85 37 73 34 61 C30 53 26 43 27 31 Z"
+            fill="url(#orgTooth)"
+            stroke="#b6c6d6"
+            strokeWidth="2.4"
             strokeLinejoin="round"
           />
-          <path d="M37 28 C45 23 55 23 63 28" fill="none" stroke="#e3ebf3" strokeWidth="4.5" strokeLinecap="round" />
-        </svg>
-      )
-    case 'bone':
-      // Filled-only (single colour) so the four knobs + shaft merge seamlessly;
-      // the drop-shadow on `.organ` gives the edge. Tilted for a classic look.
-      return (
-        <svg className="organ" viewBox="0 0 100 100" aria-hidden="true">
-          <g transform="rotate(-38 50 50)" fill="#f1e7c6">
-            <rect x="27" y="42" width="46" height="16" rx="8" />
-            <circle cx="29" cy="40" r="11.5" />
-            <circle cx="29" cy="59" r="11.5" />
-            <circle cx="71" cy="40" r="11.5" />
-            <circle cx="71" cy="59" r="11.5" />
-          </g>
+          {/* biting-surface cusps */}
+          <path d="M33 29 C39 25 46 25 50 28 C54 25 61 25 67 29" fill="none" stroke="#cbd8e6" strokeWidth="3" strokeLinecap="round" />
+          {/* enamel highlight */}
+          <path d="M38 33 C36 41 37 49 40 56" fill="none" stroke="#ffffff" strokeWidth="3" strokeLinecap="round" opacity="0.85" />
         </svg>
       )
     default:
@@ -82,12 +177,13 @@ function Organ({ id }) {
   }
 }
 
-// A friendly cartoon patient drawn behind the holes: a head (the face emoji
-// sits on top), a neck, a hospital gown, arms with little hands and legs with
-// feet. The viewBox (0..200 x 0..320) is stretched to fill the patient card, so
-// SVG y / 320 lines up with each hole's `top` percentage — the brain lands in
-// the head, the tooth at the chin, heart & lungs on the chest, the bone in a leg.
-function PatientBody() {
+// A friendly cartoon patient drawn behind the holes — head with a peaceful
+// (asleep) face, neck, hospital gown, arms with hands and legs with feet. The
+// viewBox (0..200 x 0..320) is stretched to fill the patient card, so SVG y / 320
+// lines up with each hole's `top` percentage — the brain sits high in the head,
+// the tooth at the chin, heart & lungs on the chest, the bone in a leg. The face
+// breaks into a big grin once every piece is back in place (`done`).
+function PatientBody({ done }) {
   return (
     <svg className="doctor__figure" viewBox="0 0 200 320" preserveAspectRatio="none" aria-hidden="true">
       <defs>
@@ -95,52 +191,133 @@ function PatientBody() {
           <stop offset="0" stopColor="#ffe1a8" />
           <stop offset="1" stopColor="#ffc873" />
         </linearGradient>
+        <radialGradient id="docHead" cx="44%" cy="36%" r="70%">
+          <stop offset="0" stopColor="#ffeec5" />
+          <stop offset="100%" stopColor="#ffc873" />
+        </radialGradient>
         <linearGradient id="docGown" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#d6f0fb" />
-          <stop offset="1" stopColor="#a4d6ec" />
+          <stop offset="0" stopColor="#dff3fc" />
+          <stop offset="1" stopColor="#9fd2ea" />
         </linearGradient>
       </defs>
 
       {/* legs + feet (behind the gown hem) */}
-      <line x1="86" y1="206" x2="82" y2="296" stroke="url(#docSkin)" strokeWidth="26" strokeLinecap="round" />
-      <line x1="114" y1="206" x2="118" y2="296" stroke="url(#docSkin)" strokeWidth="26" strokeLinecap="round" />
-      <ellipse cx="76" cy="301" rx="18" ry="11" fill="url(#docSkin)" />
-      <ellipse cx="124" cy="301" rx="18" ry="11" fill="url(#docSkin)" />
+      <line x1="86" y1="230" x2="82" y2="304" stroke="url(#docSkin)" strokeWidth="26" strokeLinecap="round" />
+      <line x1="114" y1="230" x2="118" y2="304" stroke="url(#docSkin)" strokeWidth="26" strokeLinecap="round" />
+      <ellipse cx="76" cy="309" rx="18" ry="11" fill="url(#docSkin)" />
+      <ellipse cx="124" cy="309" rx="18" ry="11" fill="url(#docSkin)" />
 
       {/* arms + hands (behind the gown shoulders) */}
-      <line x1="56" y1="120" x2="34" y2="182" stroke="url(#docSkin)" strokeWidth="20" strokeLinecap="round" />
-      <line x1="144" y1="120" x2="166" y2="182" stroke="url(#docSkin)" strokeWidth="20" strokeLinecap="round" />
-      <circle cx="33" cy="187" r="12" fill="url(#docSkin)" />
-      <circle cx="167" cy="187" r="12" fill="url(#docSkin)" />
+      <line x1="56" y1="138" x2="34" y2="200" stroke="url(#docSkin)" strokeWidth="20" strokeLinecap="round" />
+      <line x1="144" y1="138" x2="166" y2="200" stroke="url(#docSkin)" strokeWidth="20" strokeLinecap="round" />
+      <circle cx="33" cy="205" r="12" fill="url(#docSkin)" />
+      <circle cx="167" cy="205" r="12" fill="url(#docSkin)" />
 
       {/* neck */}
-      <rect x="88" y="68" width="24" height="30" rx="11" fill="url(#docSkin)" />
+      <rect x="88" y="80" width="24" height="32" rx="11" fill="url(#docSkin)" />
 
       {/* hospital gown */}
       <path
-        d="M66 86 C58 87 52 96 51 107 L45 198 Q44 214 60 214 L140 214 Q156 214 155 198 L149 107 C148 96 142 87 134 86 C120 104 80 104 66 86 Z"
+        d="M66 104 C58 105 52 114 51 125 L45 216 Q44 232 60 232 L140 232 Q156 232 155 216 L149 125 C148 114 142 105 134 104 C120 122 80 122 66 104 Z"
         fill="url(#docGown)"
       />
-      {/* gown collar (V-neck), little tie + hem shading */}
-      <path d="M66 86 C80 104 120 104 134 86" fill="none" stroke="#8cc7e0" strokeWidth="5" strokeLinecap="round" />
-      <circle cx="100" cy="103" r="5" fill="#8cc7e0" />
-      <path d="M54 198 Q100 208 146 198" fill="none" stroke="#8cc7e0" strokeWidth="4" strokeLinecap="round" opacity="0.55" />
+      {/* gown collar (V-neck), tie, hem shading + a couple of soft folds */}
+      <path d="M66 104 C80 122 120 122 134 104" fill="none" stroke="#7cbfdc" strokeWidth="5" strokeLinecap="round" />
+      <circle cx="100" cy="121" r="5" fill="#7cbfdc" />
+      <path d="M54 216 Q100 226 146 216" fill="none" stroke="#7cbfdc" strokeWidth="4" strokeLinecap="round" opacity="0.5" />
+      <path d="M84 140 L80 210" stroke="#bfe2f1" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
+      <path d="M118 140 L122 210" stroke="#bfe2f1" strokeWidth="3" strokeLinecap="round" opacity="0.6" />
       {/* soft sleeve caps so the gown meets the arms cleanly */}
-      <circle cx="53" cy="108" r="11" fill="url(#docGown)" />
-      <circle cx="147" cy="108" r="11" fill="url(#docGown)" />
+      <circle cx="53" cy="126" r="11" fill="url(#docGown)" />
+      <circle cx="147" cy="126" r="11" fill="url(#docGown)" />
+
+      {/* head */}
+      <ellipse cx="100" cy="44" rx="42" ry="46" fill="url(#docHead)" />
+      {/* little hair curl up top */}
+      <path d="M90 4 q10 -9 20 -1" fill="none" stroke="#c9a45c" strokeWidth="5" strokeLinecap="round" />
+      {/* rosy cheeks */}
+      <ellipse cx="73" cy="66" rx="8.5" ry="5.5" fill="#ff9fb0" opacity="0.55" />
+      <ellipse cx="127" cy="66" rx="8.5" ry="5.5" fill="#ff9fb0" opacity="0.55" />
+      {/* face: asleep while we operate, beaming once all better */}
+      {done ? (
+        <>
+          <path d="M76 58 q7 -7 14 0" fill="none" stroke="#6b4f2a" strokeWidth="3.2" strokeLinecap="round" />
+          <path d="M110 58 q7 -7 14 0" fill="none" stroke="#6b4f2a" strokeWidth="3.2" strokeLinecap="round" />
+          <path d="M84 70 q16 16 32 0" fill="none" stroke="#6b4f2a" strokeWidth="3.6" strokeLinecap="round" />
+        </>
+      ) : (
+        <>
+          <path d="M76 59 q7 7 14 0" fill="none" stroke="#6b4f2a" strokeWidth="3.2" strokeLinecap="round" />
+          <path d="M110 59 q7 7 14 0" fill="none" stroke="#6b4f2a" strokeWidth="3.2" strokeLinecap="round" />
+          <path d="M91 73 q9 6 18 0" fill="none" stroke="#6b4f2a" strokeWidth="3" strokeLinecap="round" />
+        </>
+      )}
     </svg>
   )
 }
 
-// The five ailments. Each is a hole at a percentage position on the patient's
-// body, with a matching designed SVG piece. `top`/`left` are percentages of the
-// patient card, so the layout stays responsive at any size.
+// Decorative operating-room props around the table (non-interactive): an overhead
+// surgical lamp, a beeping heart-rate monitor and an IV drip stand. All inline
+// SVG so the app stays asset-free and offline.
+function OperatingRoom() {
+  return (
+    <div className="doctor__or" aria-hidden="true">
+      {/* overhead surgical lamp */}
+      <svg className="doctor__or-lamp" viewBox="0 0 120 64">
+        <rect x="57" y="0" width="6" height="16" rx="3" fill="#b9c4d4" />
+        <ellipse cx="60" cy="34" rx="52" ry="22" fill="#e7eef7" />
+        <ellipse cx="60" cy="31" rx="52" ry="22" fill="#f6fafe" />
+        {[
+          [34, 28], [60, 24], [86, 28], [44, 40], [60, 38], [76, 40],
+        ].map(([cx, cy], i) => (
+          <circle key={i} cx={cx} cy={cy} r="7" fill="#fff7cf" stroke="#ffe48a" strokeWidth="1.5" />
+        ))}
+        <ellipse cx="60" cy="48" rx="40" ry="9" fill="#fff7cf" opacity="0.5" />
+      </svg>
+
+      {/* heart-rate monitor */}
+      <svg className="doctor__or-monitor" viewBox="0 0 80 70">
+        <rect x="4" y="2" width="72" height="48" rx="7" fill="#27324a" />
+        <rect x="9" y="7" width="62" height="38" rx="4" fill="#0d1c1a" />
+        <polyline
+          className="doctor__ecg"
+          points="11,30 22,30 27,16 33,42 39,30 49,30 54,22 60,30 69,30"
+          fill="none"
+          stroke="#43e07b"
+          strokeWidth="2.4"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        />
+        <rect x="30" y="50" width="20" height="14" fill="#9aa6bd" />
+        <rect x="20" y="63" width="40" height="5" rx="2.5" fill="#7d8aa3" />
+        <circle cx="64" cy="40" r="2" fill="#43e07b" />
+      </svg>
+
+      {/* IV drip stand */}
+      <svg className="doctor__or-iv" viewBox="0 0 44 130">
+        <rect x="20" y="14" width="4" height="104" rx="2" fill="#c2ccda" />
+        <path d="M22 14 h12" stroke="#c2ccda" strokeWidth="4" strokeLinecap="round" />
+        <path d="M22 118 l-10 8 M22 118 l10 8" stroke="#c2ccda" strokeWidth="4" strokeLinecap="round" />
+        <rect x="28" y="20" width="16" height="26" rx="5" fill="#bfe8ff" stroke="#8fcdec" strokeWidth="1.5" />
+        <rect x="31" y="24" width="10" height="13" rx="3" fill="#7fc6ec" />
+        <path d="M36 46 V66" stroke="#bcd0e0" strokeWidth="1.6" />
+      </svg>
+    </div>
+  )
+}
+
+// The six pieces. Each is a hole at a percentage position on the patient's body,
+// with a matching anatomical SVG. `top`/`left` are percentages of the patient
+// card, so the layout stays responsive at any size: brain in the head, tooth at
+// the chin, heart & lungs across the chest, liver in the upper belly, bone in a
+// leg.
 const PARTS = [
-  { id: 'brain', label: 'Brain', top: 14, left: 50 },
-  { id: 'tooth', label: 'Tooth', top: 30, left: 50 },
-  { id: 'heart', label: 'Heart', top: 50, left: 38 },
-  { id: 'lungs', label: 'Lungs', top: 50, left: 64 },
-  { id: 'bone', label: 'Bone', top: 76, left: 40 },
+  { id: 'brain', label: 'Brain', top: 9, left: 50 },
+  { id: 'tooth', label: 'Tooth', top: 29, left: 50 },
+  { id: 'heart', label: 'Heart', top: 44, left: 35 },
+  { id: 'lungs', label: 'Lungs', top: 44, left: 65 },
+  { id: 'liver', label: 'Liver', top: 60, left: 50 },
+  { id: 'bone', label: 'Bone', top: 78, left: 42 },
 ]
 
 export default function TinyDoctor() {
@@ -232,13 +409,11 @@ export default function TinyDoctor() {
 
   return (
     <div className="doctor">
-      {/* The patient — a friendly rounded body with holes to fill. */}
+      {/* The patient on the operating table, surrounded by OR props. */}
       <div className="doctor__bed play-surface">
+        <OperatingRoom />
         <div className="doctor__patient">
-          <PatientBody />
-          <div className="doctor__face" aria-hidden="true">
-            {done ? '😄' : '🙂'}
-          </div>
+          <PatientBody done={done} />
 
           {PARTS.map((part) => {
             const isFilled = !!filled[part.id]

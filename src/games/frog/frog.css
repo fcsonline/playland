@@ -160,8 +160,52 @@
   right: 0;
   bottom: 0;
   height: 30%;
+  overflow: hidden;
   background: linear-gradient(180deg, #6fc7e8, #3f9fd4 70%);
   box-shadow: inset 0 6px 12px rgba(255, 255, 255, 0.35);
+}
+/* Shimmering caustics — soft light glints that drift left and right. */
+.frog__water::before {
+  content: '';
+  position: absolute;
+  inset: -10% -12%;
+  background:
+    radial-gradient(42% 14% at 28% 22%, rgba(255, 255, 255, 0.28), transparent 70%),
+    radial-gradient(38% 12% at 66% 44%, rgba(255, 255, 255, 0.2), transparent 70%),
+    radial-gradient(32% 10% at 46% 74%, rgba(255, 255, 255, 0.16), transparent 70%),
+    radial-gradient(30% 10% at 82% 66%, rgba(255, 255, 255, 0.16), transparent 70%);
+  animation: frog-water-shimmer 7s ease-in-out infinite alternate;
+}
+/* A gentle rolling highlight along the water's surface. */
+.frog__water::after {
+  content: '';
+  position: absolute;
+  left: -10%;
+  right: -10%;
+  top: 2px;
+  height: 7px;
+  border-radius: 50%;
+  background: linear-gradient(180deg, rgba(255, 255, 255, 0.6), transparent);
+  animation: frog-water-surface 4.5s ease-in-out infinite;
+}
+@keyframes frog-water-shimmer {
+  from {
+    transform: translateX(-5%) scaleY(0.95);
+    opacity: 0.7;
+  }
+  to {
+    transform: translateX(5%) scaleY(1.05);
+    opacity: 1;
+  }
+}
+@keyframes frog-water-surface {
+  0%,
+  100% {
+    transform: translateX(-3%) scaleY(1);
+  }
+  50% {
+    transform: translateX(3%) scaleY(1.6);
+  }
 }
 
 /* lily pads floating on the water */
@@ -250,6 +294,11 @@
   z-index: 7;
   animation: frog-wiggle 0.3s ease-in-out infinite;
 }
+/* Out of the tongue's reach — drawn faded so kids see it's too far (for now). */
+.frog__fly.is-far {
+  opacity: 0.45;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.18)) grayscale(0.4);
+}
 @keyframes frog-wiggle {
   0%,
   100% {
@@ -305,6 +354,20 @@
   box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.18), 0 4px 8px rgba(0, 0, 0, 0.18);
   display: grid;
   place-items: center;
+  transform-origin: center bottom;
+  /* periodic blink — the eyeball squishes shut for a beat */
+  animation: frog-blink 5s ease-in-out infinite;
+}
+@keyframes frog-blink {
+  0%,
+  91%,
+  100% {
+    transform: scaleY(1);
+  }
+  94%,
+  96% {
+    transform: scaleY(0.1);
+  }
 }
 .frog__eye--l {
   left: 16%;

@@ -1,4 +1,5 @@
 .home {
+  position: relative;
   flex: 1;
   display: flex;
   flex-direction: column;
@@ -11,9 +12,28 @@
   padding-right: max(14px, env(safe-area-inset-right));
 }
 
+/* A subtle, playful full-bleed backdrop behind the catalogue: soft pastel corner
+   glows + a faint polka-dot grid. Fixed so it covers the whole dashboard, and
+   only present on the home screen (games render their own frame). */
+.home::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(130% 90% at 0% -8%, rgba(255, 206, 79, 0.2), transparent 44%),
+    radial-gradient(130% 90% at 100% 2%, rgba(255, 126, 179, 0.18), transparent 44%),
+    radial-gradient(120% 90% at 50% 112%, rgba(94, 197, 255, 0.18), transparent 46%),
+    radial-gradient(rgba(108, 92, 231, 0.06) 2px, transparent 2.6px);
+  background-size: auto, auto, auto, 26px 26px;
+}
+
 /* The catalogue: big, chunky thumbnail icons — ~3 across on a phone, more on
    wider screens. The page scrolls if it's too tall for the screen. */
 .home__grid {
+  position: relative;
+  z-index: 1;
   display: grid;
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   gap: 14px;
@@ -22,16 +42,19 @@
 
 .card {
   padding: 0;
-  border-radius: 18px;
+  border-radius: 20px;
   background: var(--white);
-  box-shadow: var(--shadow);
+  /* Soft bold border: a chunky white frame around the icon + a faint hairline
+     and soft shadow so each box reads as a friendly sticker. */
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 2px rgba(58, 44, 90, 0.08), var(--shadow);
   overflow: hidden;
   animation: pop-in 0.3s ease both;
   transition: transform 0.1s ease, box-shadow 0.15s ease;
 }
 .card:active {
   transform: scale(0.92) rotate(-1deg);
-  box-shadow: var(--shadow-lg);
+  box-shadow: 0 0 0 2px rgba(58, 44, 90, 0.08), var(--shadow-lg);
 }
 
 .card__thumb {

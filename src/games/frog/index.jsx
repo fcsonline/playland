@@ -22,6 +22,9 @@ const FLY_COUNT = 4 // how many bugs buzz at once
 const TONGUE_SPEED = 1700 // px/s the tongue tip travels
 const CATCH_RADIUS = 38 // tip within this of a bug → caught (generous)
 const TAP_RADIUS = 80 // a tap within this of a bug locks onto it (very forgiving)
+// The tongue can only stretch this far from the mouth (fraction of board height),
+// so the highest/farthest flies are out of reach until they drift closer.
+const MAX_REACH_FRAC = 0.62
 
 function rand(min, max) {
   return min + Math.random() * (max - min)
@@ -238,6 +241,19 @@ export default function Frog() {
           goal = m
         }
 
+        // Cap how far the tongue can stretch: clamp the goal to the max reach
+        // from the mouth. Flies beyond that are simply out of range (the tongue
+        // shoots to its limit and reels back empty).
+        if (T.phase === 'out') {
+          const maxReach = h * MAX_REACH_FRAC
+          const gdx = goal.x - m.x
+          const gdy = goal.y - m.y
+          const gd = Math.hypot(gdx, gdy)
+          if (gd > maxReach) {
+            goal = { x: m.x + (gdx / gd) * maxReach, y: m.y + (gdy / gd) * maxReach }
+          }
+        }
+
         const dx = goal.x - T.tip.x
         const dy = goal.y - T.tip.y
         const dist = Math.hypot(dx, dy)
@@ -290,6 +306,7 @@ export default function Frog() {
   const flies = fliesRef.current
   const T = tongue.current
   const m = mouth()
+  const maxReach = size.h * MAX_REACH_FRAC
   const tongueOut = T.phase === 'out' || T.phase === 'back'
   const carried = T.carrying
 
@@ -323,10 +340,11 @@ export default function Frog() {
         <span className="frog__reed frog__reed--a" aria-hidden="true" />
         <span className="frog__reed frog__reed--b" aria-hidden="true" />
 
-        {/* Flies. */}
+        {/* Flies. Ones beyond the tongue's reach are drawn faded. */}
         {flies.map((f) => {
           if (carried && f.id === carried.id) return null // drawn on the tongue tip
-          return <Fly key={f.id} x={f.x} y={f.y} phase={f.phase} />
+          const far = Math.hypot(f.x - m.x, f.y - m.y) > maxReach
+          return <Fly key={f.id} x={f.x} y={f.y} phase={f.phase} far={far} />
         })}
 
         {/* Tongue (origin hidden behind the snout lip; tip + bug ride on top). */}
@@ -370,11 +388,11 @@ export default function Frog() {
 }
 
 // A single buzzing fly: dark body, two flickering wings, tiny legs.
-function Fly({ x, y, phase, stuck }) {
+function Fly({ x, y, phase, stuck, far }) {
   const flap = 0.5 + 0.5 * Math.sin(phase)
   return (
     <span
-      className={`frog__fly ${stuck ? 'is-stuck' : ''}`}
+      className={`frog__fly ${stuck ? 'is-stuck' : ''} ${far ? 'is-far' : ''}`}
       style={{ left: x, top: y }}
       aria-hidden="true"
     >

@@ -1,307 +1,84 @@
-import { useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { sfx, tone } from '../../lib/audio.js'
 import './circuit.css'
 
 /**
- * Light It Up — a graph-based circuit puzzle.
+ * Light It Up — a tap-to-light fairy-lights toy (no-fail, no logic puzzle).
  *
- * Power flows from a BATTERY (source) to a BULB (sink) through a network of
- * wires. Some wires have a SWITCH the child can tap open or closed; plain wires
- * always conduct. The bulb lights only when a COMPLETE path of conducting wires
- * connects the source to the sink — and with BRANCHES, there can be more than
- * one way to get there.
+ * A battery sits in the middle with wires fanning out to a ring of colored
+ * bulbs. Tap a dark bulb and a spark zips down its wire and the bulb bursts to
+ * life with a happy musical note (each bulb a higher note, so lighting them all
+ * plays a little tune). Light EVERY bulb and the whole string twinkles in
+ * celebration, the battery glows full, and the next round adds another bulb.
  *
- * No-fail: every tap is reversible. Switches start in a mix of open/closed but
- * NEVER already solved, so there's always something to do.
- *
- * Each level is a hand-authored graph in a 0..60 (x) by 0..100 (y) PORTRAIT
- * space, rendered in one <svg> so battery, wires, switches and bulb all line up.
+ * Tapping an already-lit bulb just gives it a cheerful re-ping — nothing can go
+ * wrong, nothing turns off, so a toddler always makes progress. Replaces the old
+ * switch-graph circuit, which read as an abstract logic puzzle.
  */
 
-// ---- Hand-authored levels (rising complexity) ----------------------------
-// nodes:  [{x, y}]            coordinates in a 0..60 by 0..100 portrait box
-// edges:  [{a, b, sw?}]       a/b are node indices; sw:true => tappable switch
-// source: node index of the BATTERY   sink: node index of the BULB
-const LEVELS = [
-  // L0 — simple series: battery → switch → switch → bulb (straight down).
-  {
-    nodes: [
-      { x: 30, y: 12 }, // 0 battery
-      { x: 30, y: 40 }, // 1
-      { x: 30, y: 64 }, // 2
-      { x: 30, y: 90 }, // 3 bulb
-    ],
-    edges: [
-      { a: 0, b: 1, sw: true },
-      { a: 1, b: 2, sw: true },
-      { a: 2, b: 3 },
-    ],
-    source: 0,
-    sink: 3,
-  },
+// Festive bulb colors + a gentle ascending scale (one note per bulb).
+const COLORS = ['#ff5b6e', '#ffce4f', '#43e07b', '#4facfe', '#b06cff', '#ff8a3d']
+const NOTES = [262, 294, 330, 392, 440, 523] // C D E G A C
 
-  // L1 — two parallel branches, one switch each. Close EITHER to light the bulb.
-  {
-    nodes: [
-      { x: 30, y: 12 }, // 0 battery
-      { x: 30, y: 30 }, // 1 split
-      { x: 12, y: 52 }, // 2 left branch
-      { x: 48, y: 52 }, // 3 right branch
-      { x: 30, y: 74 }, // 4 merge
-      { x: 30, y: 90 }, // 5 bulb
-    ],
-    edges: [
-      { a: 0, b: 1 },
-      { a: 1, b: 2, sw: true },
-      { a: 1, b: 3, sw: true },
-      { a: 2, b: 4, sw: true },
-      { a: 3, b: 4, sw: true },
-      { a: 4, b: 5 },
-    ],
-    source: 0,
-    sink: 5,
-  },
+// Bulbs per round: 3, 4, 5, 6 then stays at 6.
+function bulbCount(level) {
+  return Math.min(6, 3 + level)
+}
 
-  // L2 — two parallel branches with TWO switches each. Both switches on ONE
-  // branch must be closed for that branch to conduct end-to-end.
-  {
-    nodes: [
-      { x: 30, y: 10 }, // 0 battery
-      { x: 30, y: 26 }, // 1 split
-      { x: 12, y: 42 }, // 2 left upper
-      { x: 12, y: 64 }, // 3 left lower
-      { x: 48, y: 42 }, // 4 right upper
-      { x: 48, y: 64 }, // 5 right lower
-      { x: 30, y: 80 }, // 6 merge
-      { x: 30, y: 92 }, // 7 bulb
-    ],
-    edges: [
-      { a: 0, b: 1 },
-      { a: 1, b: 2, sw: true },
-      { a: 2, b: 3, sw: true },
-      { a: 3, b: 6 },
-      { a: 1, b: 4, sw: true },
-      { a: 4, b: 5, sw: true },
-      { a: 5, b: 6 },
-      { a: 6, b: 7 },
-    ],
-    source: 0,
-    sink: 7,
-  },
-
-  // L3 — a winding main path PLUS a DECOY dead-end branch (a switch that leads
-  // nowhere). The child must ignore the tempting decoy and complete the route.
-  {
-    nodes: [
-      { x: 30, y: 8 }, // 0 battery
-      { x: 14, y: 26 }, // 1
-      { x: 46, y: 26 }, // 2 junction (branches to decoy)
-      { x: 46, y: 48 }, // 3
-      { x: 18, y: 56 }, // 4 decoy dead-end (off to the side)
-      { x: 16, y: 66 }, // 5
-      { x: 44, y: 78 }, // 6
-      { x: 30, y: 92 }, // 7 bulb
-    ],
-    edges: [
-      { a: 0, b: 1, sw: true },
-      { a: 1, b: 2, sw: true },
-      { a: 2, b: 4, sw: true }, // DECOY: junction 2 → dead-end 4 (node 4 has no other edge)
-      { a: 2, b: 3, sw: true },
-      { a: 3, b: 5, sw: true },
-      { a: 5, b: 6, sw: true },
-      { a: 6, b: 7 },
-    ],
-    source: 0,
-    sink: 7,
-  },
-]
-
-// ---- Connectivity (BFS over conducting edges) ----------------------------
-// A plain edge always conducts; a switch edge conducts only when closed.
-// `closed` maps edge-index -> boolean (only switch edges appear there).
-// Returns the set of node indices reachable from `source`.
-function reachableFrom(level, closed) {
-  const { nodes, edges, source } = level
-  // adjacency: node -> [{ to, edgeIndex }] for every conducting edge
-  const adj = nodes.map(() => [])
-  edges.forEach((e, i) => {
-    const conducts = e.sw ? !!closed[i] : true
-    if (!conducts) return
-    adj[e.a].push({ to: e.b, edgeIndex: i })
-    adj[e.b].push({ to: e.a, edgeIndex: i })
+// Place N bulbs evenly on a ring around the centre battery (0..100 space).
+function makeBulbs(n) {
+  const R = 33
+  return Array.from({ length: n }, (_, i) => {
+    const ang = ((-90 + (i * 360) / n) * Math.PI) / 180
+    return { x: 50 + R * Math.cos(ang), y: 50 + R * Math.sin(ang) }
   })
-
-  const reached = new Set([source])
-  const queue = [source]
-  while (queue.length) {
-    const n = queue.shift()
-    for (const { to } of adj[n]) {
-      if (!reached.has(to)) {
-        reached.add(to)
-        queue.push(to)
-      }
-    }
-  }
-  return reached
-}
-
-const isLit = (level, closed) => reachableFrom(level, closed).has(level.sink)
-
-// All switch edge indices for a level (the ones the child can tap).
-const switchIndices = (level) =>
-  level.edges.reduce((acc, e, i) => (e.sw ? (acc.push(i), acc) : acc), [])
-
-// A fresh randomized `closed` map for a level that is NOT already solved.
-// If a random start happens to light the bulb, open random switches until dark.
-function makeClosed(level) {
-  const sws = switchIndices(level)
-  const closed = {}
-  for (const i of sws) closed[i] = Math.random() < 0.5
-  // Un-solve: while lit, open a random currently-closed switch.
-  let guard = 0
-  while (isLit(level, closed) && guard < 100) {
-    const onSwitches = sws.filter((i) => closed[i])
-    if (onSwitches.length === 0) break
-    closed[onSwitches[Math.floor(Math.random() * onSwitches.length)]] = false
-    guard += 1
-  }
-  return closed
-}
-
-// ---- Geometry helpers -----------------------------------------------------
-const mid = (p, q) => ({ x: (p.x + q.x) / 2, y: (p.y + q.y) / 2 })
-
-// ---- Render pieces (all inside one <svg>, in the 0..60 x 0..100 space) ----
-function Battery({ x, y }) {
-  // A rounded cell with a + nub and a lightning bolt.
-  return (
-    <g aria-hidden="true">
-      <rect className="circuit__battery" x={x - 7} y={y - 4.5} width="14" height="9" rx="2.4" />
-      <rect className="circuit__battery-nub" x={x + 7} y={y - 2} width="1.8" height="4" rx="0.8" />
-      <path
-        className="circuit__battery-bolt"
-        d={`M${x + 1.4} ${y - 3} L${x - 2.6} ${y + 0.4} L${x - 0.2} ${y + 0.4} L${x - 1.4} ${y + 3} L${x + 2.6} ${y - 0.6} L${x + 0.2} ${y - 0.6} Z`}
-      />
-    </g>
-  )
-}
-
-function Bulb({ x, y, on }) {
-  return (
-    <g className={`circuit__bulb ${on ? 'is-on' : ''}`} aria-hidden="true">
-      {on && (
-        <g className="circuit__bulb-rays">
-          {Array.from({ length: 8 }).map((_, i) => {
-            const ang = (Math.PI / 4) * i
-            const r0 = 9
-            const r1 = 13.5
-            return (
-              <line
-                key={i}
-                x1={x + Math.cos(ang) * r0}
-                y1={y - 6 + Math.sin(ang) * r0}
-                x2={x + Math.cos(ang) * r1}
-                y2={y - 6 + Math.sin(ang) * r1}
-              />
-            )
-          })}
-        </g>
-      )}
-      {on && <circle className="circuit__bulb-glow" cx={x} cy={y - 6} r="9" />}
-      {/* glass bulb */}
-      <circle className="circuit__bulb-glass" cx={x} cy={y - 6} r="6" />
-      {/* filament */}
-      <path
-        className="circuit__bulb-filament"
-        d={`M${x - 2.4} ${y - 4} L${x - 0.8} ${y - 8} L${x + 0.8} ${y - 5} L${x + 2.4} ${y - 8}`}
-        fill="none"
-      />
-      {/* base / screw */}
-      <rect className="circuit__bulb-base" x={x - 2.6} y={y - 0.6} width="5.2" height="2.2" rx="0.6" />
-      <rect className="circuit__bulb-base" x={x - 2} y={y + 1.6} width="4" height="2" rx="0.6" />
-    </g>
-  )
-}
-
-// A switch box, always drawn UPRIGHT at the edge midpoint (never rotated to the
-// wire angle). Lever is vertical when closed, tilted ~45° when open. Glows when
-// closed AND powered. A big transparent rect gives a generous tap target.
-function SwitchBox({ x, y, closed, powered, onTap, label }) {
-  const lit = closed && powered
-  const w = 9
-  const h = 11
-  return (
-    <g
-      className="circuit__switch"
-      role="button"
-      tabIndex={0}
-      aria-label={label}
-      onClick={onTap}
-      onKeyDown={(e) => {
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault()
-          onTap()
-        }
-      }}
-    >
-      {/* generous transparent hit area */}
-      <rect className="circuit__switch-hit" x={x - w} y={y - h} width={w * 2} height={h * 2} />
-      {/* box */}
-      <rect
-        className={`circuit__switch-box ${lit ? 'is-lit' : ''}`}
-        x={x - w / 2}
-        y={y - h / 2}
-        width={w}
-        height={h}
-        rx="2"
-      />
-      {/* contacts */}
-      <circle className={`circuit__switch-pad ${lit ? 'is-lit' : ''}`} cx={x} cy={y + h / 2 - 2} r="1.2" />
-      <circle className={`circuit__switch-pad ${lit ? 'is-lit' : ''}`} cx={x} cy={y - h / 2 + 2} r="1.2" />
-      {/* lever pivots from the bottom contact */}
-      <line
-        className={`circuit__switch-lever ${lit ? 'is-lit' : ''} ${closed ? '' : 'is-open'}`}
-        x1={x}
-        y1={y + h / 2 - 2}
-        x2={x}
-        y2={y - h / 2 + 2}
-        style={{ transformOrigin: `${x}px ${y + h / 2 - 2}px` }}
-      />
-    </g>
-  )
 }
 
 export default function LightItUp() {
   const { earn, award } = useGame()
   const [level, setLevel] = useState(0)
-  const lvl = LEVELS[level % LEVELS.length]
-  const [closed, setClosed] = useState(() => makeClosed(LEVELS[0]))
+  const n = bulbCount(level)
+  const [bulbs, setBulbs] = useState(() => makeBulbs(bulbCount(0)))
+  const [on, setOn] = useState(() => Array(bulbCount(0)).fill(false))
+  const [charging, setCharging] = useState(-1) // wire currently sparking
   const [done, setDone] = useState(false)
+  const timers = useRef([])
 
-  const reached = reachableFrom(lvl, closed)
-  const lit = reached.has(lvl.sink)
-
-  // An edge is POWERED (glowing) when it conducts AND both endpoints are
-  // reachable from the source — i.e. it carries live current.
-  const edgePowered = (e, i) => {
-    const conducts = e.sw ? !!closed[i] : true
-    return conducts && reached.has(e.a) && reached.has(e.b)
+  useEffect(() => {
+    return () => timers.current.forEach((t) => clearTimeout(t))
+  }, [])
+  const later = (fn, ms) => {
+    const id = setTimeout(fn, ms)
+    timers.current.push(id)
+    return id
   }
 
-  function toggle(i) {
+  const litCount = on.filter(Boolean).length
+
+  function tap(i) {
     if (done) return
-    setClosed((prev) => {
-      const next = { ...prev, [i]: !prev[i] }
+    // Always replay the bulb's note + a quick spark down its wire.
+    tone(NOTES[i % NOTES.length], { duration: 0.18, type: 'triangle', gain: 0.14 })
+    setCharging(i)
+    later(() => setCharging((c) => (c === i ? -1 : c)), 420)
+
+    if (on[i]) {
+      // Already lit — just a friendly re-ping, no change.
       sfx.tap()
-      tone(next[i] ? 540 : 340, { duration: 0.06, type: 'square', gain: 0.06 })
-      if (isLit(lvl, next)) {
+      return
+    }
+    sfx.pop()
+    setOn((prev) => {
+      const next = prev.slice()
+      next[i] = true
+      if (next.every(Boolean)) {
         setDone(true)
-        setTimeout(() => {
+        later(() => {
           sfx.win()
           earn(2)
-          award(Math.min(3, 1 + Math.floor(level / 2)), { praise: 'Lit up!', count: 20 })
-        }, 300)
+          award(Math.min(3, 1 + level), { praise: 'All lit!', count: 22 })
+        }, 320)
       }
       return next
     })
@@ -309,76 +86,53 @@ export default function LightItUp() {
 
   function nextLevel() {
     const nl = level + 1
+    const count = bulbCount(nl)
     setLevel(nl)
-    setClosed(makeClosed(LEVELS[nl % LEVELS.length]))
+    setBulbs(makeBulbs(count))
+    setOn(Array(count).fill(false))
+    setCharging(-1)
     setDone(false)
     sfx.tap()
   }
 
   return (
     <div className="circuit">
-      <div className={`circuit__board play-surface ${lit ? 'is-lit' : ''}`}>
+      <div className={`circuit__board play-surface ${done ? 'is-done' : ''}`}>
         <svg
           className="circuit__svg"
-          viewBox="0 0 60 100"
+          viewBox="0 0 100 100"
           preserveAspectRatio="xMidYMid meet"
           role="img"
-          aria-label="Circuit puzzle"
+          aria-label="Light up the bulbs"
         >
-          {/* Wires: drawn first so switches & lamps sit on top. */}
-          {lvl.edges.map((e, i) => {
-            const p = lvl.nodes[e.a]
-            const q = lvl.nodes[e.b]
-            const powered = edgePowered(e, i)
-            return (
-              <line
-                key={`w${i}`}
-                className={`circuit__wire ${powered ? 'is-on' : ''}`}
-                x1={p.x}
-                y1={p.y}
-                x2={q.x}
-                y2={q.y}
-              />
-            )
-          })}
+          {/* Wires from the battery out to each bulb. */}
+          {bulbs.map((b, i) => (
+            <line
+              key={`${level}-w${i}`}
+              className={`circuit__wire ${on[i] ? 'is-on' : ''} ${charging === i ? 'is-charging' : ''}`}
+              x1="50"
+              y1="50"
+              x2={b.x}
+              y2={b.y}
+              style={{ '--c': COLORS[i % COLORS.length] }}
+            />
+          ))}
 
-          {/* Junction dots so branches read clearly. */}
-          {lvl.nodes.map((n, i) => {
-            if (i === lvl.source || i === lvl.sink) return null
-            const degree = lvl.edges.filter((e) => e.a === i || e.b === i).length
-            if (degree < 2) return null
-            return (
-              <circle
-                key={`j${i}`}
-                className={`circuit__junction ${reached.has(i) ? 'is-on' : ''}`}
-                cx={n.x}
-                cy={n.y}
-                r="1.8"
-              />
-            )
-          })}
+          {/* Centre battery — glows brighter as more bulbs light. */}
+          <Battery lit={litCount} total={n} />
 
-          {/* Switches at edge midpoints. */}
-          {lvl.edges.map((e, i) => {
-            if (!e.sw) return null
-            const m = mid(lvl.nodes[e.a], lvl.nodes[e.b])
-            const powered = edgePowered(e, i)
-            return (
-              <SwitchBox
-                key={`s${i}`}
-                x={m.x}
-                y={m.y}
-                closed={!!closed[i]}
-                powered={powered}
-                onTap={() => toggle(i)}
-                label={closed[i] ? 'Switch on — tap to turn off' : 'Switch off — tap to turn on'}
-              />
-            )
-          })}
-
-          {/* Battery (source) and Bulb (sink). */}
-          <Battery x={lvl.nodes[lvl.source].x} y={lvl.nodes[lvl.source].y} />
-          <Bulb x={lvl.nodes[lvl.sink].x} y={lvl.nodes[lvl.sink].y} on={lit} />
+          {/* The bulbs. */}
+          {bulbs.map((b, i) => (
+            <Bulb
+              key={`${level}-b${i}`}
+              x={b.x}
+              y={b.y}
+              color={COLORS[i % COLORS.length]}
+              on={on[i]}
+              index={i}
+              onTap={() => tap(i)}
+            />
+          ))}
         </svg>
       </div>
 
@@ -389,8 +143,75 @@ export default function LightItUp() {
           </button>
         </div>
       ) : (
-        <p className="circuit__hint">Flip the switches to light the bulb!</p>
+        <p className="circuit__hint">Tap the bulbs to light them all! 💡</p>
       )}
     </div>
+  )
+}
+
+// Centre battery cell with a + nub and a lightning bolt, wrapped in a glow whose
+// size/brightness tracks how many bulbs are lit.
+function Battery({ lit, total }) {
+  const g = total ? lit / total : 0
+  return (
+    <g aria-hidden="true">
+      <circle
+        className="circuit__hub-glow"
+        cx="50"
+        cy="50"
+        r={11 + g * 7}
+        style={{ opacity: 0.15 + g * 0.6 }}
+      />
+      <rect className="circuit__hub" x="43" y="44" width="14" height="12" rx="3" />
+      <rect className="circuit__hub-nub" x="57" y="47" width="2" height="6" rx="1" />
+      <path
+        className="circuit__hub-bolt"
+        d="M51.4 47 L47.4 50.4 L49.8 50.4 L48.6 53 L52.6 49.4 L50.2 49.4 Z"
+      />
+    </g>
+  )
+}
+
+// A tappable bulb: grey glass when off; saturated, glowing, with rays when on.
+function Bulb({ x, y, color, on, index, onTap }) {
+  return (
+    <g
+      className={`circuit__bulb ${on ? 'is-on' : ''}`}
+      style={{ '--c': color }}
+      role="button"
+      tabIndex={0}
+      aria-label={on ? `bulb ${index + 1} lit` : `bulb ${index + 1} — tap to light`}
+      onClick={onTap}
+      onKeyDown={(e) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault()
+          onTap()
+        }
+      }}
+    >
+      {/* generous transparent hit area */}
+      <circle className="circuit__bulb-hit" cx={x} cy={y} r="13" />
+      {on && (
+        <g className="circuit__bulb-rays">
+          {Array.from({ length: 8 }).map((_, k) => {
+            const a = (Math.PI / 4) * k
+            return (
+              <line
+                key={k}
+                x1={x + Math.cos(a) * 9}
+                y1={y + Math.sin(a) * 9}
+                x2={x + Math.cos(a) * 12.5}
+                y2={y + Math.sin(a) * 12.5}
+              />
+            )
+          })}
+        </g>
+      )}
+      {on && <circle className="circuit__bulb-halo" cx={x} cy={y} r="10" />}
+      {/* little base/collar where the wire meets the bulb */}
+      <circle className="circuit__bulb-collar" cx={x} cy={y} r="7.6" />
+      <circle className="circuit__bulb-glass" cx={x} cy={y} r="6.2" />
+      <ellipse className="circuit__bulb-shine" cx={x - 2} cy={y - 2.4} rx="1.8" ry="2.6" />
+    </g>
   )
 }

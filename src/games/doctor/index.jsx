@@ -82,6 +82,56 @@ function Organ({ id }) {
   }
 }
 
+// A friendly cartoon patient drawn behind the holes: a head (the face emoji
+// sits on top), a neck, a hospital gown, arms with little hands and legs with
+// feet. The viewBox (0..200 x 0..320) is stretched to fill the patient card, so
+// SVG y / 320 lines up with each hole's `top` percentage — the brain lands in
+// the head, the tooth at the chin, heart & lungs on the chest, the bone in a leg.
+function PatientBody() {
+  return (
+    <svg className="doctor__figure" viewBox="0 0 200 320" preserveAspectRatio="none" aria-hidden="true">
+      <defs>
+        <linearGradient id="docSkin" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffe1a8" />
+          <stop offset="1" stopColor="#ffc873" />
+        </linearGradient>
+        <linearGradient id="docGown" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#d6f0fb" />
+          <stop offset="1" stopColor="#a4d6ec" />
+        </linearGradient>
+      </defs>
+
+      {/* legs + feet (behind the gown hem) */}
+      <line x1="86" y1="206" x2="82" y2="296" stroke="url(#docSkin)" strokeWidth="26" strokeLinecap="round" />
+      <line x1="114" y1="206" x2="118" y2="296" stroke="url(#docSkin)" strokeWidth="26" strokeLinecap="round" />
+      <ellipse cx="76" cy="301" rx="18" ry="11" fill="url(#docSkin)" />
+      <ellipse cx="124" cy="301" rx="18" ry="11" fill="url(#docSkin)" />
+
+      {/* arms + hands (behind the gown shoulders) */}
+      <line x1="56" y1="120" x2="34" y2="182" stroke="url(#docSkin)" strokeWidth="20" strokeLinecap="round" />
+      <line x1="144" y1="120" x2="166" y2="182" stroke="url(#docSkin)" strokeWidth="20" strokeLinecap="round" />
+      <circle cx="33" cy="187" r="12" fill="url(#docSkin)" />
+      <circle cx="167" cy="187" r="12" fill="url(#docSkin)" />
+
+      {/* neck */}
+      <rect x="88" y="68" width="24" height="30" rx="11" fill="url(#docSkin)" />
+
+      {/* hospital gown */}
+      <path
+        d="M66 86 C58 87 52 96 51 107 L45 198 Q44 214 60 214 L140 214 Q156 214 155 198 L149 107 C148 96 142 87 134 86 C120 104 80 104 66 86 Z"
+        fill="url(#docGown)"
+      />
+      {/* gown collar (V-neck), little tie + hem shading */}
+      <path d="M66 86 C80 104 120 104 134 86" fill="none" stroke="#8cc7e0" strokeWidth="5" strokeLinecap="round" />
+      <circle cx="100" cy="103" r="5" fill="#8cc7e0" />
+      <path d="M54 198 Q100 208 146 198" fill="none" stroke="#8cc7e0" strokeWidth="4" strokeLinecap="round" opacity="0.55" />
+      {/* soft sleeve caps so the gown meets the arms cleanly */}
+      <circle cx="53" cy="108" r="11" fill="url(#docGown)" />
+      <circle cx="147" cy="108" r="11" fill="url(#docGown)" />
+    </svg>
+  )
+}
+
 // The five ailments. Each is a hole at a percentage position on the patient's
 // body, with a matching designed SVG piece. `top`/`left` are percentages of the
 // patient card, so the layout stays responsive at any size.
@@ -185,10 +235,10 @@ export default function TinyDoctor() {
       {/* The patient — a friendly rounded body with holes to fill. */}
       <div className="doctor__bed play-surface">
         <div className="doctor__patient">
+          <PatientBody />
           <div className="doctor__face" aria-hidden="true">
             {done ? '😄' : '🙂'}
           </div>
-          <div className="doctor__body" aria-hidden="true" />
 
           {PARTS.map((part) => {
             const isFilled = !!filled[part.id]

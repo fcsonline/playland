@@ -42,17 +42,14 @@
   z-index: 1;
 }
 
-/* The torso, drawn purely in CSS — a soft rounded blob in a hospital-gown blue. */
-.doctor__body {
+/* The full cartoon patient (head, gown, arms, legs) drawn behind the holes. */
+.doctor__figure {
   position: absolute;
-  top: 16%;
-  left: 50%;
-  transform: translateX(-50%);
+  inset: 0;
   width: 100%;
-  height: 84%;
-  border-radius: 46% 46% 40% 40% / 36% 36% 28% 28%;
-  background: linear-gradient(180deg, #9fd0ff, #7bb8f5);
-  box-shadow: var(--shadow-lg), inset 0 8px 18px rgba(255, 255, 255, 0.35);
+  height: 100%;
+  z-index: 0;
+  filter: drop-shadow(0 8px 14px rgba(58, 44, 90, 0.18));
 }
 
 /* Each hole is centered on its percentage position. */

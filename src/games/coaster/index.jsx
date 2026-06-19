@@ -482,6 +482,21 @@ export default function Coaster() {
 
   const linesLeft = MAX_STROKES - strokeCount
 
+  // Teaching hints for newcomers: a banner whenever the field is empty + idle,
+  // and a once-per-first-round animated example ramp with a tracing pencil that
+  // shows exactly what to draw and which way it slopes toward the star.
+  const idle = !running && !won
+  const showBanner = idle && strokeCount === 0
+  const demo =
+    showBanner && round === 0 && layout.stars.length
+      ? {
+          ax: layout.start.x + 4,
+          ay: layout.start.y + 34,
+          bx: layout.start.x + (layout.stars[0].x - layout.start.x) * 0.5,
+          by: layout.start.y + (layout.stars[0].y - layout.start.y) * 0.42,
+        }
+      : null
+
   return (
     <div className="coaster">
       <div className="coaster__toolbar">
@@ -491,8 +506,8 @@ export default function Coaster() {
         <button className="btn btn--ghost coaster__btn" onClick={eraseStrokes}>
           Erase 🧽
         </button>
-        <span className="coaster__lines" aria-label={`${linesLeft} lines left`}>
-          <span className="coaster__lines-label">Lines</span>
+        <span className="coaster__lines" aria-label={`${linesLeft} ramps left`}>
+          <span className="coaster__lines-label">Ramps</span>
           <span className="coaster__pips">
             {Array.from({ length: MAX_STROKES }).map((_, i) => (
               <span
@@ -590,14 +605,53 @@ export default function Coaster() {
           )
         })}
 
+        {/* Animated example ramp + tracing pencil — shown only on round one. */}
+        {demo && (
+          <>
+            <svg
+              className="coaster__hint-svg"
+              viewBox={`0 0 ${size.w} ${size.h}`}
+              preserveAspectRatio="none"
+              aria-hidden="true"
+            >
+              <line
+                className="coaster__hint-line"
+                x1={demo.ax}
+                y1={demo.ay}
+                x2={demo.bx}
+                y2={demo.by}
+              />
+            </svg>
+            <span
+              className="coaster__hint-pencil"
+              aria-hidden="true"
+              style={{
+                '--ax': `${demo.ax}px`,
+                '--ay': `${demo.ay}px`,
+                '--bx': `${demo.bx}px`,
+                '--by': `${demo.by}px`,
+              }}
+            >
+              ✏️
+            </span>
+          </>
+        )}
+
         {/* Ball — drawn sphere with radial gradient + highlight */}
         <span
-          className="coaster__ball"
+          className={`coaster__ball ${idle ? 'is-idle' : ''}`}
           style={{ left: ball.x, top: ball.y, width: R * 2, height: R * 2 }}
           aria-hidden="true"
         >
           <span className="coaster__ball-shine" />
         </span>
+
+        {/* Plain-language how-to banner while the field is empty. */}
+        {showBanner && (
+          <div className="coaster__howto" aria-hidden="true">
+            ✏️ Draw a ramp so the ball rolls to the ⭐
+          </div>
+        )}
 
         {won && <div className="coaster__toast">Nice run! All stars! ⭐</div>}
       </div>

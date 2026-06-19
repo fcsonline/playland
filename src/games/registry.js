@@ -240,6 +240,13 @@ export const GAMES = [
     colors: ['#84fab0', '#8fd3f4'],
     tagline: 'Draw ramps, roll to the star!',
   },
+  {
+    id: 'frog',
+    title: 'Froggy Tongue',
+    emoji: '🐸',
+    colors: ['#7bd16f', '#3fae57'],
+    tagline: 'Flick your tongue, catch the flies!',
+  },
 ]
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -276,6 +283,7 @@ export const GAME_COMPONENTS = {
   popit: lazy(() => import('./popit/index.jsx')),
   circuit: lazy(() => import('./circuit/index.jsx')),
   coaster: lazy(() => import('./coaster/index.jsx')),
+  frog: lazy(() => import('./frog/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

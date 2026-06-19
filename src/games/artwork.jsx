@@ -265,6 +265,50 @@ export const GAME_ART = {
       <ellipse cx="72" cy="66" rx="2.6" ry="3.4" fill="#ffffff" opacity="0.6" />
     </svg>
   ),
+
+  // Froggy Tongue — glossy green frog flicking its tongue at a fly.
+  frog: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <radialGradient id="frgFace" cx="42%" cy="30%" r="78%">
+          <stop offset="0" stopColor="#a9ed83" />
+          <stop offset="55%" stopColor="#5fc23f" />
+          <stop offset="100%" stopColor="#3a9a28" />
+        </radialGradient>
+        <radialGradient id="frgEye" cx="40%" cy="32%" r="74%">
+          <stop offset="0" stopColor="#bff09c" />
+          <stop offset="60%" stopColor="#6cc746" />
+          <stop offset="100%" stopColor="#3f9a2c" />
+        </radialGradient>
+        <radialGradient id="frgFly" cx="38%" cy="32%" r="75%">
+          <stop offset="0" stopColor="#5a6473" />
+          <stop offset="100%" stopColor="#2f3640" />
+        </radialGradient>
+      </defs>
+      {/* head */}
+      <path d="M16 60a34 30 0 0 1 68 0v6a10 10 0 0 1-10 10H26a10 10 0 0 1-10-10z" fill="url(#frgFace)" />
+      {/* eye bulges */}
+      <circle cx="33" cy="36" r="16" fill="url(#frgEye)" />
+      <circle cx="67" cy="36" r="16" fill="url(#frgEye)" />
+      <circle cx="33" cy="35" r="8.5" fill="#ffffff" />
+      <circle cx="67" cy="35" r="8.5" fill="#ffffff" />
+      <circle cx="35" cy="37" r="4.6" fill="#1c2230" />
+      <circle cx="65" cy="37" r="4.6" fill="#1c2230" />
+      <circle cx="30" cy="32" r="2.4" fill="#ffffff" />
+      <circle cx="62" cy="32" r="2.4" fill="#ffffff" />
+      {/* nostrils + smile */}
+      <circle cx="45" cy="55" r="2" fill="#2f8a23" />
+      <circle cx="55" cy="55" r="2" fill="#2f8a23" />
+      <path d="M34 64q16 12 32 0" fill="none" stroke="#2f8a23" strokeWidth="3.5" strokeLinecap="round" />
+      {/* tongue flicking up-right to a fly */}
+      <path d="M58 62q14 2 22 -16" fill="none" stroke="#ff6f91" strokeWidth="6.5" strokeLinecap="round" />
+      <circle cx="80" cy="46" r="5" fill="#ff8da6" />
+      {/* fly */}
+      <ellipse cx="82" cy="22" rx="6.5" ry="4" fill="#bfe6ff" opacity="0.85" transform="rotate(-20 82 22)" />
+      <ellipse cx="90" cy="22" rx="6.5" ry="4" fill="#bfe6ff" opacity="0.85" transform="rotate(20 90 22)" />
+      <ellipse cx="86" cy="24" rx="5" ry="6" fill="url(#frgFly)" />
+    </svg>
+  ),
 }
 
 export default GAME_ART

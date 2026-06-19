@@ -95,10 +95,11 @@
   pointer-events: none;
 }
 
-/* Soft fluffy cloud built from overlapping white blobs. */
+/* Soft fluffy cloud built from overlapping white blobs. Kept up in the corner,
+   clear of the ball's start spot so the ball never hides behind it. */
 .coaster__cloud {
-  left: 10%;
-  top: 8%;
+  left: 4%;
+  top: 3%;
   width: 64px;
   height: 24px;
   border-radius: 999px;
@@ -268,6 +269,27 @@
   background: radial-gradient(circle at 32% 28%, #ffffff 0%, #dfe6f5 38%, #9aa6c9 78%, #6d78a0 100%);
   box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4), inset -3px -4px 6px rgba(0, 0, 0, 0.25);
   pointer-events: none;
+  z-index: 2;
+}
+
+/* While the ball is waiting to be dropped, a gentle ring says "this is the ball". */
+.coaster__ball.is-idle::after {
+  content: '';
+  position: absolute;
+  inset: -9px;
+  border-radius: 50%;
+  border: 3px solid rgba(255, 255, 255, 0.8);
+  animation: coaster-ball-ring 1.4s ease-out infinite;
+}
+@keyframes coaster-ball-ring {
+  0% {
+    transform: scale(0.65);
+    opacity: 0.9;
+  }
+  100% {
+    transform: scale(1.9);
+    opacity: 0;
+  }
 }
 .coaster__ball-shine {
   position: absolute;
@@ -278,6 +300,81 @@
   border-radius: 50%;
   background: rgba(255, 255, 255, 0.9);
   filter: blur(0.5px);
+}
+
+/* ---- First-timer hints -------------------------------------------------- */
+/* Marching dotted "draw here" example ramp. */
+.coaster__hint-svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 1;
+}
+.coaster__hint-line {
+  fill: none;
+  stroke: rgba(255, 210, 63, 0.95);
+  stroke-width: 9;
+  stroke-linecap: round;
+  stroke-dasharray: 2 22;
+  filter: drop-shadow(0 0 6px rgba(255, 210, 63, 0.7));
+  animation: coaster-hint-march 0.9s linear infinite;
+}
+@keyframes coaster-hint-march {
+  to {
+    stroke-dashoffset: -24;
+  }
+}
+
+/* Pencil that traces the example ramp from top to bottom, on a loop. */
+.coaster__hint-pencil {
+  position: absolute;
+  left: 0;
+  top: 0;
+  font-size: 1.9rem;
+  pointer-events: none;
+  z-index: 3;
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.45));
+  animation: coaster-trace 2.6s ease-in-out infinite;
+}
+@keyframes coaster-trace {
+  0% {
+    transform: translate(calc(var(--ax) - 50%), calc(var(--ay) - 88%));
+    opacity: 0;
+  }
+  14% {
+    opacity: 1;
+  }
+  68% {
+    transform: translate(calc(var(--bx) - 50%), calc(var(--by) - 88%));
+    opacity: 1;
+  }
+  100% {
+    transform: translate(calc(var(--bx) - 50%), calc(var(--by) - 88%));
+    opacity: 0;
+  }
+}
+
+/* Plain-language instruction banner across the top of the field. */
+.coaster__howto {
+  position: absolute;
+  left: 50%;
+  top: 12px;
+  transform: translateX(-50%);
+  max-width: 88%;
+  padding: 8px 16px;
+  border-radius: 16px;
+  background: rgba(13, 14, 38, 0.55);
+  color: #fff;
+  font-weight: 800;
+  font-size: clamp(0.85rem, 4vw, 1.05rem);
+  line-height: 1.25;
+  text-align: center;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+  z-index: 5;
+  pointer-events: none;
+  animation: pop-in 0.3s ease;
 }
 
 .coaster__toast {

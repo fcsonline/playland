@@ -90,6 +90,16 @@
   }
 }
 
+/* Little "draw this way" arrow at the start of each stroke. */
+.trace__arrow {
+  fill: var(--glyph, #6c5ce7);
+  stroke: var(--glyph, #6c5ce7);
+  stroke-width: 4;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.55;
+}
+
 /* Fat, easy-to-hit waypoint dots. */
 .trace__dot {
   position: absolute;
@@ -123,18 +133,30 @@
   }
 }
 
-/* The first dot is green: "start here". */
+/* A dot that begins a stroke wears its stroke number (1, 2, 3…). */
 .trace__dot.is-start {
-  border-color: var(--good, #2ecc71);
-  background: #eafff1;
+  border-color: var(--glyph, #6c5ce7);
+  background: var(--white);
   z-index: 4;
 }
 .trace__dot.is-start.is-lit {
   background: var(--glyph, #6c5ce7);
   border-color: var(--white);
 }
+.trace__num {
+  font-weight: 900;
+  font-size: clamp(0.85rem, 4.4vw, 1.2rem);
+  line-height: 1;
+  color: var(--glyph, #6c5ce7);
+}
 
-/* Pulsing ring inviting the child to press the green start dot. */
+/* The next dot to press, in proper stroke order — a gentle green nudge. */
+.trace__dot.is-next {
+  border-color: var(--good, #2ecc71);
+  z-index: 5;
+}
+
+/* Pulsing ring inviting the child to press the next dot. */
 .trace__startring {
   position: absolute;
   inset: -10px;

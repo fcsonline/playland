@@ -105,6 +105,51 @@ const FIXTURES = [
     pegs: [{ x: 0.3, y: 0.6 }, { x: 0.62, y: 0.74 }],
     star: { x: 0.84, y: 0.84 },
   },
+  // Center drop: a catch ramp under the start feeds the middle of the field.
+  {
+    ramps: [[{ x: 0.08, y: 0.3 }, { x: 0.42, y: 0.44 }]],
+    pegs: [{ x: 0.5, y: 0.6 }, { x: 0.68, y: 0.5 }],
+    star: { x: 0.5, y: 0.86 },
+  },
+  // Right corner: two stone ramps step the ball down toward the far right.
+  {
+    ramps: [
+      [{ x: 0.1, y: 0.28 }, { x: 0.44, y: 0.4 }],
+      [{ x: 0.56, y: 0.56 }, { x: 0.88, y: 0.66 }],
+    ],
+    pegs: [{ x: 0.72, y: 0.48 }],
+    star: { x: 0.84, y: 0.84 },
+  },
+  // Left return: the ball is sent right, then the drawn ramp brings it back left.
+  {
+    ramps: [[{ x: 0.1, y: 0.3 }, { x: 0.5, y: 0.42 }]],
+    pegs: [{ x: 0.4, y: 0.6 }, { x: 0.24, y: 0.7 }],
+    star: { x: 0.2, y: 0.86 },
+  },
+  // Peg forest: an arch ramp over three staggered bumpers, basket right-of-center.
+  {
+    ramps: [[{ x: 0.08, y: 0.32 }, { x: 0.42, y: 0.44 }, { x: 0.78, y: 0.32 }]],
+    pegs: [{ x: 0.28, y: 0.56 }, { x: 0.5, y: 0.66 }, { x: 0.72, y: 0.54 }],
+    star: { x: 0.6, y: 0.86 },
+  },
+  // Stairs: two short ramps cascade the ball to the lower right.
+  {
+    ramps: [
+      [{ x: 0.08, y: 0.3 }, { x: 0.32, y: 0.36 }],
+      [{ x: 0.46, y: 0.5 }, { x: 0.74, y: 0.58 }],
+    ],
+    pegs: [{ x: 0.6, y: 0.42 }, { x: 0.84, y: 0.72 }],
+    star: { x: 0.82, y: 0.86 },
+  },
+  // Funnel: two ramps converge on the center; thread the gap to the basket.
+  {
+    ramps: [
+      [{ x: 0.06, y: 0.4 }, { x: 0.42, y: 0.56 }],
+      [{ x: 0.94, y: 0.42 }, { x: 0.62, y: 0.56 }],
+    ],
+    pegs: [{ x: 0.3, y: 0.72 }, { x: 0.7, y: 0.72 }],
+    star: { x: 0.5, y: 0.86 },
+  },
 ]
 
 function makeLayout(w, h, round) {

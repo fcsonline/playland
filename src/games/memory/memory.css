@@ -1,4 +1,5 @@
 .memory {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 12px;
@@ -72,7 +73,13 @@
   outline: 3px solid var(--good);
 }
 
+/* Overlaid over the bottom of the board so finishing never shifts the layout. */
 .memory__win {
+  position: absolute;
+  left: 50%;
+  bottom: 8px;
+  transform: translateX(-50%);
+  z-index: 5;
   text-align: center;
   font-weight: 800;
   font-size: 1.2rem;
@@ -81,6 +88,18 @@
   flex-direction: column;
   align-items: center;
   gap: 4px;
+  padding: 10px 20px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(3px);
+  pointer-events: none;
+  animation: memory-win-pop 0.3s ease;
+}
+@keyframes memory-win-pop {
+  from {
+    opacity: 0;
+    transform: translateX(-50%) translateY(8px) scale(0.9);
+  }
 }
 .memory__win p {
   margin: 0;

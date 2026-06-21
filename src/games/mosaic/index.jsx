@@ -3,8 +3,60 @@ import { useGame } from '../../state/game.jsx'
 import { useDrag } from '../../lib/useDrag.js'
 import { pick } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
+import { useT } from '../../lib/i18n.js'
 import { PICTURES, COLORS, PALETTE } from './pictures.js'
 import './mosaic.css'
+
+const STR = {
+  en: {
+    copyThis: 'Copy this',
+    refPicture: 'reference picture',
+    colorSwatch: 'color {key}',
+    eraser: 'eraser',
+    beautiful: 'Beautiful! 🎉',
+    next: 'Next ➡️',
+    picHeart: '❤️ Heart',
+    picStar: '⭐ Star',
+    picSmiley: '😊 Smiley',
+    picFlower: '🌸 Flower',
+  },
+  es: {
+    copyThis: 'Copia esto',
+    refPicture: 'imagen de referencia',
+    colorSwatch: 'color {key}',
+    eraser: 'goma',
+    beautiful: '¡Precioso! 🎉',
+    next: 'Siguiente ➡️',
+    picHeart: '❤️ Corazón',
+    picStar: '⭐ Estrella',
+    picSmiley: '😊 Carita',
+    picFlower: '🌸 Flor',
+  },
+  ca: {
+    copyThis: 'Copia això',
+    refPicture: 'imatge de referència',
+    colorSwatch: 'color {key}',
+    eraser: 'goma',
+    beautiful: 'Preciós! 🎉',
+    next: 'Següent ➡️',
+    picHeart: '❤️ Cor',
+    picStar: '⭐ Estrella',
+    picSmiley: '😊 Cara',
+    picFlower: '🌸 Flor',
+  },
+  fr: {
+    copyThis: 'Copie ceci',
+    refPicture: 'image de référence',
+    colorSwatch: 'couleur {key}',
+    eraser: 'gomme',
+    beautiful: 'Magnifique ! 🎉',
+    next: 'Suivant ➡️',
+    picHeart: '❤️ Cœur',
+    picStar: '⭐ Étoile',
+    picSmiley: '😊 Smiley',
+    picFlower: '🌸 Fleur',
+  },
+}
 
 // Sentinel "color" for the eraser tool (clears a cell instead of painting it).
 const ERASE = 'erase'
@@ -28,6 +80,7 @@ function targetCells(pic) {
 
 export default function MosaicArt() {
   const { earn, award } = useGame()
+  const t = useT(STR)
 
   // Start on a random picture; the child never chooses.
   const [picIdx, setPicIdx] = useState(() => randomPicIdx())
@@ -120,11 +173,11 @@ export default function MosaicArt() {
       <div className="mosaic__stage play-surface">
         {/* Reference thumbnail. */}
         <div className="mosaic__ref">
-          <span className="mosaic__ref-label">Copy this</span>
+          <span className="mosaic__ref-label">{t('copyThis')}</span>
           <div
             className="mosaic__refgrid"
             style={{ '--n': pic.size }}
-            aria-label="reference picture"
+            aria-label={t('refPicture')}
           >
             {pic.cells.flat().map((key, i) => (
               <span
@@ -170,7 +223,7 @@ export default function MosaicArt() {
               setColor(key)
               sfx.tap()
             }}
-            aria-label={`color ${key}`}
+            aria-label={t('colorSwatch', { key })}
           />
         ))}
         <button
@@ -179,7 +232,7 @@ export default function MosaicArt() {
             setColor(ERASE)
             sfx.tap()
           }}
-          aria-label="eraser"
+          aria-label={t('eraser')}
         >
           🧽
         </button>
@@ -187,9 +240,9 @@ export default function MosaicArt() {
 
       {done && (
         <div className="mosaic__win">
-          <p>Beautiful! 🎉</p>
+          <p>{t('beautiful')}</p>
           <button className="btn btn--good" onClick={nextPicture}>
-            Next ➡️
+            {t('next')}
           </button>
         </div>
       )}

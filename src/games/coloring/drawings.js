@@ -7,6 +7,7 @@
 export const DRAWINGS = [
   {
     id: 'flower',
+    tkey: 'flower',
     label: '🌷 Flower',
     viewBox: '0 0 200 200',
     regions: [
@@ -24,6 +25,7 @@ export const DRAWINGS = [
   },
   {
     id: 'house',
+    tkey: 'house',
     label: '🏠 House',
     viewBox: '0 0 200 200',
     regions: [
@@ -38,6 +40,7 @@ export const DRAWINGS = [
   },
   {
     id: 'fish',
+    tkey: 'fish',
     label: '🐟 Fish',
     viewBox: '0 0 200 200',
     regions: [
@@ -52,6 +55,7 @@ export const DRAWINGS = [
   },
   {
     id: 'car',
+    tkey: 'car',
     label: '🚗 Car',
     viewBox: '0 0 200 200',
     regions: [
@@ -67,6 +71,7 @@ export const DRAWINGS = [
   },
   {
     id: 'rocket',
+    tkey: 'rocket',
     label: '🚀 Rocket',
     viewBox: '0 0 200 200',
     regions: [
@@ -82,6 +87,7 @@ export const DRAWINGS = [
   },
   {
     id: 'icecream',
+    tkey: 'icecream',
     label: '🍦 Ice Cream',
     viewBox: '0 0 200 200',
     regions: [
@@ -95,6 +101,7 @@ export const DRAWINGS = [
   },
   {
     id: 'boat',
+    tkey: 'boat',
     label: '⛵ Boat',
     viewBox: '0 0 200 200',
     regions: [
@@ -109,6 +116,7 @@ export const DRAWINGS = [
   },
   {
     id: 'snowman',
+    tkey: 'snowman',
     label: '⛄ Snowman',
     viewBox: '0 0 200 200',
     regions: [

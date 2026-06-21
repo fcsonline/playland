@@ -9,6 +9,7 @@
 export const SCENES = [
   {
     id: 'sunnyhill',
+    tkey: 'sunnyhill',
     label: '🌳 Sunny Hill',
     sky: '#bde7ff',
     svg: `
@@ -27,6 +28,7 @@ export const SCENES = [
   },
   {
     id: 'house',
+    tkey: 'house',
     label: '🏠 Cozy House',
     sky: '#ffe9c7',
     svg: `
@@ -42,6 +44,7 @@ export const SCENES = [
   },
   {
     id: 'sea',
+    tkey: 'sea',
     label: '⛵ Sailing Boat',
     sky: '#cdeffd',
     svg: `
@@ -57,6 +60,7 @@ export const SCENES = [
   },
   {
     id: 'space',
+    tkey: 'space',
     label: '🚀 Rocket Sky',
     sky: '#2b1a55',
     svg: `
@@ -76,6 +80,7 @@ export const SCENES = [
   },
   {
     id: 'cat',
+    tkey: 'cat',
     label: '🐱 Happy Cat',
     sky: '#ffe1ef',
     svg: `
@@ -94,6 +99,7 @@ export const SCENES = [
   },
   {
     id: 'rainbow',
+    tkey: 'rainbow',
     label: '🌈 Rainbow',
     sky: '#eaf6ff',
     svg: `
@@ -110,6 +116,7 @@ export const SCENES = [
   },
   {
     id: 'fish',
+    tkey: 'fish',
     label: '🐠 Little Fish',
     sky: '#bdeeff',
     svg: `
@@ -126,6 +133,7 @@ export const SCENES = [
   },
   {
     id: 'truck',
+    tkey: 'truck',
     label: '🚚 Big Truck',
     sky: '#cdeffd',
     svg: `
@@ -143,6 +151,7 @@ export const SCENES = [
   },
   {
     id: 'flower',
+    tkey: 'flower',
     label: '🌸 Flower',
     sky: '#eafaf0',
     svg: `

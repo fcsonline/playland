@@ -1,9 +1,11 @@
 import { GAMES } from '../games/registry.js'
 import ART from '../games/thumbnails.js'
 import { GAME_ART } from '../games/artwork.jsx'
+import { useTitle } from '../lib/i18n.js'
 import './Home.css'
 
 export default function Home({ onOpen }) {
+  const title = useTitle()
   return (
     <div className="home">
       <div className="home__grid" role="list">
@@ -18,7 +20,7 @@ export default function Home({ onOpen }) {
               animationDelay: `${Math.min(i, 12) * 0.03}s`,
             }}
             onClick={() => onOpen(g.id)}
-            aria-label={g.title}
+            aria-label={title(g.id)}
           >
             <div className="card__thumb">
               {ART[g.id] ? (

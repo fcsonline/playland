@@ -3,7 +3,67 @@ import { useGame } from '../../state/game.jsx'
 import { sfx } from '../../lib/audio.js'
 import { shuffle, pick, randInt } from '../../lib/random.js'
 import { LEVELS, DELTA, OPP, openingsOf } from './levels.js'
+import { useT } from '../../lib/i18n.js'
 import './pipes.css'
+
+const STR = {
+  en: {
+    waterSpot: 'water spot',
+    rotatePipe: 'tap to rotate pipe',
+    start: 'START',
+    done: 'DONE',
+    end: 'END',
+    nextPuzzle: 'Next puzzle ▶',
+    playAgain: 'Play again 🔄',
+    happy1: 'The water made it!',
+    happy2: 'Great pipework!',
+    happy3: 'You connected it all!',
+    happy4: 'Master plumber!',
+    happy5: 'Incredible pipework!',
+  },
+  es: {
+    waterSpot: 'punto de agua',
+    rotatePipe: 'toca para girar la tubería',
+    start: 'INICIO',
+    done: 'LISTO',
+    end: 'FIN',
+    nextPuzzle: 'Siguiente puzle ▶',
+    playAgain: 'Jugar otra vez 🔄',
+    happy1: '¡El agua llegó!',
+    happy2: '¡Buenas tuberías!',
+    happy3: '¡Lo conectaste todo!',
+    happy4: '¡Maestro fontanero!',
+    happy5: '¡Tuberías increíbles!',
+  },
+  ca: {
+    waterSpot: 'punt d\'aigua',
+    rotatePipe: 'toca per girar la canonada',
+    start: 'INICI',
+    done: 'FET',
+    end: 'FI',
+    nextPuzzle: 'Següent trencaclosques ▶',
+    playAgain: 'Torna a jugar 🔄',
+    happy1: 'L\'aigua ha arribat!',
+    happy2: 'Bones canonades!',
+    happy3: 'Ho has connectat tot!',
+    happy4: 'Mestre lampista!',
+    happy5: 'Canonades increïbles!',
+  },
+  fr: {
+    waterSpot: 'point d\'eau',
+    rotatePipe: 'touche pour tourner le tuyau',
+    start: 'DÉPART',
+    done: 'FINI',
+    end: 'FIN',
+    nextPuzzle: 'Puzzle suivant ▶',
+    playAgain: 'Rejouer 🔄',
+    happy1: 'L\'eau est arrivée !',
+    happy2: 'Beau travail de plomberie !',
+    happy3: 'Tout est relié !',
+    happy4: 'Maître plombier !',
+    happy5: 'Plomberie incroyable !',
+  },
+}
 
 const k = (c, r) => `${c},${r}`
 const dirBetween = (a, b) => {
@@ -113,7 +173,7 @@ function generateLevel(spec) {
   let tries = 0
   while (computeWet(grid, cols, rows, source).has(k(dest.c, dest.r)) && tries++ < 12) scramble()
 
-  return { cols, rows, happy: spec.happy, grid, source, dest }
+  return { cols, rows, happy: spec.happy, tkey: spec.tkey, grid, source, dest }
 }
 
 /** Inline SVG pipe, drawn as bars from the centre to each open side. */
@@ -135,6 +195,7 @@ function PipeShape({ type, rot, wet }) {
 }
 
 export default function PipeConnect() {
+  const t = useT(STR)
   const { earn, award } = useGame()
   const [levelIndex, setLevelIndex] = useState(0)
   const [level, setLevel] = useState(() => generateLevel(LEVELS[0]))
@@ -211,13 +272,13 @@ export default function PipeConnect() {
               className={`pipes__cell ${isWet ? 'is-wet' : ''} ${cell.locked ? 'is-locked' : ''}`}
               style={{ gridColumn: cell.c + 1, gridRow: cell.r + 1 }}
               onClick={() => rotate(cell)}
-              aria-label={cell.locked ? 'water spot' : 'tap to rotate pipe'}
+              aria-label={cell.locked ? t('waterSpot') : t('rotatePipe')}
             >
               <PipeShape type={cell.type} rot={cell.rot} wet={isWet} />
-              {cell.isSource && <span className="pipes__tag pipes__tag--start">START</span>}
+              {cell.isSource && <span className="pipes__tag pipes__tag--start">{t('start')}</span>}
               {cell.isDest && (
                 <span className={`pipes__tag pipes__tag--end ${isWet ? 'is-on' : ''}`}>
-                  {isWet ? 'DONE' : 'END'}
+                  {isWet ? t('done') : t('end')}
                 </span>
               )}
             </button>
@@ -226,14 +287,14 @@ export default function PipeConnect() {
 
         {solved && (
           <div className="pipes__overlay">
-            <p>{level.happy} 🎉</p>
+            <p>{t(level.tkey)} 🎉</p>
             {hasNext ? (
               <button className="btn btn--good" onClick={() => loadLevel(levelIndex + 1)}>
-                Next puzzle ▶
+                {t('nextPuzzle')}
               </button>
             ) : (
               <button className="btn btn--good" onClick={() => loadLevel(0)}>
-                Play again 🔄
+                {t('playAgain')}
               </button>
             )}
           </div>

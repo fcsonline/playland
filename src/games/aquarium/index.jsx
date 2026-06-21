@@ -1,9 +1,53 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { sfx, tone } from '../../lib/audio.js'
 import { pick } from '../../lib/random.js'
 import { CREATURES } from './creatures.js'
 import './aquarium.css'
+
+const STR = {
+  en: {
+    feed: 'Feed {quota}! 🐟',
+    foodTray: 'Food tray',
+    hungryWants: 'hungry fish wants {food}',
+    happyFish: 'happy fish',
+    food: 'food {food}',
+    foodPickedUp: 'food {food} (picked up)',
+    roundFed: 'Round {round} fed! Great job!',
+    nextRound: 'Next round ➕🐟',
+  },
+  es: {
+    feed: '¡Alimenta a {quota}! 🐟',
+    foodTray: 'Bandeja de comida',
+    hungryWants: 'el pez hambriento quiere {food}',
+    happyFish: 'pez feliz',
+    food: 'comida {food}',
+    foodPickedUp: 'comida {food} (cogida)',
+    roundFed: '¡Ronda {round} alimentada! ¡Muy bien!',
+    nextRound: 'Siguiente ronda ➕🐟',
+  },
+  ca: {
+    feed: 'Alimenta {quota}! 🐟',
+    foodTray: 'Safata de menjar',
+    hungryWants: 'el peix afamat vol {food}',
+    happyFish: 'peix feliç',
+    food: 'menjar {food}',
+    foodPickedUp: 'menjar {food} (agafat)',
+    roundFed: 'Ronda {round} alimentada! Molt bé!',
+    nextRound: 'Ronda següent ➕🐟',
+  },
+  fr: {
+    feed: 'Nourris {quota} ! 🐟',
+    foodTray: 'Plateau de nourriture',
+    hungryWants: 'le poisson affamé veut {food}',
+    happyFish: 'poisson content',
+    food: 'nourriture {food}',
+    foodPickedUp: 'nourriture {food} (prise)',
+    roundFed: 'Manche {round} nourrie ! Bravo !',
+    nextRound: 'Manche suivante ➕🐟',
+  },
+}
 
 /**
  * Hungry Fish — a clear feed-the-craving game.
@@ -52,6 +96,7 @@ const cravePeriod = (round) => Math.max(1.4, 3.2 - round * 0.35)
 
 export default function HungryFish() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
   const cbs = useRef({ earn, award, oops })
   cbs.current = { earn, award, oops }
 
@@ -259,7 +304,7 @@ export default function HungryFish() {
   return (
     <div className="aquarium">
       <div className="aquarium__meter">
-        <span className="aquarium__meterlabel">Feed {quota}! 🐟</span>
+        <span className="aquarium__meterlabel">{t('feed', { quota })}</span>
         <span className="aquarium__meterbar" aria-hidden="true">
           <span
             className="aquarium__meterfill"
@@ -301,7 +346,7 @@ export default function HungryFish() {
               style={{ transform: `scaleX(${f.flip ? -1 : 1})` }}
               onPointerDown={() => feedFish(f)}
               disabled={won}
-              aria-label={f.craving ? `hungry fish wants ${f.craving}` : 'happy fish'}
+              aria-label={f.craving ? t('hungryWants', { food: f.craving }) : t('happyFish')}
             >
               {f.emoji}
             </button>
@@ -315,22 +360,22 @@ export default function HungryFish() {
         {won && (
           <div className="aquarium__win">
             <div className="aquarium__win-emoji" aria-hidden="true">🎉🐠</div>
-            <p className="aquarium__win-text">Round {round} fed! Great job!</p>
+            <p className="aquarium__win-text">{t('roundFed', { round })}</p>
             <button className="btn btn--good" onPointerDown={nextRound}>
-              Next round ➕🐟
+              {t('nextRound')}
             </button>
           </div>
         )}
       </div>
 
-      <div className="aquarium__tray" role="group" aria-label="Food tray">
+      <div className="aquarium__tray" role="group" aria-label={t('foodTray')}>
         {FOODS.map((food) => (
           <button
             key={food}
             className={`aquarium__foodbtn ${held === food ? 'is-held' : ''}`}
             onPointerDown={() => pickFood(food)}
             disabled={won}
-            aria-label={`food ${food}${held === food ? ' (picked up)' : ''}`}
+            aria-label={held === food ? t('foodPickedUp', { food }) : t('food', { food })}
           >
             {food}
           </button>

@@ -2,7 +2,63 @@ import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { sfx, tone } from '../../lib/audio.js'
 import { pick, shuffle } from '../../lib/random.js'
+import { useT } from '../../lib/i18n.js'
 import './tictactoe.css'
+
+const STR = {
+  en: {
+    tryAgain: 'Try again!',
+    boardLabel: 'Tic Tac Toe board',
+    yourMark: 'your mark',
+    robotMark: 'robot mark',
+    emptySquare: 'empty square {n}',
+    win: 'You win! 🎉',
+    robo: 'Robo got it! Try again 🤖',
+    tie: "It's a tie! Play again 🤝",
+    thinking: 'Robo is thinking… 🤖',
+    yourTurn: 'Your turn! Tap a square ⭕',
+    newGame: '🔄 New game',
+  },
+  es: {
+    tryAgain: '¡Inténtalo!',
+    boardLabel: 'Tablero de Tres en Raya',
+    yourMark: 'tu marca',
+    robotMark: 'marca del robot',
+    emptySquare: 'casilla vacía {n}',
+    win: '¡Ganaste! 🎉',
+    robo: '¡Lo logró el robot! Inténtalo 🤖',
+    tie: '¡Empate! Juega otra vez 🤝',
+    thinking: 'El robot está pensando… 🤖',
+    yourTurn: '¡Tu turno! Toca una casilla ⭕',
+    newGame: '🔄 Nueva partida',
+  },
+  ca: {
+    tryAgain: 'Torna-hi!',
+    boardLabel: 'Tauler de Tres en Ratlla',
+    yourMark: 'la teva marca',
+    robotMark: 'marca del robot',
+    emptySquare: 'casella buida {n}',
+    win: 'Has guanyat! 🎉',
+    robo: 'El robot ho ha aconseguit! Torna-hi 🤖',
+    tie: 'Empat! Torna a jugar 🤝',
+    thinking: 'El robot està pensant… 🤖',
+    yourTurn: 'El teu torn! Toca una casella ⭕',
+    newGame: '🔄 Nova partida',
+  },
+  fr: {
+    tryAgain: 'Réessaie !',
+    boardLabel: 'Plateau de Morpion',
+    yourMark: 'ta marque',
+    robotMark: 'marque du robot',
+    emptySquare: 'case vide {n}',
+    win: 'Gagné ! 🎉',
+    robo: 'Le robot a gagné ! Réessaie 🤖',
+    tie: 'Égalité ! Rejoue 🤝',
+    thinking: 'Le robot réfléchit… 🤖',
+    yourTurn: 'À toi ! Touche une case ⭕',
+    newGame: '🔄 Nouvelle partie',
+  },
+}
 
 /**
  * Tic-Tac-Toe vs a friendly, BEATABLE robot.
@@ -73,6 +129,7 @@ const emptyBoard = () => Array(9).fill(null)
 
 export default function TicTacToe() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
   const cbs = useRef({ earn, award, oops })
   cbs.current = { earn, award, oops }
 
@@ -105,7 +162,7 @@ export default function TicTacToe() {
       setWinLine(rLine)
       setResult('robot')
       tone(220, { duration: 0.18, type: 'sine', gain: 0.1 })
-      oops({ word: 'Try again!' })
+      oops({ word: t('tryAgain') })
       return true
     }
     if (emptyCells(nextBoard).length === 0) {
@@ -160,16 +217,16 @@ export default function TicTacToe() {
   }
 
   let status
-  if (result === 'player') status = { text: 'You win! 🎉', cls: 'is-win' }
-  else if (result === 'robot') status = { text: 'Robo got it! Try again 🤖', cls: 'is-robo' }
-  else if (result === 'tie') status = { text: "It's a tie! Play again 🤝", cls: 'is-tie' }
-  else if (roboThinking) status = { text: 'Robo is thinking… 🤖', cls: '' }
-  else status = { text: 'Your turn! Tap a square ⭕', cls: '' }
+  if (result === 'player') status = { text: t('win'), cls: 'is-win' }
+  else if (result === 'robot') status = { text: t('robo'), cls: 'is-robo' }
+  else if (result === 'tie') status = { text: t('tie'), cls: 'is-tie' }
+  else if (roboThinking) status = { text: t('thinking'), cls: '' }
+  else status = { text: t('yourTurn'), cls: '' }
 
   return (
     <div className="ttt">
       <div className="ttt__boardwrap">
-        <div className="ttt__board play-surface" role="group" aria-label="Tic Tac Toe board">
+        <div className="ttt__board play-surface" role="group" aria-label={t('boardLabel')}>
           {board.map((mark, i) => {
             const inWin = winLine && winLine.includes(i)
             const disabled = !!mark || !!result || turn !== 'player'
@@ -179,7 +236,7 @@ export default function TicTacToe() {
                 className={`ttt__cell ${mark ? 'is-filled' : ''} ${inWin ? 'is-win' : ''}`}
                 onPointerDown={() => playerTap(i)}
                 disabled={disabled}
-                aria-label={mark ? (mark === PLAYER ? 'your mark' : 'robot mark') : `empty square ${i + 1}`}
+                aria-label={mark ? (mark === PLAYER ? t('yourMark') : t('robotMark')) : t('emptySquare', { n: i + 1 })}
               >
                 {mark && (
                   <span className={`ttt__mark ${mark === PLAYER ? 'is-player' : 'is-robot'}`}>
@@ -198,7 +255,7 @@ export default function TicTacToe() {
             </div>
             <p className="ttt__overlay-text">{status.text}</p>
             <button className="btn btn--good" onPointerDown={newGame}>
-              🔄 New game
+              {t('newGame')}
             </button>
           </div>
         )}

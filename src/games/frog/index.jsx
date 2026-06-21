@@ -1,7 +1,39 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { sfx, tone, noiseBurst } from '../../lib/audio.js'
 import './frog.css'
+
+const STR = {
+  en: {
+    tummy: 'Tummy',
+    meter: '{n} of {total} flies',
+    hint: 'Eat flies — not bees! 🐝',
+    fullToast: 'So full! 🎉',
+    soFull: 'So full!',
+  },
+  es: {
+    tummy: 'Barriga',
+    meter: '{n} de {total} moscas',
+    hint: '¡Come moscas, no abejas! 🐝',
+    fullToast: '¡Lleno! 🎉',
+    soFull: '¡Lleno!',
+  },
+  ca: {
+    tummy: 'Panxa',
+    meter: '{n} de {total} mosques',
+    hint: 'Menja mosques, no abelles! 🐝',
+    fullToast: 'Tip i ple! 🎉',
+    soFull: 'Tip i ple!',
+  },
+  fr: {
+    tummy: 'Ventre',
+    meter: '{n} sur {total} mouches',
+    hint: 'Mange les mouches, pas les abeilles ! 🐝',
+    fullToast: 'Bien rempli ! 🎉',
+    soFull: 'Bien rempli !',
+  },
+}
 
 /**
  * Froggy Tongue — a first-person frog (no-fail).
@@ -50,6 +82,7 @@ function spawnBug(id, w, h, kind) {
 
 export default function Frog() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
   const cbs = useRef({ earn, award, oops })
   cbs.current = { earn, award, oops }
 
@@ -183,7 +216,7 @@ export default function Frog() {
     fullRef.current = true
     setFull(true)
     sfx.win()
-    cbs.current.award(3, { praise: 'So full!', count: 22 })
+    cbs.current.award(3, { praise: t('soFull'), count: 22 })
     setTimeout(() => {
       fullRef.current = false
       setFull(false)
@@ -326,8 +359,8 @@ export default function Frog() {
     <div className="frog">
       {/* Tummy meter — how full the frog is this round. */}
       <div className="frog__hud">
-        <span className="frog__hud-label">Tummy</span>
-        <div className="frog__meter" aria-label={`${caught} of ${GOAL} flies`}>
+        <span className="frog__hud-label">{t('tummy')}</span>
+        <div className="frog__meter" aria-label={t('meter', { n: caught, total: GOAL })}>
           {Array.from({ length: GOAL }).map((_, i) => (
             <span key={i} className={`frog__pip ${i < caught ? 'is-full' : ''}`}>
               🪰
@@ -391,8 +424,8 @@ export default function Frog() {
           <span className="frog__mouth" />
         </div>
 
-        {!hintGone && <div className="frog__hint">Eat flies — not bees! 🐝</div>}
-        {full && <div className="frog__toast">So full! 🎉</div>}
+        {!hintGone && <div className="frog__hint">{t('hint')}</div>}
+        {full && <div className="frog__toast">{t('fullToast')}</div>}
       </div>
     </div>
   )

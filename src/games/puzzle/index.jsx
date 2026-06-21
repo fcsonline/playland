@@ -4,8 +4,72 @@ import { useProgress } from '../../state/progress.jsx'
 import { useDrag } from '../../lib/useDrag.js'
 import { pick, shuffle } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
+import { useT } from '../../lib/i18n.js'
 import { SCENES, LEVELS } from './scenes.js'
 import './puzzle.css'
+
+const STR = {
+  en: {
+    pieces: 'puzzle pieces',
+    piece: 'puzzle piece',
+    built: 'You built it! 🎉',
+    next: 'Next puzzle ➡️',
+    sunnyhill: '🌳 Sunny Hill',
+    house: '🏠 Cozy House',
+    sea: '⛵ Sailing Boat',
+    space: '🚀 Rocket Sky',
+    cat: '🐱 Happy Cat',
+    rainbow: '🌈 Rainbow',
+    fish: '🐠 Little Fish',
+    truck: '🚚 Big Truck',
+    flower: '🌸 Flower',
+  },
+  es: {
+    pieces: 'piezas del puzle',
+    piece: 'pieza del puzle',
+    built: '¡Lo lograste! 🎉',
+    next: 'Siguiente puzle ➡️',
+    sunnyhill: '🌳 Colina soleada',
+    house: '🏠 Casa acogedora',
+    sea: '⛵ Barco de vela',
+    space: '🚀 Cielo de cohetes',
+    cat: '🐱 Gato feliz',
+    rainbow: '🌈 Arcoíris',
+    fish: '🐠 Pececito',
+    truck: '🚚 Camión grande',
+    flower: '🌸 Flor',
+  },
+  ca: {
+    pieces: 'peces del trencaclosques',
+    piece: 'peça del trencaclosques',
+    built: 'Ho has aconseguit! 🎉',
+    next: 'Següent trencaclosques ➡️',
+    sunnyhill: '🌳 Turó assolellat',
+    house: '🏠 Casa acollidora',
+    sea: '⛵ Vaixell de vela',
+    space: '🚀 Cel de coets',
+    cat: '🐱 Gat content',
+    rainbow: '🌈 Arc de Sant Martí',
+    fish: '🐠 Peixet',
+    truck: '🚚 Camió gran',
+    flower: '🌸 Flor',
+  },
+  fr: {
+    pieces: 'pièces du puzzle',
+    piece: 'pièce du puzzle',
+    built: 'Gagné ! 🎉',
+    next: 'Puzzle suivant ➡️',
+    sunnyhill: '🌳 Colline ensoleillée',
+    house: '🏠 Maison douillette',
+    sea: '⛵ Voilier',
+    space: '🚀 Ciel de fusées',
+    cat: '🐱 Chat heureux',
+    rainbow: '🌈 Arc-en-ciel',
+    fish: '🐠 Petit poisson',
+    truck: '🚚 Gros camion',
+    flower: '🌸 Fleur',
+  },
+}
 
 // Pick a random scene, avoiding an immediate repeat of the current one.
 function pickScene(currentIdx) {
@@ -31,6 +95,7 @@ function PieceArt({ scene, r, c, rows, cols }) {
 
 export default function PuzzleAdventure() {
   const { earn, award } = useGame()
+  const t = useT(STR)
   const { getGameLevel, setGameLevel } = useProgress()
   // Start on a random scene; difficulty follows the child's saved history.
   const [sceneIdx, setSceneIdx] = useState(() => pickScene(-1))
@@ -146,7 +211,7 @@ export default function PuzzleAdventure() {
         </div>
       </div>
 
-      <div className="puzzle__tray" aria-label="puzzle pieces">
+      <div className="puzzle__tray" aria-label={t('pieces')}>
         {tray.map((idx) => {
           const r = Math.floor(idx / cols)
           const c = idx % cols
@@ -162,7 +227,7 @@ export default function PuzzleAdventure() {
                 activeIdx.current = idx
                 onPointerDown(e)
               }}
-              aria-label="puzzle piece"
+              aria-label={t('piece')}
             >
               <PieceArt scene={scene} r={r} c={c} rows={rows} cols={cols} />
             </button>
@@ -189,7 +254,7 @@ export default function PuzzleAdventure() {
 
       {done && (
         <div className="puzzle__win">
-          <p>You built it! 🎉</p>
+          <p>{t('built')}</p>
           <button
             className="btn btn--good"
             onClick={() => {
@@ -199,7 +264,7 @@ export default function PuzzleAdventure() {
               reset(pickScene(sceneIdx), nextLevel)
             }}
           >
-            Next puzzle ➡️
+            {t('next')}
           </button>
         </div>
       )}

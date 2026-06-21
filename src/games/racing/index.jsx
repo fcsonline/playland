@@ -1,9 +1,33 @@
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { useProgress } from '../../state/progress.jsx'
+import { useT } from '../../lib/i18n.js'
 import { pick, randInt } from '../../lib/random.js'
 import { sfx, noiseBurst } from '../../lib/audio.js'
 import './racing.css'
+
+const STR = {
+  en: {
+    moveLeft: 'move left',
+    moveRight: 'move right',
+    hint: 'Tap left or right — grab stars, overtake the cars! 🌟',
+  },
+  es: {
+    moveLeft: 'mover a la izquierda',
+    moveRight: 'mover a la derecha',
+    hint: 'Toca a la izquierda o a la derecha — ¡coge estrellas y adelanta a los coches! 🌟',
+  },
+  ca: {
+    moveLeft: "mou a l'esquerra",
+    moveRight: 'mou a la dreta',
+    hint: "Toca a l'esquerra o a la dreta — agafa estrelles i avança els cotxes! 🌟",
+  },
+  fr: {
+    moveLeft: 'aller à gauche',
+    moveRight: 'aller à droite',
+    hint: 'Touche à gauche ou à droite — attrape les étoiles, double les voitures ! 🌟',
+  },
+}
 
 /**
  * Star Racing — a friendly endless lane racer.
@@ -123,6 +147,7 @@ function rollItem() {
 const CAR_Y = 0.84 // car sits near the bottom (normalized)
 
 export default function StarRacing() {
+  const t = useT(STR)
   const { earn, award } = useGame()
   const { unlock, isUnlocked, unlocks } = useProgress()
   const roadRef = useRef(null)
@@ -299,20 +324,20 @@ export default function StarRacing() {
         <button
           className="racing__arrow racing__arrow--left"
           onPointerDown={(e) => { e.stopPropagation(); changeLane(-1) }}
-          aria-label="move left"
+          aria-label={t('moveLeft')}
         >
           ◀
         </button>
         <button
           className="racing__arrow racing__arrow--right"
           onPointerDown={(e) => { e.stopPropagation(); changeLane(+1) }}
-          aria-label="move right"
+          aria-label={t('moveRight')}
         >
           ▶
         </button>
       </div>
 
-      <p className="racing__hint">Tap left or right — grab stars, overtake the cars! 🌟</p>
+      <p className="racing__hint">{t('hint')}</p>
     </div>
   )
 }

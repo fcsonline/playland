@@ -1,6 +1,7 @@
 import { useCallback, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { sfx } from '../../lib/audio.js'
+import { useT } from '../../lib/i18n.js'
 import {
   COLS,
   ROWS,
@@ -14,10 +15,30 @@ import {
 } from './board.js'
 import './candy.css'
 
+const STR = {
+  en: {
+    candy: 'candy {c}',
+    hint: 'Tap a candy, then a neighbor to swap! Make 3 in a row. 🍬',
+  },
+  es: {
+    candy: 'dulce {c}',
+    hint: '¡Toca un dulce y luego uno vecino para cambiarlos! Junta 3 en fila. 🍬',
+  },
+  ca: {
+    candy: 'llaminadura {c}',
+    hint: "Toca una llaminadura i després una del costat per canviar-les! Ajunta'n 3 en fila. 🍬",
+  },
+  fr: {
+    candy: 'bonbon {c}',
+    hint: 'Touche un bonbon, puis un voisin pour les échanger ! Aligne-en 3. 🍬',
+  },
+}
+
 const MILESTONE = 150 // award some big stars every 150 pts
 
 export default function SweetMatch() {
   const { earn, award } = useGame()
+  const t = useT(STR)
   const [cells, setCells] = useState(() => makeBoard())
   const [selected, setSelected] = useState(null) // flat index or null
   const [clearing, setClearing] = useState(() => new Set()) // indices popping right now
@@ -144,14 +165,14 @@ export default function SweetMatch() {
               clearing.has(i) ? 'is-clearing' : ''
             } ${badPair && badPair.includes(i) ? 'is-bad' : ''}`}
             onClick={() => tapCell(i)}
-            aria-label={`candy ${candy}`}
+            aria-label={t('candy', { c: candy })}
           >
             <span className="candy__face">{candy}</span>
           </button>
         ))}
       </div>
 
-      <p className="candy__hint">Tap a candy, then a neighbor to swap! Make 3 in a row. 🍬</p>
+      <p className="candy__hint">{t('hint')}</p>
     </div>
   )
 }

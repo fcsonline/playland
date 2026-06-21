@@ -1,8 +1,16 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDrag } from '../../lib/useDrag.js'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { sfx, tone, noiseBurst } from '../../lib/audio.js'
 import './cannon.css'
+
+const STR = {
+  en: { hint: 'Pull from the cannon to aim, then let go to launch! 🎯' },
+  es: { hint: '¡Tira desde el cañón para apuntar y suelta para disparar! 🎯' },
+  ca: { hint: 'Estira des del canó per apuntar i deixa anar per disparar! 🎯' },
+  fr: { hint: 'Tire depuis le canon pour viser, puis lâche pour tirer ! 🎯' },
+}
 
 /**
  * Sky Cannon — a gentle parabolic-launch game.
@@ -84,6 +92,7 @@ function predictArc(vx, vy) {
 
 export default function SkyCannon() {
   const { earn, award } = useGame()
+  const t = useT(STR)
   const cbs = useRef({ earn, award })
   cbs.current = { earn, award }
 
@@ -440,7 +449,7 @@ export default function SkyCannon() {
       </div>
 
       <p className="cannon__hint">
-        Pull from the cannon to aim, then let go to launch! 🎯
+        {t('hint')}
       </p>
     </div>
   )

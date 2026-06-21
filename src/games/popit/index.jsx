@@ -1,9 +1,37 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { pick, randInt } from '../../lib/random.js'
 import { sfx, tone } from '../../lib/audio.js'
 import Countdown from '../../components/Countdown.jsx'
 import './popit.css'
+
+const STR = {
+  en: {
+    glowing: 'glowing bubble',
+    bubble: 'bubble',
+    time: 'Time! You popped {n} 🫧',
+    again: 'Play again',
+  },
+  es: {
+    glowing: 'burbuja brillante',
+    bubble: 'burbuja',
+    time: '¡Tiempo! Reventaste {n} 🫧',
+    again: 'Jugar otra vez',
+  },
+  ca: {
+    glowing: 'bombolla brillant',
+    bubble: 'bombolla',
+    time: 'Temps! N\'has petat {n} 🫧',
+    again: 'Torna a jugar',
+  },
+  fr: {
+    glowing: 'bulle brillante',
+    bubble: 'bulle',
+    time: 'Fini ! Tu en as éclaté {n} 🫧',
+    again: 'Rejouer',
+  },
+}
 
 /**
  * Quick Pop — a fast bubble-popping reflex toy. A 3×3 grid of nine glossy,
@@ -32,6 +60,7 @@ let popUid = 0
 
 export default function QuickPop() {
   const { earn, award } = useGame()
+  const t = useT(STR)
 
   // Which bubble (0..8) currently glows as the target.
   const [target, setTarget] = useState(0)
@@ -207,7 +236,7 @@ export default function QuickPop() {
                   e.preventDefault()
                   pressBubble(i, e)
                 }}
-                aria-label={isTarget ? 'glowing bubble' : 'bubble'}
+                aria-label={isTarget ? t('glowing') : t('bubble')}
               >
                 <span className="popit__shine" aria-hidden="true" />
                 {f && f.kind === 'pop' && (
@@ -224,9 +253,9 @@ export default function QuickPop() {
 
         {!running && !countingDown && remaining === 0 && (
           <div className="popit__overlay">
-            <p className="popit__big">Time! You popped {score} 🫧</p>
+            <p className="popit__big">{t('time', { n: score })}</p>
             <button className="btn btn--good" onClick={beginCountdown}>
-              Play again
+              {t('again')}
             </button>
           </div>
         )}

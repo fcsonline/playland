@@ -3,7 +3,43 @@ import { useGame } from '../../state/game.jsx'
 import { useProgress } from '../../state/progress.jsx'
 import { sfx, tone, noiseBurst } from '../../lib/audio.js'
 import { LEVELS, openingsOf, tracePath, generateLevel, key } from './rails.js'
+import { useT } from '../../lib/i18n.js'
 import './train.css'
+
+const STR = {
+  en: {
+    rotateTrack: 'rotate track',
+    start: 'start',
+    station: 'station',
+    allAboard: 'All aboard! 🎉',
+    nextLevel: 'Next level ▶',
+    playAgain: 'Play again 🔄',
+  },
+  es: {
+    rotateTrack: 'girar la vía',
+    start: 'salida',
+    station: 'estación',
+    allAboard: '¡Todos a bordo! 🎉',
+    nextLevel: 'Siguiente nivel ▶',
+    playAgain: 'Jugar otra vez 🔄',
+  },
+  ca: {
+    rotateTrack: 'girar la via',
+    start: 'sortida',
+    station: 'estació',
+    allAboard: 'Tots a bord! 🎉',
+    nextLevel: 'Següent nivell ▶',
+    playAgain: 'Torna a jugar 🔄',
+  },
+  fr: {
+    rotateTrack: 'tourner la voie',
+    start: 'départ',
+    station: 'gare',
+    allAboard: 'En voiture ! 🎉',
+    nextLevel: 'Niveau suivant ▶',
+    playAgain: 'Rejouer 🔄',
+  },
+}
 
 /** A track tile drawn as rail arms from the centre to each open side. */
 function RailShape({ type, rot, color }) {
@@ -58,6 +94,7 @@ function Loco({ color }) {
 }
 
 export default function RailRoutes() {
+  const t = useT(STR)
   const { earn, award } = useGame()
   const { getGameLevel, setGameLevel } = useProgress()
   // Difficulty follows the child's history: start at the highest level reached.
@@ -193,7 +230,7 @@ export default function RailRoutes() {
               className={`train__cell ${cell.locked ? 'is-locked' : ''}`}
               style={{ gridColumn: c + 1, gridRow: r + 1 }}
               onClick={() => rotatable && rotate(cell)}
-              aria-label={rotatable ? 'rotate track' : cell.role}
+              aria-label={rotatable ? t('rotateTrack') : t(cell.role)}
             >
               <RailShape type={cell.type} rot={cell.rot} color={highlight[key(c, r)]} />
               {cell.role === 'station' && (
@@ -226,9 +263,9 @@ export default function RailRoutes() {
 
         {solved && (
           <div className="train__overlay">
-            <p>All aboard! 🎉</p>
+            <p>{t('allAboard')}</p>
             <button className="btn btn--good" onClick={() => loadLevel(hasNext ? levelIndex + 1 : 0)}>
-              {hasNext ? 'Next level ▶' : 'Play again 🔄'}
+              {hasNext ? t('nextLevel') : t('playAgain')}
             </button>
           </div>
         )}

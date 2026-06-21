@@ -1,8 +1,64 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { sfx, tone } from '../../lib/audio.js'
 import { shuffle, randInt } from '../../lib/random.js'
 import './cups.css'
+
+const STR = {
+  en: {
+    findBall: 'Find the ball',
+    cupN: 'cup {n}',
+    cup: 'cup',
+    watch: 'Watch the ball!',
+    shuffling: 'Shuffling…',
+    where: 'Where is the ball? Tap a cup!',
+    found: 'You found it! 🎉',
+    thereItWas: 'There it was!',
+    soClose: 'So close!',
+    againWin: '🎉 Again!',
+    againMiss: '🔄 Again!',
+  },
+  es: {
+    findBall: 'Encuentra la bola',
+    cupN: 'vaso {n}',
+    cup: 'vaso',
+    watch: '¡Mira la bola!',
+    shuffling: 'Mezclando…',
+    where: '¿Dónde está la bola? ¡Toca un vaso!',
+    found: '¡La encontraste! 🎉',
+    thereItWas: '¡Ahí estaba!',
+    soClose: '¡Casi!',
+    againWin: '🎉 ¡Otra!',
+    againMiss: '🔄 ¡Otra!',
+  },
+  ca: {
+    findBall: 'Troba la bola',
+    cupN: 'got {n}',
+    cup: 'got',
+    watch: 'Mira la bola!',
+    shuffling: 'Barrejant…',
+    where: 'On és la bola? Toca un got!',
+    found: "L'has trobada! 🎉",
+    thereItWas: 'Era aquí!',
+    soClose: 'Quasi!',
+    againWin: '🎉 Una altra!',
+    againMiss: '🔄 Una altra!',
+  },
+  fr: {
+    findBall: 'Trouve la balle',
+    cupN: 'gobelet {n}',
+    cup: 'gobelet',
+    watch: 'Regarde la balle !',
+    shuffling: 'On mélange…',
+    where: 'Où est la balle ? Touche un gobelet !',
+    found: 'Tu l\'as trouvée ! 🎉',
+    thereItWas: 'Elle était là !',
+    soClose: 'Tout près !',
+    againWin: '🎉 Encore !',
+    againMiss: '🔄 Encore !',
+  },
+}
 
 /**
  * Find the Ball — the classic 3-cups shell game, made gentle for little kids.
@@ -40,6 +96,7 @@ function roundPlan(round) {
 
 export default function FindTheBall() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
   const cbs = useRef({ earn, award, oops })
   cbs.current = { earn, award, oops }
 
@@ -173,7 +230,7 @@ export default function FindTheBall() {
       tone(240, { duration: 0.16, type: 'sine', gain: 0.1 })
       after(700, () => {
         setLifted([cupId, ballCup])
-        cbs.current.oops({ word: 'So close!' })
+        cbs.current.oops({ word: t('soClose') })
       })
       after(2600, () => setRound((r) => r + 1))
     }
@@ -185,11 +242,11 @@ export default function FindTheBall() {
   }
 
   let hint
-  if (phase === 'show') hint = 'Watch the ball!'
-  else if (phase === 'shuffle') hint = 'Shuffling…'
-  else if (phase === 'guess') hint = 'Where is the ball? Tap a cup!'
-  else if (outcome === 'win') hint = 'You found it! 🎉'
-  else hint = 'There it was!'
+  if (phase === 'show') hint = t('watch')
+  else if (phase === 'shuffle') hint = t('shuffling')
+  else if (phase === 'guess') hint = t('where')
+  else if (outcome === 'win') hint = t('found')
+  else hint = t('thereItWas')
 
   const canTap = phase === 'guess'
 
@@ -200,7 +257,7 @@ export default function FindTheBall() {
       <div
         className="cups__stage play-surface"
         role="group"
-        aria-label="Find the ball"
+        aria-label={t('findBall')}
         style={{ '--swap-ms': `${swapMs}ms` }}
       >
         <div className="cups__table" aria-hidden="true" />
@@ -244,7 +301,7 @@ export default function FindTheBall() {
                   guess(cupId)
                 }}
                 disabled={!canTap}
-                aria-label={canTap ? `cup ${cupId + 1}` : 'cup'}
+                aria-label={canTap ? t('cupN', { n: cupId + 1 }) : t('cup')}
               >
                 {/* Soft cast shadow on the table; shrinks/softens when raised. */}
                 <span className="cups__cup-cast" aria-hidden="true" />
@@ -260,7 +317,7 @@ export default function FindTheBall() {
         {phase === 'reveal' && (
           <div className="cups__again">
             <button className="btn btn--good" onPointerDown={playAgain}>
-              {outcome === 'win' ? '🎉 Again!' : '🔄 Again!'}
+              {outcome === 'win' ? t('againWin') : t('againMiss')}
             </button>
           </div>
         )}

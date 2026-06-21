@@ -1,8 +1,48 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { pick } from '../../lib/random.js'
 import { sfx, noiseBurst } from '../../lib/audio.js'
 import './slice.css'
+
+const STR = {
+  en: {
+    boom: 'Boom!',
+    swipeAria: 'Swipe to slice the fruit',
+    sliced: '🍉 Sliced: {n}',
+    combo: 'Combo x{n}! 🌟',
+    youSliced: 'You sliced {n}! 🎉',
+    playAgain: 'Play again 🔁',
+    hint: 'Swipe across the fruit to slice it! 🍓',
+  },
+  es: {
+    boom: '¡Bum!',
+    swipeAria: 'Desliza para cortar la fruta',
+    sliced: '🍉 Cortadas: {n}',
+    combo: '¡Combo x{n}! 🌟',
+    youSliced: '¡Cortaste {n}! 🎉',
+    playAgain: 'Jugar otra vez 🔁',
+    hint: '¡Desliza por la fruta para cortarla! 🍓',
+  },
+  ca: {
+    boom: 'Bum!',
+    swipeAria: 'Llisca per tallar la fruita',
+    sliced: '🍉 Tallades: {n}',
+    combo: 'Combo x{n}! 🌟',
+    youSliced: "N'has tallat {n}! 🎉",
+    playAgain: 'Torna a jugar 🔁',
+    hint: 'Llisca per la fruita per tallar-la! 🍓',
+  },
+  fr: {
+    boom: 'Boum !',
+    swipeAria: 'Glisse pour couper les fruits',
+    sliced: '🍉 Coupés : {n}',
+    combo: 'Combo x{n} ! 🌟',
+    youSliced: 'Tu en as coupé {n} ! 🎉',
+    playAgain: 'Rejouer 🔁',
+    hint: 'Glisse sur les fruits pour les couper ! 🍓',
+  },
+}
 
 /**
  * Fruit Slash — a gentle, kid-sized Fruit Ninja. Fruit is tossed up from the
@@ -55,6 +95,7 @@ function makeToss(W, H) {
 }
 
 export default function FruitSlash() {
+  const t = useT(STR)
   const { earn, award, oops } = useGame()
   const cbs = useRef({ earn, award, oops })
   cbs.current = { earn, award, oops }
@@ -137,7 +178,7 @@ export default function FruitSlash() {
             field.classList.add('is-shake', 'is-boom')
           }
           noiseBurst({ duration: 0.22, gain: 0.2, type: 'lowpass', freq: 500 })
-          cbs.current.oops({ word: 'Boom!' })
+          cbs.current.oops({ word: t('boom') })
           s.splashes.push({ key: ++objUid, x: o.x, y: o.y, bomb: true, born: performance.now() })
         } else {
           cut++
@@ -288,7 +329,7 @@ export default function FruitSlash() {
   return (
     <div className="slice">
       <div className="slice__hud">
-        <span className="chip">🍉 Sliced: {score}</span>
+        <span className="chip">{t('sliced', { n: score })}</span>
         <span className={`chip ${seconds <= 5 && !over ? 'slice__time--low' : ''}`}>
           ⏱️ {seconds}s
         </span>
@@ -303,7 +344,7 @@ export default function FruitSlash() {
         onPointerLeave={onUp}
         onPointerCancel={onUp}
         role="application"
-        aria-label="Swipe to slice the fruit"
+        aria-label={t('swipeAria')}
       >
         {/* Flying fruit + bombs. */}
         {s.objs.map((o) => (
@@ -356,7 +397,7 @@ export default function FruitSlash() {
         {/* Combo pop. */}
         {combo && (
           <div key={combo.id} className="slice__combo" aria-hidden="true">
-            Combo x{combo.n}! 🌟
+            {t('combo', { n: combo.n })}
           </div>
         )}
 
@@ -364,16 +405,16 @@ export default function FruitSlash() {
         {over && (
           <div className="slice__end">
             <div className="slice__endcard">
-              <div className="slice__endbig">You sliced {score}! 🎉</div>
+              <div className="slice__endbig">{t('youSliced', { n: score })}</div>
               <button className="btn btn--good" onClick={startRound}>
-                Play again 🔁
+                {t('playAgain')}
               </button>
             </div>
           </div>
         )}
       </div>
 
-      <p className="slice__hint">Swipe across the fruit to slice it! 🍓</p>
+      <p className="slice__hint">{t('hint')}</p>
     </div>
   )
 }

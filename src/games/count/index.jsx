@@ -2,8 +2,48 @@ import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { pick, shuffle, randInt } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
+import { useT } from '../../lib/i18n.js'
 import Countdown from '../../components/Countdown.jsx'
 import './count.css'
+
+const STR = {
+  en: {
+    getReady: '👀 Get ready to count…',
+    watch: '👀 Watch carefully…',
+    howManyBefore: 'How many ',
+    howManyAfter: ' did you see?',
+    correct: 'Yes! {n} {e} 🎉',
+    wrong: 'It was {n}! {e}',
+    next: 'Next ▶',
+  },
+  es: {
+    getReady: '👀 Prepárate para contar…',
+    watch: '👀 Mira con atención…',
+    howManyBefore: '¿Cuántos ',
+    howManyAfter: ' viste?',
+    correct: '¡Sí! {n} {e} 🎉',
+    wrong: '¡Eran {n}! {e}',
+    next: 'Siguiente ▶',
+  },
+  ca: {
+    getReady: '👀 Prepara\'t per comptar…',
+    watch: '👀 Mira amb atenció…',
+    howManyBefore: 'Quants ',
+    howManyAfter: ' has vist?',
+    correct: 'Sí! {n} {e} 🎉',
+    wrong: 'N\'hi havia {n}! {e}',
+    next: 'Següent ▶',
+  },
+  fr: {
+    getReady: '👀 Prépare-toi à compter…',
+    watch: '👀 Regarde bien…',
+    howManyBefore: 'Combien de ',
+    howManyAfter: ' as-tu vus ?',
+    correct: 'Oui ! {n} {e} 🎉',
+    wrong: 'Il y en avait {n} ! {e}',
+    next: 'Suivant ▶',
+  },
+}
 
 /**
  * Count 'Em! — an observation/counting quiz for little ones.
@@ -69,6 +109,7 @@ function makeChoices(n) {
 
 export default function CountEm() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
 
   const [round, setRound] = useState(0)
   const [phase, setPhase] = useState('ready') // 'ready' | 'show' | 'quiz' | 'reveal'
@@ -170,14 +211,16 @@ export default function CountEm() {
     <div className="count">
       <div className="count__hud">
         {phase === 'ready' && (
-          <span className="count__hint chip">👀 Get ready to count…</span>
+          <span className="count__hint chip">{t('getReady')}</span>
         )}
         {phase === 'show' && (
-          <span className="count__hint chip">👀 Watch carefully…</span>
+          <span className="count__hint chip">{t('watch')}</span>
         )}
         {phase === 'quiz' && (
           <span className="count__hint chip">
-            How many <span className="count__hintemoji">{emoji}</span> did you see?
+            {t('howManyBefore')}
+            <span className="count__hintemoji">{emoji}</span>
+            {t('howManyAfter')}
           </span>
         )}
         {phase === 'reveal' && (
@@ -185,8 +228,8 @@ export default function CountEm() {
             className={`count__hint chip ${picked === count ? 'is-good' : 'is-soft'}`}
           >
             {picked === count
-              ? `Yes! ${count} ${emoji} 🎉`
-              : `It was ${count}! ${emoji}`}
+              ? t('correct', { n: count, e: emoji })
+              : t('wrong', { n: count, e: emoji })}
           </span>
         )}
       </div>
@@ -246,7 +289,7 @@ export default function CountEm() {
                 className="btn btn--good count__next"
                 onClick={() => startRound(round + 1)}
               >
-                Next ▶
+                {t('next')}
               </button>
             )}
           </div>

@@ -1,8 +1,16 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { useDrag } from '../../lib/useDrag.js'
+import { useT } from '../../lib/i18n.js'
 import { sfx, tone } from '../../lib/audio.js'
 import './trace.css'
+
+const STR = {
+  en: { letter: 'letter {g}', next: 'next', cheer: 'Yay! ✨', nice: 'Nice!' },
+  es: { letter: 'letra {g}', next: 'siguiente', cheer: '¡Bien! ✨', nice: '¡Bien!' },
+  ca: { letter: 'lletra {g}', next: 'següent', cheer: 'Bé! ✨', nice: 'Bé!' },
+  fr: { letter: 'lettre {g}', next: 'suivant', cheer: 'Bravo ! ✨', nice: 'Bien !' },
+}
 
 /**
  * Trace It! — learn to draw letters & numbers the way people actually write them.
@@ -206,6 +214,7 @@ const HIT_FRAC = 0.12
 
 export default function TraceIt() {
   const { earn, award } = useGame()
+  const t = useT(STR)
 
   const boardRef = useRef(null)
   const [size, setSize] = useState({ w: 320, h: 360 })
@@ -320,7 +329,7 @@ export default function TraceIt() {
       ? { x: rect.left + rect.width / 2, y: rect.top + rect.height * 0.4 }
       : {}
     earn(2, { ...center, emoji: '✏️' })
-    award(2, { praise: 'Nice!', count: 16 })
+    award(2, { praise: t('nice'), count: 16 })
     // Guarded by doneRef so this advance is never cancelled by a re-render.
     later(() => loadGlyph(indexRef.current + 1), 1600)
   }
@@ -344,10 +353,10 @@ export default function TraceIt() {
   return (
     <div className="trace" style={{ '--glyph': glyph.color }}>
       <div className="trace__top">
-        <span className="chip trace__name" aria-label={`letter ${glyph.name}`}>
+        <span className="chip trace__name" aria-label={t('letter', { g: glyph.name })}>
           {glyph.name}
         </span>
-        <button className="btn btn--ghost trace__next" onClick={nextGlyph} aria-label="next">
+        <button className="btn btn--ghost trace__next" onClick={nextGlyph} aria-label={t('next')}>
           ➡️
         </button>
       </div>
@@ -411,7 +420,7 @@ export default function TraceIt() {
           </span>
         ))}
 
-        {done && <div className="trace__cheer">Yay! ✨</div>}
+        {done && <div className="trace__cheer">{t('cheer')}</div>}
       </div>
 
       <div className="trace__bar" aria-hidden="true">

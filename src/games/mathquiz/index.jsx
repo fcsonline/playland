@@ -1,8 +1,64 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { randInt, shuffle } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import './mathquiz.css'
+
+const STR = {
+  en: {
+    amazing: 'Amazing!',
+    wellDone: 'Well done!',
+    goodTry: 'Good try!',
+    mathsChampion: 'Maths champion!',
+    greatJob: 'Great job!',
+    keepPractising: 'Keep practising!',
+    stars: '{n} stars',
+    youGot: 'You got {score}/{total}!',
+    playAgain: 'Play again 🔁',
+    solveIt: 'Solve it!',
+    tapTheAnswer: '👇 Tap the answer',
+  },
+  es: {
+    amazing: '¡Increíble!',
+    wellDone: '¡Muy bien!',
+    goodTry: '¡Buen intento!',
+    mathsChampion: '¡Campeón de mates!',
+    greatJob: '¡Buen trabajo!',
+    keepPractising: '¡Sigue practicando!',
+    stars: '{n} estrellas',
+    youGot: '¡Tienes {score}/{total}!',
+    playAgain: 'Jugar otra vez 🔁',
+    solveIt: '¡Resuélvelo!',
+    tapTheAnswer: '👇 Toca la respuesta',
+  },
+  ca: {
+    amazing: 'Increïble!',
+    wellDone: 'Molt bé!',
+    goodTry: 'Bon intent!',
+    mathsChampion: 'Campió de mates!',
+    greatJob: 'Bon treball!',
+    keepPractising: 'Continua practicant!',
+    stars: '{n} estrelles',
+    youGot: 'Tens {score}/{total}!',
+    playAgain: 'Torna a jugar 🔁',
+    solveIt: 'Resol-ho!',
+    tapTheAnswer: '👇 Toca la resposta',
+  },
+  fr: {
+    amazing: 'Incroyable !',
+    wellDone: 'Bravo !',
+    goodTry: 'Bien essayé !',
+    mathsChampion: 'Champion des maths !',
+    greatJob: 'Beau travail !',
+    keepPractising: "Continue à t'entraîner !",
+    stars: '{n} étoiles',
+    youGot: 'Tu as {score}/{total} !',
+    playAgain: 'Rejouer 🔁',
+    solveIt: 'Résous-le !',
+    tapTheAnswer: '👇 Tape la réponse',
+  },
+}
 
 /**
  * Math Quiz — a scored, number-based quiz (deliberately different from the
@@ -61,13 +117,14 @@ function starsFor(correct) {
 }
 
 const END = {
-  3: { praise: 'Amazing!', count: 44, emoji: '🏆', msg: 'Maths champion!' },
-  2: { praise: 'Well done!', count: 32, emoji: '🎉', msg: 'Great job!' },
-  1: { praise: 'Good try!', count: 24, emoji: '🌟', msg: 'Keep practising!' },
+  3: { praiseKey: 'amazing', count: 44, emoji: '🏆', msgKey: 'mathsChampion' },
+  2: { praiseKey: 'wellDone', count: 32, emoji: '🎉', msgKey: 'greatJob' },
+  1: { praiseKey: 'goodTry', count: 24, emoji: '🌟', msgKey: 'keepPractising' },
 }
 
 export default function MathQuiz() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
   const cbs = useRef({ earn, award, oops })
   cbs.current = { earn, award, oops }
 
@@ -148,7 +205,7 @@ export default function MathQuiz() {
     sfx.win()
     const stars = starsFor(finalScore)
     const e = END[stars]
-    cbs.current.award(stars, { praise: e.praise, count: e.count })
+    cbs.current.award(stars, { praise: t(e.praiseKey), count: e.count })
     lockRef.current = false
   }
 
@@ -172,15 +229,15 @@ export default function MathQuiz() {
       <div className="mathquiz">
         <div className={`mathquiz__results play-surface tier-${stars}`}>
           <div className="mathquiz__medal" aria-hidden="true">{e.emoji}</div>
-          <h2 className="mathquiz__title">{e.msg}</h2>
-          <div className="mathquiz__stars" aria-label={`${stars} stars`}>
+          <h2 className="mathquiz__title">{t(e.msgKey)}</h2>
+          <div className="mathquiz__stars" aria-label={t('stars', { n: stars })}>
             {[1, 2, 3].map((n) => (
               <span key={n} className={`mathquiz__star ${n <= stars ? 'is-on' : ''}`}>★</span>
             ))}
           </div>
-          <p className="mathquiz__big">You got {score}/{ROUND_LEN}!</p>
+          <p className="mathquiz__big">{t('youGot', { score, total: ROUND_LEN })}</p>
           <button className="btn btn--good mathquiz__again" onClick={playAgain}>
-            Play again 🔁
+            {t('playAgain')}
           </button>
         </div>
       </div>
@@ -202,7 +259,7 @@ export default function MathQuiz() {
           flash === 'wrong' || shake ? 'is-wrong' : ''
         }`}
       >
-        <span className="mathquiz__zonetag mathquiz__zonetag--q">Solve it!</span>
+        <span className="mathquiz__zonetag mathquiz__zonetag--q">{t('solveIt')}</span>
         <div className="mathquiz__equation">
           <span className="mathquiz__eq">
             {q.a} {q.op} {q.b} =
@@ -215,7 +272,7 @@ export default function MathQuiz() {
 
       {/* ── ANSWER ZONE ─────────────────────────────── */}
       <div className="mathquiz__answers">
-        <span className="mathquiz__zonetag mathquiz__zonetag--a">👇 Tap the answer</span>
+        <span className="mathquiz__zonetag mathquiz__zonetag--a">{t('tapTheAnswer')}</span>
         <div className="mathquiz__options">
           {q.options.map((val) => {
             const answered = revealed != null

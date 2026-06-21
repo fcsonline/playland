@@ -1,7 +1,27 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { sfx } from '../../lib/audio.js'
 import './dino.css'
+
+const STR = {
+  en: {
+    tapToJumpAria: 'Tap to jump',
+    hint: 'Tap to jump! 🦖',
+  },
+  es: {
+    tapToJumpAria: 'Toca para saltar',
+    hint: '¡Toca para saltar! 🦖',
+  },
+  ca: {
+    tapToJumpAria: 'Toca per saltar',
+    hint: 'Toca per saltar! 🦖',
+  },
+  fr: {
+    tapToJumpAria: 'Touche pour sauter',
+    hint: 'Touche pour sauter ! 🦖',
+  },
+}
 
 /**
  * Dino Run — the classic offline runner, made kid-friendly and NO-FAIL.
@@ -38,6 +58,7 @@ function freshGame() {
 }
 
 export default function DinoRun() {
+  const t = useT(STR)
   const { earn, award } = useGame()
   const cbs = useRef({ earn, award })
   cbs.current = { earn, award }
@@ -173,7 +194,7 @@ export default function DinoRun() {
         className="dino__field play-surface"
         onPointerDown={jump}
         role="button"
-        aria-label="Tap to jump"
+        aria-label={t('tapToJumpAria')}
       >
         <div className="dino__sun" aria-hidden="true">
           ☀️
@@ -220,7 +241,7 @@ export default function DinoRun() {
         <div className="dino__ground" aria-hidden="true" />
       </div>
 
-      <p className="dino__hint">Tap to jump! 🦖</p>
+      <p className="dino__hint">{t('hint')}</p>
     </div>
   )
 }

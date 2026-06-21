@@ -31,6 +31,7 @@ export const PICTURES = [
   {
     id: 'heart',
     label: '❤️ Heart',
+    tkey: 'picHeart',
     size: 7,
     cells: grid([
       '.rr.rr.',
@@ -45,6 +46,7 @@ export const PICTURES = [
   {
     id: 'star',
     label: '⭐ Star',
+    tkey: 'picStar',
     size: 7,
     cells: grid([
       '...y...',
@@ -59,6 +61,7 @@ export const PICTURES = [
   {
     id: 'smiley',
     label: '😊 Smiley',
+    tkey: 'picSmiley',
     size: 8,
     cells: grid([
       '..yyyy..',
@@ -74,6 +77,7 @@ export const PICTURES = [
   {
     id: 'flower',
     label: '🌸 Flower',
+    tkey: 'picFlower',
     size: 9,
     cells: grid([
       '...ppp...',

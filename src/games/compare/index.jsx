@@ -3,7 +3,43 @@ import { useGame } from '../../state/game.jsx'
 import { pick, randInt } from '../../lib/random.js'
 import { sfx, tone } from '../../lib/audio.js'
 import { getSettings } from '../../lib/settings.js'
+import { useT } from '../../lib/i18n.js'
 import './compare.css'
+
+const STR = {
+  en: {
+    yes: 'Yes! 🎉',
+    whichMore: 'Which has more?',
+    praise: 'Math star!',
+    lessThan: 'less than',
+    greaterThan: 'greater than',
+    equal: 'equal',
+  },
+  es: {
+    yes: '¡Sí! 🎉',
+    whichMore: '¿Cuál tiene más?',
+    praise: '¡Estrella de mates!',
+    lessThan: 'menor que',
+    greaterThan: 'mayor que',
+    equal: 'igual',
+  },
+  ca: {
+    yes: 'Sí! 🎉',
+    whichMore: 'Quin en té més?',
+    praise: 'Estrella de mates!',
+    lessThan: 'menor que',
+    greaterThan: 'major que',
+    equal: 'igual',
+  },
+  fr: {
+    yes: 'Oui ! 🎉',
+    whichMore: 'Lequel en a le plus ?',
+    praise: 'Étoile des maths !',
+    lessThan: 'inférieur à',
+    greaterThan: 'supérieur à',
+    equal: 'égal',
+  },
+}
 
 /**
  * More or Less — which number is bigger? Two groups of fruit/animals appear with
@@ -58,6 +94,7 @@ function Pile({ emoji, n }) {
 
 export default function Compare() {
   const { earn, award } = useGame()
+  const t = useT(STR)
   const [round, setRound] = useState(makeRound)
   const [picked, setPicked] = useState(null) // the correct sign, once solved
   const [wrong, setWrong] = useState(null) // a sign that just wobbled
@@ -85,7 +122,7 @@ export default function Compare() {
       setStreak(ns)
       if (ns % 5 === 0) {
         sfx.win()
-        award(Math.min(3, 1 + Math.floor(ns / 5)), { praise: 'Math star!', count: 18 })
+        award(Math.min(3, 1 + Math.floor(ns / 5)), { praise: t('praise'), count: 18 })
       }
       later(() => {
         setRound(makeRound())
@@ -107,7 +144,7 @@ export default function Compare() {
 
   return (
     <div className="compare">
-      <p className="compare__hint">{solved ? 'Yes! 🎉' : 'Which has more?'}</p>
+      <p className="compare__hint">{solved ? t('yes') : t('whichMore')}</p>
 
       <div className="compare__arena">
         <div className={`compare__group play-surface ${moreLeft ? 'is-more' : ''} ${equal ? 'is-equal' : ''}`}>
@@ -132,7 +169,7 @@ export default function Compare() {
             className={`compare__sign ${picked === s ? 'is-right' : ''} ${wrong === s ? 'is-wrong' : ''}`}
             onClick={() => choose(s)}
             disabled={solved}
-            aria-label={s === '<' ? 'less than' : s === '>' ? 'greater than' : 'equal'}
+            aria-label={s === '<' ? t('lessThan') : s === '>' ? t('greaterThan') : t('equal')}
           >
             {s}
           </button>

@@ -2,7 +2,31 @@ import { useEffect, useMemo, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { shuffle, sample, pick } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
+import { useT } from '../../lib/i18n.js'
 import './memory.css'
+
+const STR = {
+  en: {
+    hiddenCard: 'hidden card',
+    foundAll: 'You found them all! 🎉',
+    nextBoard: 'Next board…',
+  },
+  es: {
+    hiddenCard: 'carta oculta',
+    foundAll: '¡Las encontraste todas! 🎉',
+    nextBoard: 'Siguiente tablero…',
+  },
+  ca: {
+    hiddenCard: 'carta amagada',
+    foundAll: 'Les has trobat totes! 🎉',
+    nextBoard: 'Següent tauler…',
+  },
+  fr: {
+    hiddenCard: 'carte cachée',
+    foundAll: 'Tu les as toutes trouvées ! 🎉',
+    nextBoard: 'Plateau suivant…',
+  },
+}
 
 const THEMES = {
   Animals: ['🐶', '🐱', '🐰', '🦊', '🐼', '🐸', '🦁', '🐵'],
@@ -34,6 +58,7 @@ function makeDeck(pairs) {
 }
 
 export default function MemoryMatch() {
+  const t = useT(STR)
   const { earn, award } = useGame()
   const [level, setLevel] = useState(0)
   const [deck, setDeck] = useState(() => makeDeck(levelAt(0).pairs))
@@ -112,7 +137,7 @@ export default function MemoryMatch() {
               key={card.key}
               className={`mcard ${isUp ? 'is-up' : ''} ${card.matched ? 'is-matched' : ''}`}
               onClick={() => flip(i)}
-              aria-label={isUp ? card.face : 'hidden card'}
+              aria-label={isUp ? card.face : t('hiddenCard')}
             >
               <span className="mcard__inner">
                 <span className="mcard__back">❔</span>
@@ -125,8 +150,8 @@ export default function MemoryMatch() {
 
       {done && (
         <div className="memory__win">
-          <p>You found them all! 🎉</p>
-          <p className="memory__next">Next board…</p>
+          <p>{t('foundAll')}</p>
+          <p className="memory__next">{t('nextBoard')}</p>
         </div>
       )}
     </div>

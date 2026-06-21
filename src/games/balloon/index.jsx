@@ -2,7 +2,83 @@ import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { tone, sfx, noiseBurst } from '../../lib/audio.js'
 import { randInt, pick } from '../../lib/random.js'
+import { useT } from '../../lib/i18n.js'
 import './balloon.css'
+
+const STR = {
+  en: {
+    pop: 'Pop!',
+    champion: 'Balloon champion! 🌟',
+    nicePumping: 'Nice pumping! 🎈',
+    greatFills: 'Great fills! 🎉',
+    perfect: 'Perfect fill! 🌟',
+    nice: 'Nice one! 👍',
+    tooSmall: 'Too small — pump a bit more! 🎈',
+    tooBig: 'Too big — let go sooner! 🎈',
+    popped: '💥 Pop! Too big — try the next one 😄',
+    inGreen: 'In the green — let go now! 👍',
+    holdHint: 'Hold Pump to fill it to the green zone! 💨',
+    balloon: 'balloon',
+    poppedBalloon: 'popped balloon',
+    fillGauge: 'fill gauge',
+    playAgain: '🎈 Play again',
+    holdToPump: 'Hold to Pump 💨',
+  },
+  es: {
+    pop: '¡Pop!',
+    champion: '¡Campeón de globos! 🌟',
+    nicePumping: '¡Bien inflado! 🎈',
+    greatFills: '¡Buenos inflados! 🎉',
+    perfect: '¡Inflado perfecto! 🌟',
+    nice: '¡Bien! 👍',
+    tooSmall: 'Muy pequeño: ¡infla un poco más! 🎈',
+    tooBig: 'Muy grande: ¡suelta antes! 🎈',
+    popped: '💥 ¡Pop! Muy grande: prueba el siguiente 😄',
+    inGreen: 'En el verde: ¡suelta ahora! 👍',
+    holdHint: '¡Mantén Inflar para llegar a la zona verde! 💨',
+    balloon: 'globo',
+    poppedBalloon: 'globo reventado',
+    fillGauge: 'medidor de inflado',
+    playAgain: '🎈 Jugar otra vez',
+    holdToPump: 'Mantén para inflar 💨',
+  },
+  ca: {
+    pop: 'Pop!',
+    champion: 'Campió de globus! 🌟',
+    nicePumping: 'Ben inflat! 🎈',
+    greatFills: 'Bons inflats! 🎉',
+    perfect: 'Inflat perfecte! 🌟',
+    nice: 'Bé! 👍',
+    tooSmall: 'Massa petit: infla una mica més! 🎈',
+    tooBig: 'Massa gran: deixa anar abans! 🎈',
+    popped: '💥 Pop! Massa gran: prova el següent 😄',
+    inGreen: 'A la zona verda: deixa anar ara! 👍',
+    holdHint: 'Mantén Infla per arribar a la zona verda! 💨',
+    balloon: 'globus',
+    poppedBalloon: 'globus rebentat',
+    fillGauge: 'mesurador d\'inflat',
+    playAgain: '🎈 Torna a jugar',
+    holdToPump: 'Mantén per inflar 💨',
+  },
+  fr: {
+    pop: 'Pop !',
+    champion: 'Champion des ballons ! 🌟',
+    nicePumping: 'Bien gonflé ! 🎈',
+    greatFills: 'Beaux gonflages ! 🎉',
+    perfect: 'Gonflage parfait ! 🌟',
+    nice: 'Bien joué ! 👍',
+    tooSmall: 'Trop petit : gonfle encore un peu ! 🎈',
+    tooBig: 'Trop gros : lâche plus tôt ! 🎈',
+    popped: '💥 Pop ! Trop gros : essaie le suivant 😄',
+    inGreen: 'Dans le vert : lâche maintenant ! 👍',
+    holdHint: 'Maintiens Gonfler pour atteindre la zone verte ! 💨',
+    balloon: 'ballon',
+    poppedBalloon: 'ballon éclaté',
+    fillGauge: 'jauge de gonflage',
+    playAgain: '🎈 Rejouer',
+    holdToPump: 'Maintiens pour gonfler 💨',
+  },
+}
 
 /**
  * Balloon Pump — fill it to the green zone!
@@ -35,6 +111,7 @@ const scaleFor = (v) => 0.4 + (Math.min(100, v) / 100) * 1.05
 
 export default function BalloonPump() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
   const cbs = useRef({ earn, award, oops })
   cbs.current = { earn, award, oops }
 
@@ -140,7 +217,7 @@ export default function BalloonPump() {
     setConfetti(pieces)
     setTimeout(() => setConfetti([]), 800)
     setOutcome('popped')
-    cbs.current.oops({ word: 'Pop!' })
+    cbs.current.oops({ word: t('pop') })
     scheduleNext()
     tick()
   }
@@ -201,25 +278,25 @@ export default function BalloonPump() {
   const okBottom = (s.low / s.popAt) * 100
   const okHeight = ((s.high - s.low) / s.popAt) * 100
 
-  let resultText = 'Balloon champion! 🌟'
-  if (score < 6) resultText = 'Nice pumping! 🎈'
-  else if (score < 11) resultText = 'Great fills! 🎉'
+  let resultText = t('champion')
+  if (score < 6) resultText = t('nicePumping')
+  else if (score < 11) resultText = t('greatFills')
 
   const message = roundOver
     ? resultText
     : outcome === 'perfect'
-      ? 'Perfect fill! 🌟'
+      ? t('perfect')
       : outcome === 'good'
-        ? 'Nice one! 👍'
+        ? t('nice')
         : outcome === 'small'
-          ? 'Too small — pump a bit more! 🎈'
+          ? t('tooSmall')
           : outcome === 'big'
-            ? 'Too big — let go sooner! 🎈'
+            ? t('tooBig')
             : popped
-              ? '💥 Pop! Too big — try the next one 😄'
+              ? t('popped')
               : inZone
-                ? 'In the green — let go now! 👍'
-                : 'Hold Pump to fill it to the green zone! 💨'
+                ? t('inGreen')
+                : t('holdHint')
 
   return (
     <div className="balloon">
@@ -229,14 +306,14 @@ export default function BalloonPump() {
             <div
               className={`balloon__shape ${banked ? 'is-banked' : ''} ${inZone ? 'is-ready' : ''}`}
               style={{ '--scale': scale, '--balloon': color, '--danger': danger }}
-              aria-label="balloon"
+              aria-label={t('balloon')}
             >
               <span className="balloon__shine" />
               <span className="balloon__knot" />
             </div>
           )}
 
-          {popped && <div className="balloon__pop" aria-label="popped balloon">💥</div>}
+          {popped && <div className="balloon__pop" aria-label={t('poppedBalloon')}>💥</div>}
 
           {confetti.map((c) => (
             <span
@@ -251,7 +328,7 @@ export default function BalloonPump() {
         </div>
 
         {/* Fill gauge: pump into the GREEN zone, stop before the 💥 at the top. */}
-        <div className={`balloon__gauge ${inZone ? 'is-ready' : ''}`} aria-label="fill gauge">
+        <div className={`balloon__gauge ${inZone ? 'is-ready' : ''}`} aria-label={t('fillGauge')}>
           <div className="balloon__okzone" style={{ bottom: `${okBottom}%`, height: `${okHeight}%` }} />
           <div className="balloon__danger" style={{ height: `${danger * 100}%` }} />
           <div className="balloon__gauge-cap">💥</div>
@@ -263,7 +340,7 @@ export default function BalloonPump() {
       <div className="balloon__controls">
         {roundOver ? (
           <button className="btn btn--good" onClick={resetRound}>
-            🎈 Play again
+            {t('playAgain')}
           </button>
         ) : (
           <button
@@ -280,7 +357,7 @@ export default function BalloonPump() {
             onPointerLeave={() => releaseHold()}
             onPointerCancel={() => releaseHold()}
           >
-            Hold to Pump 💨
+            {t('holdToPump')}
           </button>
         )}
       </div>

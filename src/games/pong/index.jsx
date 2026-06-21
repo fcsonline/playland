@@ -2,7 +2,39 @@ import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDrag } from '../../lib/useDrag.js'
 import { useGame } from '../../state/game.jsx'
 import { sfx } from '../../lib/audio.js'
+import { useT } from '../../lib/i18n.js'
 import './pong.css'
+
+const STR = {
+  en: {
+    tryAgain: 'Try again!',
+    win: 'You win! 🎉',
+    goodGame: 'Good game! Play again 🤖',
+    playAgain: 'Play again',
+    hint: 'Slide your finger to move the paddle',
+  },
+  es: {
+    tryAgain: '¡Inténtalo!',
+    win: '¡Ganaste! 🎉',
+    goodGame: '¡Buen juego! Juega otra vez 🤖',
+    playAgain: 'Juega otra vez',
+    hint: 'Desliza el dedo para mover la pala',
+  },
+  ca: {
+    tryAgain: 'Torna-hi!',
+    win: 'Has guanyat! 🎉',
+    goodGame: 'Bona partida! Torna a jugar 🤖',
+    playAgain: 'Torna a jugar',
+    hint: 'Llisca el dit per moure la pala',
+  },
+  fr: {
+    tryAgain: 'Réessaie !',
+    win: 'Gagné ! 🎉',
+    goodGame: 'Belle partie ! Rejoue 🤖',
+    playAgain: 'Rejoue',
+    hint: 'Glisse le doigt pour bouger la raquette',
+  },
+}
 
 /**
  * Everything is in a normalized 0..1 field (x = left→right, y = top→bottom) so
@@ -40,6 +72,7 @@ function serve(towardBottom) {
 
 export default function Pong() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
 
   const [, setScore] = useState({ you: 0, cpu: 0 })
   const [done, setDone] = useState(null) // null | 'you' | 'cpu'
@@ -100,10 +133,10 @@ export default function Pong() {
       } else if (next.cpu >= WIN) {
         doneRef.current = 'cpu'
         setDone('cpu')
-        oops({ word: 'Try again!' })
+        oops({ word: t('tryAgain') })
       }
     },
-    [earn, award, oops],
+    [earn, award, oops, t],
   )
 
   const newGame = useCallback(() => {
@@ -260,16 +293,16 @@ export default function Pong() {
         {done && (
           <div className="pong__overlay">
             <p className="pong__overlay-title">
-              {done === 'you' ? 'You win! 🎉' : 'Good game! Play again 🤖'}
+              {done === 'you' ? t('win') : t('goodGame')}
             </p>
             <button className="btn btn--good" onClick={newGame}>
-              Play again
+              {t('playAgain')}
             </button>
           </div>
         )}
       </div>
 
-      <p className="pong__hint">Slide your finger to move the paddle</p>
+      <p className="pong__hint">{t('hint')}</p>
     </div>
   )
 }

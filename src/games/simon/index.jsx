@@ -3,7 +3,63 @@ import { useGame } from '../../state/game.jsx'
 import { tone, sfx } from '../../lib/audio.js'
 import { randInt } from '../../lib/random.js'
 import Countdown from '../../components/Countdown.jsx'
+import { useT } from '../../lib/i18n.js'
 import './simon.css'
+
+const STR = {
+  en: {
+    getReady: 'Get ready to copy the colors! 🎵',
+    watch: 'Watch carefully… 👀',
+    yourTurn: 'Your turn! Tap the colors 🎵',
+    amazing: 'Amazing! {n} in a row! 🎉',
+    addMore: 'Yay! Adding one more… ✨',
+    oops: 'Oops! Watch again 👀',
+    padLabel: '{color} pad',
+    red: 'red',
+    green: 'green',
+    blue: 'blue',
+    yellow: 'yellow',
+  },
+  es: {
+    getReady: '¡Prepárate para copiar los colores! 🎵',
+    watch: 'Mira con atención… 👀',
+    yourTurn: '¡Tu turno! Toca los colores 🎵',
+    amazing: '¡Increíble! ¡{n} seguidos! 🎉',
+    addMore: '¡Bien! Añadiendo uno más… ✨',
+    oops: '¡Vaya! Mira otra vez 👀',
+    padLabel: 'botón {color}',
+    red: 'rojo',
+    green: 'verde',
+    blue: 'azul',
+    yellow: 'amarillo',
+  },
+  ca: {
+    getReady: 'Prepara\'t per copiar els colors! 🎵',
+    watch: 'Mira amb atenció… 👀',
+    yourTurn: 'El teu torn! Toca els colors 🎵',
+    amazing: 'Increïble! {n} seguits! 🎉',
+    addMore: 'Bé! N\'afegim un més… ✨',
+    oops: 'Ups! Torna a mirar 👀',
+    padLabel: 'botó {color}',
+    red: 'vermell',
+    green: 'verd',
+    blue: 'blau',
+    yellow: 'groc',
+  },
+  fr: {
+    getReady: 'Prépare-toi à copier les couleurs ! 🎵',
+    watch: 'Regarde bien… 👀',
+    yourTurn: 'À toi ! Touche les couleurs 🎵',
+    amazing: 'Génial ! {n} à la suite ! 🎉',
+    addMore: 'Bravo ! On en ajoute une… ✨',
+    oops: 'Oups ! Regarde encore 👀',
+    padLabel: 'bouton {color}',
+    red: 'rouge',
+    green: 'vert',
+    blue: 'bleu',
+    yellow: 'jaune',
+  },
+}
 
 // Four pads, each with a friendly distinct note and color.
 const PADS = [
@@ -25,11 +81,12 @@ function playPadTone(id) {
 
 export default function ColorEcho() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
   const [sequence, setSequence] = useState([]) // array of pad ids
   const [lit, setLit] = useState(null) // currently glowing pad id (playback or tap)
   const [phase, setPhase] = useState('countdown') // 'countdown' | 'idle' | 'watch' | 'your-turn'
   const [step, setStep] = useState(0) // how many of the sequence the child has matched
-  const [message, setMessage] = useState('Get ready to copy the colors! 🎵')
+  const [message, setMessage] = useState(null)
 
   const timers = useRef([])
   const seqRef = useRef([]) // latest sequence for callbacks
@@ -47,7 +104,7 @@ export default function ColorEcho() {
       clearTimers()
       setPhase('watch')
       setStep(0)
-      setMessage('Watch carefully… 👀')
+      setMessage(t('watch'))
       const flashMs = 460
       const gapMs = 200
       seq.forEach((id, i) => {
@@ -68,11 +125,11 @@ export default function ColorEcho() {
       timers.current.push(
         setTimeout(() => {
           setPhase('your-turn')
-          setMessage('Your turn! Tap the colors 🎵')
+          setMessage(t('yourTurn'))
         }, endAt),
       )
     },
-    [clearTimers],
+    [clearTimers, t],
   )
 
   // Start a brand-new game from a single random pad (called when the
@@ -92,8 +149,8 @@ export default function ColorEcho() {
       const next = [...seq, PADS[randInt(0, PADS.length - 1)].id]
       seqRef.current = next
       setSequence(next)
-      const t = setTimeout(() => playback(next), 700)
-      timers.current.push(t)
+      const gt = setTimeout(() => playback(next), 700)
+      timers.current.push(gt)
     },
     [playback],
   )
@@ -104,8 +161,8 @@ export default function ColorEcho() {
       const expected = sequence[step]
       setLit(id)
       playPadTone(id)
-      const t = setTimeout(() => setLit(null), 200)
-      timers.current.push(t)
+      const lt = setTimeout(() => setLit(null), 200)
+      timers.current.push(lt)
 
       if (id === expected) {
         const nextStep = step + 1
@@ -117,14 +174,14 @@ export default function ColorEcho() {
           const completedLen = sequence.length
           const milestone = MILESTONES[completedLen]
           if (milestone) {
-            setMessage(`Amazing! ${completedLen} in a row! 🎉`)
+            setMessage(t('amazing', { n: completedLen }))
             const a = setTimeout(() => {
               sfx.win()
               award(milestone, { count: 22 })
             }, 280)
             timers.current.push(a)
           } else {
-            setMessage('Yay! Adding one more… ✨')
+            setMessage(t('addMore'))
             const g = setTimeout(() => sfx.good(), 200)
             timers.current.push(g)
           }
@@ -139,7 +196,7 @@ export default function ColorEcho() {
         // the "not that one" clear with a red cross.
         oops()
         setPhase('watch')
-        setMessage('Oops! Watch again 👀')
+        setMessage(t('oops'))
         const r = setTimeout(() => playback(sequence), 900)
         timers.current.push(r)
       }
@@ -150,8 +207,8 @@ export default function ColorEcho() {
     if (phase === 'idle') {
       setLit(id)
       playPadTone(id)
-      const t = setTimeout(() => setLit(null), 200)
-      timers.current.push(t)
+      const it = setTimeout(() => setLit(null), 200)
+      timers.current.push(it)
     }
   }
 
@@ -167,7 +224,7 @@ export default function ColorEcho() {
             style={{ '--pad': p.color }}
             onPointerDown={() => tapPad(p.id)}
             disabled={watching || phase === 'countdown'}
-            aria-label={`${p.id} pad`}
+            aria-label={t('padLabel', { color: t(p.id) })}
           >
             <span className="simon__pad-emoji">{p.emoji}</span>
           </button>
@@ -175,7 +232,7 @@ export default function ColorEcho() {
         {phase === 'countdown' && <Countdown onDone={start} />}
       </div>
 
-      <p className="simon__message">{message}</p>
+      <p className="simon__message">{message ?? t('getReady')}</p>
     </div>
   )
 }

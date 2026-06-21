@@ -1,8 +1,28 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { sfx, tone, noiseBurst } from '../../lib/audio.js'
 import { randInt } from '../../lib/random.js'
 import './coaster.css'
+
+const STR = {
+  en: {
+    howto: '✏️ Draw a ramp so the ball rolls into the basket 🧺',
+    inBasket: 'In the basket! 🧺',
+  },
+  es: {
+    howto: '✏️ Dibuja una rampa para que la bola caiga en la cesta 🧺',
+    inBasket: '¡En la cesta! 🧺',
+  },
+  ca: {
+    howto: '✏️ Dibuixa una rampa perquè la bola caigui al cistell 🧺',
+    inBasket: 'Al cistell! 🧺',
+  },
+  fr: {
+    howto: '✏️ Dessine une rampe pour que la balle tombe dans le panier 🧺',
+    inBasket: 'Dans le panier ! 🧺',
+  },
+}
 
 /**
  * Ball Run — a draw-the-ramp gravity game (no-fail).
@@ -105,6 +125,7 @@ function freshBall(start) {
 
 export default function Coaster() {
   const { earn, award } = useGame()
+  const t = useT(STR)
   const cbs = useRef({ earn, award })
   cbs.current = { earn, award }
 
@@ -613,11 +634,11 @@ export default function Coaster() {
         {/* Plain-language how-to banner while the field is empty. */}
         {showBanner && (
           <div className="coaster__howto" aria-hidden="true">
-            ✏️ Draw a ramp so the ball rolls into the basket 🧺
+            {t('howto')}
           </div>
         )}
 
-        {won && <div className="coaster__toast">In the basket! 🧺</div>}
+        {won && <div className="coaster__toast">{t('inBasket')}</div>}
       </div>
     </div>
   )

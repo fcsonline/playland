@@ -3,7 +3,15 @@ import { useGame } from '../../state/game.jsx'
 import { pick, randInt } from '../../lib/random.js'
 import { sfx, tone } from '../../lib/audio.js'
 import Countdown from '../../components/Countdown.jsx'
+import { useT } from '../../lib/i18n.js'
 import './whack.css'
+
+const STR = {
+  en: { bomb: 'bomb', goldenMole: 'golden mole', mole: 'mole', timeUp: 'Time! You bonked {score} 🔨', playAgain: 'Play again' },
+  es: { bomb: 'bomba', goldenMole: 'topo dorado', mole: 'topo', timeUp: '¡Tiempo! Aporreaste {score} 🔨', playAgain: 'Jugar otra vez' },
+  ca: { bomb: 'bomba', goldenMole: 'talp daurat', mole: 'talp', timeUp: 'Temps! Has picat {score} 🔨', playAgain: 'Torna a jugar' },
+  fr: { bomb: 'bombe', goldenMole: 'taupe dorée', mole: 'taupe', timeUp: 'Fini ! Tu as tapé {score} 🔨', playAgain: 'Rejouer' },
+}
 
 /**
  * Mole Pop — a friendly whack-a-mole. Moles 🐹 pop up from a 3×3 grid of holes
@@ -36,6 +44,7 @@ function rollKind() {
 
 export default function MolePop() {
   const { earn, award } = useGame()
+  const t = useT(STR)
 
   // Each hole holds either null or { id, kind, bonked }.
   const [holes, setHoles] = useState(() => Array(HOLES).fill(null))
@@ -281,10 +290,10 @@ export default function MolePop() {
                   }}
                   aria-label={
                     cell.kind === KIND_BOMB
-                      ? 'bomb'
+                      ? t('bomb')
                       : cell.kind === KIND_GOLD
-                        ? 'golden mole'
-                        : 'mole'
+                        ? t('goldenMole')
+                        : t('mole')
                   }
                 >
                   {cell.kind === KIND_BOMB ? '💣' : cell.kind === KIND_GOLD ? '🌟' : '🐹'}
@@ -303,9 +312,9 @@ export default function MolePop() {
 
         {!running && !countingDown && remaining === 0 && (
           <div className="whack__overlay">
-            <p className="whack__big">Time! You bonked {score} 🔨</p>
+            <p className="whack__big">{t('timeUp', { score })}</p>
             <button className="btn btn--good" onClick={beginCountdown}>
-              Play again
+              {t('playAgain')}
             </button>
           </div>
         )}

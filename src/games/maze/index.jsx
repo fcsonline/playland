@@ -1,8 +1,32 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { shuffle, pick } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import './maze.css'
+
+const STR = {
+  en: {
+    youMadeIt: 'You made it! 🎉',
+    newMaze: 'Hooray! A new maze…',
+    pressDrag: 'Press {avatar} and drag along the path',
+  },
+  es: {
+    youMadeIt: '¡Lo lograste! 🎉',
+    newMaze: '¡Hurra! Un nuevo laberinto…',
+    pressDrag: 'Toca {avatar} y arrastra por el camino',
+  },
+  ca: {
+    youMadeIt: 'Ho has aconseguit! 🎉',
+    newMaze: 'Visca! Un nou laberint…',
+    pressDrag: 'Toca {avatar} i arrossega pel camí',
+  },
+  fr: {
+    youMadeIt: 'Tu as réussi ! 🎉',
+    newMaze: 'Hourra ! Un nouveau labyrinthe…',
+    pressDrag: 'Appuie sur {avatar} et glisse le long du chemin',
+  },
+}
 
 /**
  * Find the Way! — a deliberately simple finger-trace maze.
@@ -85,6 +109,7 @@ function generateMaze(cells, theme) {
 
 export default function FindTheWay() {
   const { earn, award } = useGame()
+  const t = useT(STR)
 
   const [level, setLevel] = useState(0)
   const [maze, setMaze] = useState(() => generateMaze(LEVELS[0], pick(THEMES)))
@@ -325,12 +350,12 @@ export default function FindTheWay() {
             </span>
           )}
 
-          {won && <div className="maze__cheer">You made it! 🎉</div>}
+          {won && <div className="maze__cheer">{t('youMadeIt')}</div>}
         </div>
       </div>
 
       <p className="maze__hint">
-        {won ? 'Hooray! A new maze…' : `Press ${maze.theme.avatar} and drag along the path`}
+        {won ? t('newMaze') : t('pressDrag', { avatar: maze.theme.avatar })}
       </p>
     </div>
   )

@@ -41,29 +41,32 @@ export const RULES = {
   color: {
     key: 'color',
     label: 'by Color',
+    tkey: 'byColor',
     bins: [
-      { value: 'red', label: 'Red', emoji: '🔴' },
-      { value: 'yellow', label: 'Yellow', emoji: '🟡' },
-      { value: 'blue', label: 'Blue', emoji: '🔵' },
-      { value: 'green', label: 'Green', emoji: '🟢' },
+      { value: 'red', label: 'Red', tkey: 'binRed', emoji: '🔴' },
+      { value: 'yellow', label: 'Yellow', tkey: 'binYellow', emoji: '🟡' },
+      { value: 'blue', label: 'Blue', tkey: 'binBlue', emoji: '🔵' },
+      { value: 'green', label: 'Green', tkey: 'binGreen', emoji: '🟢' },
     ],
   },
   category: {
     key: 'category',
     label: 'by Kind',
+    tkey: 'byKind',
     bins: [
-      { value: 'fruit', label: 'Fruit', emoji: '🧺' },
-      { value: 'animal', label: 'Animals', emoji: '🐾' },
-      { value: 'vehicle', label: 'Vehicles', emoji: '🚗' },
+      { value: 'fruit', label: 'Fruit', tkey: 'binFruit', emoji: '🧺' },
+      { value: 'animal', label: 'Animals', tkey: 'binAnimals', emoji: '🐾' },
+      { value: 'vehicle', label: 'Vehicles', tkey: 'binVehicles', emoji: '🚗' },
     ],
   },
   shape: {
     key: 'shape',
     label: 'by Shape',
+    tkey: 'byShape',
     bins: [
-      { value: 'round', label: 'Round', emoji: '⚪' },
-      { value: 'long', label: 'Long', emoji: '🥖' },
-      { value: 'pointy', label: 'Pointy', emoji: '🔺' },
+      { value: 'round', label: 'Round', tkey: 'binRound', emoji: '⚪' },
+      { value: 'long', label: 'Long', tkey: 'binLong', emoji: '🥖' },
+      { value: 'pointy', label: 'Pointy', tkey: 'binPointy', emoji: '🔺' },
     ],
   },
 }

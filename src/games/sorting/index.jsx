@@ -4,8 +4,84 @@ import { useProgress } from '../../state/progress.jsx'
 import { useDrag } from '../../lib/useDrag.js'
 import { shuffle, sample } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
+import { useT } from '../../lib/i18n.js'
 import { ITEMS, RULES, RULE_ORDER, UNLOCK_AT } from './items.js'
 import './sorting.css'
+
+const STR = {
+  en: {
+    allSorted: 'All sorted! 🎉',
+    moreItems: 'More items ➡️',
+    itemLabel: '{emoji} item',
+    byColor: 'by Color',
+    byKind: 'by Kind',
+    byShape: 'by Shape',
+    binRed: 'Red',
+    binYellow: 'Yellow',
+    binBlue: 'Blue',
+    binGreen: 'Green',
+    binFruit: 'Fruit',
+    binAnimals: 'Animals',
+    binVehicles: 'Vehicles',
+    binRound: 'Round',
+    binLong: 'Long',
+    binPointy: 'Pointy',
+  },
+  es: {
+    allSorted: '¡Todo clasificado! 🎉',
+    moreItems: 'Más objetos ➡️',
+    itemLabel: 'objeto {emoji}',
+    byColor: 'por Color',
+    byKind: 'por Tipo',
+    byShape: 'por Forma',
+    binRed: 'Rojo',
+    binYellow: 'Amarillo',
+    binBlue: 'Azul',
+    binGreen: 'Verde',
+    binFruit: 'Fruta',
+    binAnimals: 'Animales',
+    binVehicles: 'Vehículos',
+    binRound: 'Redondo',
+    binLong: 'Largo',
+    binPointy: 'Puntiagudo',
+  },
+  ca: {
+    allSorted: 'Tot classificat! 🎉',
+    moreItems: 'Més objectes ➡️',
+    itemLabel: 'objecte {emoji}',
+    byColor: 'per Color',
+    byKind: 'per Tipus',
+    byShape: 'per Forma',
+    binRed: 'Vermell',
+    binYellow: 'Groc',
+    binBlue: 'Blau',
+    binGreen: 'Verd',
+    binFruit: 'Fruita',
+    binAnimals: 'Animals',
+    binVehicles: 'Vehicles',
+    binRound: 'Rodó',
+    binLong: 'Llarg',
+    binPointy: 'Punxegut',
+  },
+  fr: {
+    allSorted: 'Tout est trié ! 🎉',
+    moreItems: 'Plus d\'objets ➡️',
+    itemLabel: 'objet {emoji}',
+    byColor: 'par Couleur',
+    byKind: 'par Type',
+    byShape: 'par Forme',
+    binRed: 'Rouge',
+    binYellow: 'Jaune',
+    binBlue: 'Bleu',
+    binGreen: 'Vert',
+    binFruit: 'Fruits',
+    binAnimals: 'Animaux',
+    binVehicles: 'Véhicules',
+    binRound: 'Rond',
+    binLong: 'Long',
+    binPointy: 'Pointu',
+  },
+}
 
 const BATCH = 6 // items per conveyor batch
 
@@ -42,6 +118,7 @@ function makeBatch(ruleKey) {
 export default function SortingFactory() {
   const { earn, award } = useGame()
   const { unlock, isUnlocked } = useProgress()
+  const t = useT(STR)
 
   const [ruleKey, setRuleKey] = useState('color')
   const [items, setItems] = useState(() => makeBatch('color'))
@@ -148,9 +225,9 @@ export default function SortingFactory() {
       <div className="sorting__belt play-surface">
         {batchDone ? (
           <div className="sorting__win">
-            <p>All sorted! 🎉</p>
+            <p>{t('allSorted')}</p>
             <button className="btn btn--good" onClick={() => newBatch(nextRuleKey())}>
-              More items ➡️
+              {t('moreItems')}
             </button>
           </div>
         ) : (
@@ -166,7 +243,7 @@ export default function SortingFactory() {
                   activeItem.current = it
                   onPointerDown(e)
                 }}
-                aria-label={`${it.emoji} item`}
+                aria-label={t('itemLabel', { emoji: it.emoji })}
               >
                 {it.emoji}
               </button>
@@ -184,7 +261,7 @@ export default function SortingFactory() {
             data-bin={b.value}
           >
             <span className="sorting__bin-face">{b.emoji}</span>
-            <span className="sorting__bin-label">{b.label}</span>
+            <span className="sorting__bin-label">{t(b.tkey)}</span>
           </div>
         ))}
       </div>

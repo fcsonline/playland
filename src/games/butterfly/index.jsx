@@ -1,8 +1,32 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { pick, sample, randInt } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import './butterfly.css'
+
+const STR = {
+  en: {
+    catch: 'Catch:',
+    catchButterfly: 'catch butterfly',
+    hint: 'Catch the colors in your list! 🌸',
+  },
+  es: {
+    catch: 'Atrapa:',
+    catchButterfly: 'atrapa mariposa',
+    hint: '¡Atrapa los colores de tu lista! 🌸',
+  },
+  ca: {
+    catch: 'Atrapa:',
+    catchButterfly: 'atrapa papallona',
+    hint: 'Atrapa els colors de la teva llista! 🌸',
+  },
+  fr: {
+    catch: 'Attrape :',
+    catchButterfly: 'attrape le papillon',
+    hint: 'Attrape les couleurs de ta liste ! 🌸',
+  },
+}
 
 /**
  * Butterfly Catcher — each round shows a GOAL: catch a few butterflies of
@@ -70,6 +94,7 @@ function makeBug(color) {
 
 export default function ButterflyCatcher() {
   const { earn, award } = useGame()
+  const t = useT(STR)
   const fieldRef = useRef(null)
 
   const [level, setLevel] = useState(0)
@@ -184,7 +209,7 @@ export default function ButterflyCatcher() {
     <div className="butterfly">
       <div className="butterfly__hud">
         <span className="butterfly__goal chip">
-          <span className="butterfly__goallabel">Catch:</span>
+          <span className="butterfly__goallabel">{t('catch')}</span>
           {goal.map((it) => {
             const color = COLOR_BY_ID[it.colorId]
             const done = it.got >= it.need
@@ -222,14 +247,14 @@ export default function ButterflyCatcher() {
               e.preventDefault()
               catchBug(b.key, e.clientX, e.clientY)
             }}
-            aria-label="catch butterfly"
+            aria-label={t('catchButterfly')}
           >
             <span className="butterfly__wing">🦋</span>
           </button>
         ))}
       </div>
 
-      <p className="butterfly__hint">Catch the colors in your list! 🌸</p>
+      <p className="butterfly__hint">{t('hint')}</p>
     </div>
   )
 }

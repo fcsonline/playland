@@ -2,7 +2,15 @@ import { useMemo, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { randInt, pick, shuffle } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
+import { useT } from '../../lib/i18n.js'
 import './math.css'
+
+const STR = {
+  en: { howMany: 'How many?', together: 'How many together?', left: 'How many are left?' },
+  es: { howMany: '¿Cuántos?', together: '¿Cuántos hay juntos?', left: '¿Cuántos quedan?' },
+  ca: { howMany: 'Quants?', together: "Quants n'hi ha junts?", left: 'Quants en queden?' },
+  fr: { howMany: 'Combien ?', together: 'Combien en tout ?', left: 'Combien en reste-t-il ?' },
+}
 
 /**
  * Add It Up! — gentle early-maths for ages 3-8.
@@ -70,6 +78,7 @@ function makeProblem(solved) {
 
 export default function AddItUp() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
   const [solved, setSolved] = useState(0)
   const [problem, setProblem] = useState(() => makeProblem(0))
   const [picked, setPicked] = useState(null) // the value tapped this problem
@@ -111,7 +120,7 @@ export default function AddItUp() {
   }
 
   const promptText =
-    problem.op === 'count' ? 'How many?' : problem.op === '+' ? 'How many together?' : 'How many are left?'
+    problem.op === 'count' ? t('howMany') : problem.op === '+' ? t('together') : t('left')
 
   return (
     <div className="math">

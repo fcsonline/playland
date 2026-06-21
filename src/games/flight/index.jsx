@@ -1,8 +1,28 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { sfx } from '../../lib/audio.js'
 import { makeRoute, toPathD, nearestOnPath } from './geometry.js'
 import './flight.css'
+
+const STR = {
+  en: {
+    missToast: 'Oops! ✈️ Stay on the route!',
+    winToast: 'Great flight! ✈️ Excellent!',
+  },
+  es: {
+    missToast: '¡Vaya! ✈️ ¡No te salgas de la ruta!',
+    winToast: '¡Buen vuelo! ✈️ ¡Excelente!',
+  },
+  ca: {
+    missToast: 'Ostres! ✈️ No surtis de la ruta!',
+    winToast: 'Bon vol! ✈️ Excel·lent!',
+  },
+  fr: {
+    missToast: 'Oups ! ✈️ Reste sur la route !',
+    winToast: 'Beau vol ! ✈️ Excellent !',
+  },
+}
 
 /**
  * Flight Path — trace the winding sky route from takeoff ✈️ to the landing pad 🏁
@@ -24,6 +44,7 @@ function toleranceFor(level) {
 
 export default function FlightPath() {
   const { earn, award } = useGame()
+  const t = useT(STR)
   const cbs = useRef({ earn, award })
   cbs.current = { earn, award }
 
@@ -297,8 +318,8 @@ export default function FlightPath() {
           />
         )}
 
-        {missMsg && <div className="flight__toast">Oops! ✈️ Stay on the route!</div>}
-        {status === 'win' && <div className="flight__toast flight__toast--win">Great flight! ✈️ Excellent!</div>}
+        {missMsg && <div className="flight__toast">{t('missToast')}</div>}
+        {status === 'win' && <div className="flight__toast flight__toast--win">{t('winToast')}</div>}
       </div>
 
       <div className="flight__bar" aria-hidden="true">

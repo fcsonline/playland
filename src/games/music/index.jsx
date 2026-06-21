@@ -1,7 +1,55 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { tone, noteFreq, sfx } from '../../lib/audio.js'
 import './music.css'
+
+const STR = {
+  en: {
+    songTwinkle: 'Twinkle',
+    songBouncy: 'Bouncy',
+    songRocket: 'Rocket',
+    greatGig: 'Great gig! {stars}',
+    notesCombo: '{score} notes · best combo 🔥 {best}',
+    nextSong: 'Next song 🔄',
+    tapToPlay: 'Tap to play! 🎵',
+    start: '▶ Start',
+    lanePad: 'lane {n} pad',
+  },
+  es: {
+    songTwinkle: 'Centelleo',
+    songBouncy: 'Saltarina',
+    songRocket: 'Cohete',
+    greatGig: '¡Buen concierto! {stars}',
+    notesCombo: '{score} notas · mejor combo 🔥 {best}',
+    nextSong: 'Siguiente canción 🔄',
+    tapToPlay: '¡Toca para jugar! 🎵',
+    start: '▶ Empezar',
+    lanePad: 'pad del carril {n}',
+  },
+  ca: {
+    songTwinkle: 'Centelleig',
+    songBouncy: 'Saltironejant',
+    songRocket: 'Coet',
+    greatGig: 'Bon concert! {stars}',
+    notesCombo: '{score} notes · millor combo 🔥 {best}',
+    nextSong: 'Següent cançó 🔄',
+    tapToPlay: 'Toca per jugar! 🎵',
+    start: '▶ Comença',
+    lanePad: 'pad del carril {n}',
+  },
+  fr: {
+    songTwinkle: 'Scintillement',
+    songBouncy: 'Sautillante',
+    songRocket: 'Fusée',
+    greatGig: 'Beau concert ! {stars}',
+    notesCombo: '{score} notes · meilleur combo 🔥 {best}',
+    nextSong: 'Chanson suivante 🔄',
+    tapToPlay: 'Touche pour jouer ! 🎵',
+    start: '▶ Commencer',
+    lanePad: 'pad de la voie {n}',
+  },
+}
 
 /**
  * Rhythm Band — a gentle, no-fail Guitar-Hero for little kids.
@@ -38,6 +86,7 @@ function playLaneTone(lane) {
 const SONGS = [
   {
     name: 'Twinkle',
+    tkey: 'songTwinkle',
     emoji: '⭐',
     fall: 2400,
     gap: 720,
@@ -45,6 +94,7 @@ const SONGS = [
   },
   {
     name: 'Bouncy',
+    tkey: 'songBouncy',
     emoji: '🐰',
     fall: 2000,
     gap: 560,
@@ -52,6 +102,7 @@ const SONGS = [
   },
   {
     name: 'Rocket',
+    tkey: 'songRocket',
     emoji: '🚀',
     fall: 1700,
     gap: 440,
@@ -89,6 +140,7 @@ function freshState() {
 }
 
 export default function RhythmBand() {
+  const t = useT(STR)
   const { earn, award, oops } = useGame()
   const cbs = useRef({ earn, award, oops })
   cbs.current = { earn, award, oops }
@@ -265,25 +317,25 @@ export default function RhythmBand() {
           <div className="music__overlay">
             {phase === 'done' ? (
               <>
-                <div className="music__big">Great gig! {'⭐'.repeat(result.stars)}</div>
+                <div className="music__big">{t('greatGig', { stars: '⭐'.repeat(result.stars) })}</div>
                 <div className="music__sub">
-                  {result.score} notes · best combo 🔥 {result.best}
+                  {t('notesCombo', { score: result.score, best: result.best })}
                 </div>
                 <button
                   className="btn btn--good music__start"
                   onClick={() => start((songIdx + 1) % SONGS.length)}
                 >
-                  Next song 🔄
+                  {t('nextSong')}
                 </button>
               </>
             ) : (
               <>
-                <div className="music__big">Tap to play! 🎵</div>
+                <div className="music__big">{t('tapToPlay')}</div>
                 <div className="music__sub">
-                  {SONGS[songIdx].emoji} {SONGS[songIdx].name}
+                  {SONGS[songIdx].emoji} {t(SONGS[songIdx].tkey)}
                 </div>
                 <button className="btn btn--good music__start" onClick={() => start(songIdx)}>
-                  ▶ Start
+                  {t('start')}
                 </button>
               </>
             )}
@@ -299,7 +351,7 @@ export default function RhythmBand() {
             className={`music__pad ${s.flash[li] > 0 ? 'is-hit' : ''}`}
             style={{ '--lane': L.color }}
             onPointerDown={() => tapLane(li)}
-            aria-label={`lane ${li + 1} pad`}
+            aria-label={t('lanePad', { n: li + 1 })}
           >
             <span className="music__pad-emoji">{L.emoji}</span>
           </button>

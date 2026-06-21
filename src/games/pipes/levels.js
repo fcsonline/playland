@@ -28,9 +28,9 @@ export const openingsOf = (type, rot) => BASE[type].map((d) => (d + rot) % 4)
 
 /** Gentle progression: bigger, taller grids that fill the screen. */
 export const LEVELS = [
-  { cols: 4, rows: 4, happy: 'The water made it!' },
-  { cols: 4, rows: 5, happy: 'Great pipework!' },
-  { cols: 5, rows: 6, happy: 'You connected it all!' },
-  { cols: 5, rows: 7, happy: 'Master plumber!' },
-  { cols: 6, rows: 7, happy: 'Incredible pipework!' },
+  { cols: 4, rows: 4, happy: 'The water made it!', tkey: 'happy1' },
+  { cols: 4, rows: 5, happy: 'Great pipework!', tkey: 'happy2' },
+  { cols: 5, rows: 6, happy: 'You connected it all!', tkey: 'happy3' },
+  { cols: 5, rows: 7, happy: 'Master plumber!', tkey: 'happy4' },
+  { cols: 6, rows: 7, happy: 'Incredible pipework!', tkey: 'happy5' },
 ]

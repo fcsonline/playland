@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { sfx } from '../../lib/audio.js'
+import { useT } from '../../lib/i18n.js'
 import {
   COLS,
   ROWS,
@@ -14,9 +15,53 @@ import {
 } from './board.js'
 import './connect4.css'
 
+const STR = {
+  en: {
+    tryAgain: 'Try again!',
+    youGotFour: 'You got four! 🎉',
+    roboGotFour: 'Robo got four 🤖 — try again!',
+    fullBoard: 'Full board! Play again 🙂',
+    roboThinking: 'Robo is thinking… 🤖',
+    yourTurn: 'Your turn! Tap a column 🔴',
+    newGame: '🔄 New game',
+    dropInColumn: 'drop in column {n}',
+  },
+  es: {
+    tryAgain: '¡Inténtalo!',
+    youGotFour: '¡Conseguiste cuatro! 🎉',
+    roboGotFour: 'Robo hizo cuatro 🤖 — ¡inténtalo!',
+    fullBoard: '¡Tablero lleno! Juega otra vez 🙂',
+    roboThinking: 'Robo está pensando… 🤖',
+    yourTurn: '¡Tu turno! Toca una columna 🔴',
+    newGame: '🔄 Juego nuevo',
+    dropInColumn: 'soltar en la columna {n}',
+  },
+  ca: {
+    tryAgain: 'Torna-hi!',
+    youGotFour: 'N\'has fet quatre! 🎉',
+    roboGotFour: 'Robo n\'ha fet quatre 🤖 — torna-hi!',
+    fullBoard: 'Tauler ple! Torna a jugar 🙂',
+    roboThinking: 'Robo està pensant… 🤖',
+    yourTurn: 'El teu torn! Toca una columna 🔴',
+    newGame: '🔄 Joc nou',
+    dropInColumn: 'deixa caure a la columna {n}',
+  },
+  fr: {
+    tryAgain: 'Réessaie !',
+    youGotFour: 'Tu en as quatre ! 🎉',
+    roboGotFour: 'Robo en a quatre 🤖 — réessaie !',
+    fullBoard: 'Plateau plein ! Rejoue 🙂',
+    roboThinking: 'Robo réfléchit… 🤖',
+    yourTurn: 'À toi ! Touche une colonne 🔴',
+    newGame: '🔄 Nouvelle partie',
+    dropInColumn: 'déposer dans la colonne {n}',
+  },
+}
+
 // turn: 'player' (waiting for a tap), 'cpu' (CPU thinking), 'over' (round done)
 export default function FourInARow() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
   const [cells, setCells] = useState(() => makeBoard())
   const [turn, setTurn] = useState('player')
   const [winLine, setWinLine] = useState(null) // Set of winning indices
@@ -37,12 +82,12 @@ export default function FourInARow() {
         }, 250)
       } else if (who === 'cpu') {
         sfx.tap() // gentle, never harsh
-        oops({ word: 'Try again!' })
+        oops({ word: t('tryAgain') })
       } else {
         sfx.good() // a draw is friendly, not a loss
       }
     },
-    [award, oops],
+    [award, oops, t],
   )
 
   // CPU takes its turn after the player drops.
@@ -103,21 +148,21 @@ export default function FourInARow() {
 
   const banner =
     result === 'player'
-      ? 'You got four! 🎉'
+      ? t('youGotFour')
       : result === 'cpu'
-        ? 'Robo got four 🤖 — try again!'
+        ? t('roboGotFour')
         : result === 'draw'
-          ? 'Full board! Play again 🙂'
+          ? t('fullBoard')
           : turn === 'cpu'
-            ? 'Robo is thinking… 🤖'
-            : 'Your turn! Tap a column 🔴'
+            ? t('roboThinking')
+            : t('yourTurn')
 
   return (
     <div className="connect4">
       <div className="connect4__controls">
         <span className={`chip connect4__status ${result ? `is-${result}` : ''}`}>{banner}</span>
         <button className="connect4__pill connect4__pill--go" onClick={newGame}>
-          🔄 New game
+          {t('newGame')}
         </button>
       </div>
 
@@ -128,7 +173,7 @@ export default function FourInARow() {
             className={`connect4__col ${turn === 'player' ? 'is-active' : ''}`}
             onClick={() => dropDisc(c)}
             disabled={turn !== 'player'}
-            aria-label={`drop in column ${c + 1}`}
+            aria-label={t('dropInColumn', { n: c + 1 })}
           >
             {Array.from({ length: ROWS }, (_, r) => {
               const v = cells[r * COLS + c]

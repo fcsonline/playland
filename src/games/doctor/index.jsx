@@ -1,9 +1,69 @@
 import { useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { useDrag } from '../../lib/useDrag.js'
 import { shuffle } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import './doctor.css'
+
+const STR = {
+  en: {
+    brain: 'Brain',
+    tooth: 'Tooth',
+    heart: 'Heart',
+    lungs: 'Lungs',
+    liver: 'Liver',
+    bone: 'Bone',
+    placed: '{label} placed',
+    spot: '{label} spot',
+    piece: '{label} piece',
+    allBetter: 'All better!',
+    allBetterCheer: 'All better! 🎉',
+    playAgain: 'Play again 🔁',
+  },
+  es: {
+    brain: 'Cerebro',
+    tooth: 'Diente',
+    heart: 'Corazón',
+    lungs: 'Pulmones',
+    liver: 'Hígado',
+    bone: 'Hueso',
+    placed: '{label} colocado',
+    spot: 'Hueco del {label}',
+    piece: 'Pieza del {label}',
+    allBetter: '¡Todo curado!',
+    allBetterCheer: '¡Todo curado! 🎉',
+    playAgain: 'Jugar otra vez 🔁',
+  },
+  ca: {
+    brain: 'Cervell',
+    tooth: 'Dent',
+    heart: 'Cor',
+    lungs: 'Pulmons',
+    liver: 'Fetge',
+    bone: 'Os',
+    placed: '{label} col·locat',
+    spot: 'Forat del {label}',
+    piece: 'Peça del {label}',
+    allBetter: 'Tot curat!',
+    allBetterCheer: 'Tot curat! 🎉',
+    playAgain: 'Torna a jugar 🔁',
+  },
+  fr: {
+    brain: 'Cerveau',
+    tooth: 'Dent',
+    heart: 'Cœur',
+    lungs: 'Poumons',
+    liver: 'Foie',
+    bone: 'Os',
+    placed: '{label} placé',
+    spot: 'Emplacement du {label}',
+    piece: 'Pièce du {label}',
+    allBetter: 'Tout guéri !',
+    allBetterCheer: 'Tout guéri ! 🎉',
+    playAgain: 'Rejouer 🔁',
+  },
+}
 
 // Detailed anatomical organ SVGs (no emoji, no simple icons). Each is a 0..100
 // viewBox that fills its container (sized by `.organ`), with gradients + surface
@@ -312,16 +372,17 @@ function OperatingRoom() {
 // the chin, heart & lungs across the chest, liver in the upper belly, bone in a
 // leg.
 const PARTS = [
-  { id: 'brain', label: 'Brain', top: 9, left: 50 },
-  { id: 'tooth', label: 'Tooth', top: 29, left: 50 },
-  { id: 'heart', label: 'Heart', top: 44, left: 35 },
-  { id: 'lungs', label: 'Lungs', top: 44, left: 65 },
-  { id: 'liver', label: 'Liver', top: 60, left: 50 },
-  { id: 'bone', label: 'Bone', top: 78, left: 42 },
+  { id: 'brain', labelKey: 'brain', top: 9, left: 50 },
+  { id: 'tooth', labelKey: 'tooth', top: 29, left: 50 },
+  { id: 'heart', labelKey: 'heart', top: 44, left: 35 },
+  { id: 'lungs', labelKey: 'lungs', top: 44, left: 65 },
+  { id: 'liver', labelKey: 'liver', top: 60, left: 50 },
+  { id: 'bone', labelKey: 'bone', top: 78, left: 42 },
 ]
 
 export default function TinyDoctor() {
   const { earn, award, oops } = useGame()
+  const t = useT(STR)
 
   // Which holes are filled (set of part ids).
   const [filled, setFilled] = useState({})
@@ -365,7 +426,7 @@ export default function TinyDoctor() {
           setDone(true)
           setTimeout(() => {
             sfx.win()
-            award(3, { praise: 'All better!' })
+            award(3, { praise: t('allBetter') })
           }, 300)
         }
         return next
@@ -425,7 +486,11 @@ export default function TinyDoctor() {
                   hotHole === part.id ? 'is-hot' : ''
                 }`}
                 style={{ top: `${part.top}%`, left: `${part.left}%` }}
-                aria-label={isFilled ? `${part.label} placed` : `${part.label} spot`}
+                aria-label={
+                  isFilled
+                    ? t('placed', { label: t(part.labelKey) })
+                    : t('spot', { label: t(part.labelKey) })
+                }
               >
                 <Organ id={part.id} />
               </div>
@@ -437,9 +502,9 @@ export default function TinyDoctor() {
       {/* Tray of draggable pieces, or the Play again button when finished. */}
       {done ? (
         <div className="doctor__win">
-          <p>All better! 🎉</p>
+          <p>{t('allBetterCheer')}</p>
           <button className="btn btn--good" onClick={playAgain}>
-            Play again 🔁
+            {t('playAgain')}
           </button>
         </div>
       ) : (
@@ -457,7 +522,7 @@ export default function TinyDoctor() {
                   activeId.current = id
                   onPointerDown(e)
                 }}
-                aria-label={`${part.label} piece`}
+                aria-label={t('piece', { label: t(part.labelKey) })}
               >
                 <Organ id={id} />
               </button>

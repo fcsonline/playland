@@ -21,7 +21,7 @@ const ITEMS = [
   '🐠', '🐢', '⭐', '🌸', '🌻', '🍪', '🎈', '🚗',
 ]
 
-const SIGNS = ['<', '=', '>']
+const SIGNS = ['>', '=', '<']
 
 function maxCountForAge() {
   const a = getSettings().ageRange

@@ -91,6 +91,13 @@ export default function MolePop() {
       tone(kind === KIND_GOLD ? 700 : 480, { duration: 0.08, type: 'sine', gain: 0.08 })
       // Auto-duck if not bonked.
       duckTimers.current[idx] = setTimeout(() => {
+        // A catchable critter that escaped un-bonked gets a gentle "aww" miss
+        // cue (no penalty — the round never punishes).
+        const cur = holesRef.current[idx]
+        if (cur && cur.id === id && !cur.bonked && kind !== KIND_BOMB) {
+          tone(300, { duration: 0.14, type: 'sine', gain: 0.06 })
+          setTimeout(() => tone(220, { duration: 0.16, type: 'sine', gain: 0.05 }), 90)
+        }
         setHoles((prev) => {
           if (prev[idx] && prev[idx].id === id) {
             const next = prev.slice()
@@ -170,8 +177,9 @@ export default function MolePop() {
     if (!cell || cell.bonked) return
 
     if (cell.kind === KIND_BOMB) {
-      // Gentle: a little shake, a soft thud, no points, never ends the round.
-      tone(150, { duration: 0.16, type: 'sawtooth', gain: 0.1 })
+      // Gentle: a buzzy thud + a shake + a 💢 puff, no points, round goes on.
+      tone(150, { duration: 0.16, type: 'sawtooth', gain: 0.11 })
+      setTimeout(() => tone(90, { duration: 0.2, type: 'sawtooth', gain: 0.09 }), 80)
       setHoles((prev) => {
         const next = prev.slice()
         if (next[idx] && next[idx].id === cell.id) {
@@ -196,8 +204,14 @@ export default function MolePop() {
       return
     }
 
-    // A real bonk!
+    // A real bonk! Pop + a happy chime (a sparkle for the golden one).
     sfx.pop()
+    if (cell.kind === KIND_GOLD) {
+      sfx.good()
+      tone(1046, { duration: 0.14, type: 'triangle', gain: 0.12 })
+    } else {
+      tone(720, { duration: 0.1, type: 'triangle', gain: 0.1 })
+    }
     const gain = cell.kind === KIND_GOLD ? 3 : 1
     setScore((s) => s + gain)
     const x = e ? e.clientX : undefined
@@ -241,7 +255,16 @@ export default function MolePop() {
       <div className="whack__board play-surface">
         <div className="whack__grid">
           {holes.map((cell, i) => (
-            <div className="whack__hole" key={i}>
+            <div
+              className="whack__hole"
+              key={i}
+              onPointerDown={() => {
+                // A soft "whiff" for a tap on an empty hole — you missed.
+                if (!holesRef.current[i] && runningRef.current) {
+                  tone(170, { duration: 0.08, type: 'sine', gain: 0.04 })
+                }
+              }}
+            >
               <div className="whack__dirt" aria-hidden="true" />
               {cell && (
                 <button
@@ -266,6 +289,10 @@ export default function MolePop() {
                 >
                   {cell.kind === KIND_BOMB ? '💣' : cell.kind === KIND_GOLD ? '🌟' : '🐹'}
                   {cell.bonked === true && <span className="whack__star">💥</span>}
+                  {cell.bonked === true && (
+                    <span className="whack__plus">+{cell.kind === KIND_GOLD ? 3 : 1}</span>
+                  )}
+                  {cell.bonked === 'shake' && <span className="whack__boom">💢</span>}
                 </button>
               )}
             </div>

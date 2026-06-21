@@ -6,19 +6,22 @@
   flex: 1;
 }
 
-/* The grid fills the whole stage, but each card keeps a fixed 3:4 proportion and
-   centers within its cell — so cards always look like tidy cards, the same shape
-   no matter the screen orientation or how many there are. */
+/* The board is sized to the cards' COLLECTIVE proportion (cols·3 : rows·4) and
+   centered in the stage, so the 3:4 cards fill their cells and sit close together
+   instead of floating far apart. It shrinks to fit whichever dimension is
+   smaller, in any orientation, and never grows huge on big screens. */
 .memory__board {
-  flex: 1;
   display: grid;
   grid-template-columns: repeat(var(--cols, 4), 1fr);
   grid-template-rows: repeat(var(--rows, 2), 1fr);
-  gap: clamp(8px, 2.6vw, 16px);
+  gap: clamp(7px, 2vw, 13px);
+  aspect-ratio: calc(var(--cols, 4) * 3) / calc(var(--rows, 2) * 4);
   width: 100%;
-  height: 100%;
+  max-width: min(100%, 520px);
+  max-height: 100%;
+  margin: auto;
   min-height: 0;
-  padding: 4px;
+  padding: 6px;
 }
 
 .mcard {

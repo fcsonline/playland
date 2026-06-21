@@ -18,7 +18,8 @@ import './frog.css'
  */
 
 const GOAL = 6 // flies that fill the tummy meter → big cheer, then it refills
-const FLY_COUNT = 4 // how many bugs buzz at once
+const FLY_COUNT = 4 // tasty flies buzzing at once
+const BEE_COUNT = 2 // a few toxic bees to avoid eating
 const TONGUE_SPEED = 1700 // px/s the tongue tip travels
 const CATCH_RADIUS = 38 // tip within this of a bug → caught (generous)
 const TAP_RADIUS = 80 // a tap within this of a bug locks onto it (very forgiving)
@@ -30,25 +31,27 @@ function rand(min, max) {
   return min + Math.random() * (max - min)
 }
 
-// Spawn a fresh fly somewhere in the upper "sky/pond" band, drifting gently.
-function spawnFly(id, w, h) {
+// Spawn a fresh bug in the upper "sky/pond" band. Flies drift gently; bees are a
+// touch faster and twitchier (and toxic — eating one is a "yuck").
+function spawnBug(id, w, h, kind) {
   const ang = rand(0, Math.PI * 2)
-  const sp = rand(26, 64)
+  const sp = kind === 'bee' ? rand(40, 78) : rand(26, 64)
   return {
     id,
+    kind, // 'fly' | 'bee'
     x: rand(w * 0.16, w * 0.84),
     y: rand(h * 0.12, h * 0.52),
     vx: Math.cos(ang) * sp,
     vy: Math.sin(ang) * sp,
     phase: rand(0, Math.PI * 2), // wing-buzz phase
-    steer: rand(0.4, 1.1), // seconds until the next gentle course change
+    steer: rand(kind === 'bee' ? 0.3 : 0.4, kind === 'bee' ? 0.8 : 1.1),
   }
 }
 
 export default function Frog() {
-  const { earn, award } = useGame()
-  const cbs = useRef({ earn, award })
-  cbs.current = { earn, award }
+  const { earn, award, oops } = useGame()
+  const cbs = useRef({ earn, award, oops })
+  cbs.current = { earn, award, oops }
 
   const fieldRef = useRef(null)
   const rafRef = useRef(null)
@@ -100,9 +103,10 @@ export default function Frog() {
   useEffect(() => {
     if (size.w <= 20 || size.h <= 20) return
     if (fliesRef.current.length === 0) {
-      fliesRef.current = Array.from({ length: FLY_COUNT }, () =>
-        spawnFly(nextId.current++, size.w, size.h),
-      )
+      fliesRef.current = [
+        ...Array.from({ length: FLY_COUNT }, () => spawnBug(nextId.current++, size.w, size.h, 'fly')),
+        ...Array.from({ length: BEE_COUNT }, () => spawnBug(nextId.current++, size.w, size.h, 'bee')),
+      ]
     }
     if (tongue.current.phase === 'idle') {
       tongue.current.tip = mouth()
@@ -146,16 +150,25 @@ export default function Frog() {
   }
 
   function swallow(bug) {
-    sfx.good()
     const rect = fieldRef.current?.getBoundingClientRect()
     const m = mouth()
+
+    // Replace the eaten bug with one of the same kind so counts stay constant.
+    fliesRef.current = fliesRef.current.filter((f) => f.id !== bug.id)
+    fliesRef.current.push(spawnBug(nextId.current++, sizeRef.current.w, sizeRef.current.h, bug.kind))
+
+    if (bug.kind === 'bee') {
+      // Toxic! A sour buzz, a "yuck" and the tummy drops a notch (never below 0).
+      cbs.current.oops?.()
+      noiseBurst({ duration: 0.22, gain: 0.12, type: 'lowpass', freq: 300 })
+      tone(150, { duration: 0.26, type: 'sawtooth', gain: 0.08 })
+      setCaught((c) => Math.max(0, c - 1))
+      return
+    }
+
+    sfx.good()
     if (rect) cbs.current.earn(1, { x: rect.left + m.x, y: rect.top + m.y, emoji: '🪰' })
     else cbs.current.earn(1)
-
-    // Replace the eaten bug so the swarm size stays constant.
-    fliesRef.current = fliesRef.current.filter((f) => f.id !== bug.id)
-    fliesRef.current.push(spawnFly(nextId.current++, sizeRef.current.w, sizeRef.current.h))
-
     setCaught((c) => {
       const n = c + 1
       if (n >= GOAL) {
@@ -306,7 +319,6 @@ export default function Frog() {
   const flies = fliesRef.current
   const T = tongue.current
   const m = mouth()
-  const maxReach = size.h * MAX_REACH_FRAC
   const tongueOut = T.phase === 'out' || T.phase === 'back'
   const carried = T.carrying
 
@@ -340,11 +352,10 @@ export default function Frog() {
         <span className="frog__reed frog__reed--a" aria-hidden="true" />
         <span className="frog__reed frog__reed--b" aria-hidden="true" />
 
-        {/* Flies. Ones beyond the tongue's reach are drawn faded. */}
+        {/* Bugs — tasty flies + toxic bees. */}
         {flies.map((f) => {
           if (carried && f.id === carried.id) return null // drawn on the tongue tip
-          const far = Math.hypot(f.x - m.x, f.y - m.y) > maxReach
-          return <Fly key={f.id} x={f.x} y={f.y} phase={f.phase} far={far} />
+          return <Bug key={f.id} x={f.x} y={f.y} phase={f.phase} kind={f.kind} />
         })}
 
         {/* Tongue (origin hidden behind the snout lip; tip + bug ride on top). */}
@@ -365,7 +376,7 @@ export default function Frog() {
             <circle className="frog__tongue-tip" cx={T.tip.x} cy={T.tip.y} r="9" />
           </svg>
         )}
-        {carried && <Fly x={T.tip.x} y={T.tip.y} phase={carried.phase} stuck />}
+        {carried && <Bug x={T.tip.x} y={T.tip.y} phase={carried.phase} kind={carried.kind} stuck />}
 
         {/* The frog — you! A big snout, two bulging eyes, a wide mouth. */}
         <div className="frog__head" aria-hidden="true">
@@ -380,49 +391,55 @@ export default function Frog() {
           <span className="frog__mouth" />
         </div>
 
-        {!hintGone && <div className="frog__hint">Tap a fly! 🐸</div>}
+        {!hintGone && <div className="frog__hint">Eat flies — not bees! 🐝</div>}
         {full && <div className="frog__toast">So full! 🎉</div>}
       </div>
     </div>
   )
 }
 
-// A single buzzing fly: dark body, two flickering wings, tiny legs.
-function Fly({ x, y, phase, stuck, far }) {
+// A buzzing bug — a dark fly (tasty) or a yellow-striped bee (toxic). Both have
+// two flickering wings; the bee adds stripes, antennae and a stinger so it reads
+// clearly as "don't eat me".
+function Bug({ x, y, phase, kind, stuck }) {
   const flap = 0.5 + 0.5 * Math.sin(phase)
+  const bee = kind === 'bee'
+  const wing = bee ? '#fff6d8' : '#cfeaff'
   return (
     <span
-      className={`frog__fly ${stuck ? 'is-stuck' : ''} ${far ? 'is-far' : ''}`}
+      className={`frog__fly ${bee ? 'is-bee' : ''} ${stuck ? 'is-stuck' : ''}`}
       style={{ left: x, top: y }}
       aria-hidden="true"
     >
-      <svg viewBox="0 0 24 24" width="26" height="26">
+      <svg viewBox="0 0 24 24" width={bee ? 28 : 26} height={bee ? 28 : 26}>
         {/* wings */}
-        <ellipse
-          cx="8"
-          cy="9"
-          rx="5"
-          ry={2.4 + flap * 2}
-          fill="#cfeaff"
-          opacity="0.85"
-          transform="rotate(-22 8 9)"
-        />
-        <ellipse
-          cx="16"
-          cy="9"
-          rx="5"
-          ry={2.4 + flap * 2}
-          fill="#cfeaff"
-          opacity="0.85"
-          transform="rotate(22 16 9)"
-        />
-        {/* body */}
-        <ellipse cx="12" cy="13" rx="4.2" ry="5.4" fill="#2f3640" />
-        <circle cx="12" cy="8.5" r="3.1" fill="#3d4754" />
-        {/* eyes */}
-        <circle cx="10.7" cy="8" r="1" fill="#ff5b6e" />
-        <circle cx="13.3" cy="8" r="1" fill="#ff5b6e" />
-        <ellipse cx="12" cy="12" rx="1.4" ry="3" fill="#1c2026" opacity="0.6" />
+        <ellipse cx="8" cy="8" rx="5" ry={2.4 + flap * 2} fill={wing} opacity="0.9" transform="rotate(-22 8 8)" />
+        <ellipse cx="16" cy="8" rx="5" ry={2.4 + flap * 2} fill={wing} opacity="0.9" transform="rotate(22 16 8)" />
+        {bee ? (
+          <>
+            {/* antennae */}
+            <path d="M11 5 q-2 -3 -4 -3 M13 5 q2 -3 4 -3" fill="none" stroke="#3a2f1a" strokeWidth="1" strokeLinecap="round" />
+            {/* striped body */}
+            <ellipse cx="12" cy="13" rx="5" ry="6.2" fill="#ffc21f" stroke="#3a2f1a" strokeWidth="0.8" />
+            <path d="M8 11 h8 M7.6 14 h8.8 M9 17 h6" stroke="#3a2f1a" strokeWidth="1.6" strokeLinecap="round" />
+            {/* head + eyes */}
+            <circle cx="12" cy="7.6" r="3" fill="#4a3a18" />
+            <circle cx="10.8" cy="7.2" r="0.9" fill="#fff" />
+            <circle cx="13.2" cy="7.2" r="0.9" fill="#fff" />
+            {/* stinger */}
+            <path d="M12 19.5 l-1.2 2.6 l2.4 0 z" fill="#3a2f1a" />
+          </>
+        ) : (
+          <>
+            {/* body */}
+            <ellipse cx="12" cy="13" rx="4.2" ry="5.4" fill="#2f3640" />
+            <circle cx="12" cy="8.5" r="3.1" fill="#3d4754" />
+            {/* eyes */}
+            <circle cx="10.7" cy="8" r="1" fill="#ff5b6e" />
+            <circle cx="13.3" cy="8" r="1" fill="#ff5b6e" />
+            <ellipse cx="12" cy="12" rx="1.4" ry="3" fill="#1c2026" opacity="0.6" />
+          </>
+        )}
       </svg>
     </span>
   )

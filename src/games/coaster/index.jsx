@@ -494,11 +494,11 @@ export default function Coaster() {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
-        {/* Decorative drawn sky: a soft cloud, twinkles and a little planet */}
-        <span className="coaster__deco coaster__cloud" aria-hidden="true" />
-        <span className="coaster__deco coaster__twinkle coaster__twinkle--a" aria-hidden="true" />
-        <span className="coaster__deco coaster__twinkle coaster__twinkle--b" aria-hidden="true" />
-        <span className="coaster__deco coaster__planet" aria-hidden="true" />
+        {/* Simple daytime sky: a sun, a couple of clouds, and grassy ground */}
+        <span className="coaster__deco coaster__sun" aria-hidden="true" />
+        <span className="coaster__deco coaster__cloud coaster__cloud--a" aria-hidden="true" />
+        <span className="coaster__deco coaster__cloud coaster__cloud--b" aria-hidden="true" />
+        <span className="coaster__deco coaster__ground" aria-hidden="true" />
 
         {/* Ramps: pre-built fixed ramps (stone) + the child's drawn ramp (gold) */}
         <svg
@@ -542,32 +542,29 @@ export default function Coaster() {
           aria-hidden="true"
         />
 
-        {/* Stars — drawn SVG, dimmed + checked once collected */}
+        {/* The goal basket — roll the ball in. Bounces happily once filled. */}
         {layout.stars.map((s, i) => {
           const isGot = !!collected[i]
           return (
             <span
               key={i}
-              className={`coaster__star ${isGot ? 'is-collected' : ''} ${
-                won ? 'is-won' : ''
-              }`}
+              className={`coaster__basket ${isGot ? 'is-filled' : ''} ${won ? 'is-won' : ''}`}
               style={{ left: s.x, top: s.y }}
               aria-hidden="true"
             >
-              <svg viewBox="0 0 24 24" className="coaster__star-svg">
+              <svg viewBox="0 0 48 44" className="coaster__basket-svg">
+                {/* back rim (behind the ball) */}
+                <ellipse className="coaster__basket-rim" cx="24" cy="13" rx="20" ry="6" />
+                {/* woven body — a tapered basket */}
                 <path
-                  className="coaster__star-shape"
-                  d="M12 1.6l3.09 6.26 6.91 1-5 4.87 1.18 6.87L12 17.27 5.82 20.6 7 13.73l-5-4.87 6.91-1L12 1.6z"
+                  className="coaster__basket-body"
+                  d="M5 13 C5 13 9 40 11 41 C15 43 33 43 37 41 C39 40 43 13 43 13 Z"
                 />
+                {/* weave lines */}
+                <path className="coaster__basket-weave" d="M9 20 H39 M11 28 H37 M13 36 H35" />
+                {/* front rim */}
+                <path className="coaster__basket-front" d="M4 13 C10 18 38 18 44 13" />
               </svg>
-              {isGot && (
-                <svg viewBox="0 0 24 24" className="coaster__star-check" aria-hidden="true">
-                  <path
-                    className="coaster__star-check-mark"
-                    d="M5 12.5l4 4 10-10"
-                  />
-                </svg>
-              )}
             </span>
           )
         })}
@@ -616,11 +613,11 @@ export default function Coaster() {
         {/* Plain-language how-to banner while the field is empty. */}
         {showBanner && (
           <div className="coaster__howto" aria-hidden="true">
-            ✏️ Draw a ramp so the ball rolls to the ⭐
+            ✏️ Draw a ramp so the ball rolls into the basket 🧺
           </div>
         )}
 
-        {won && <div className="coaster__toast">You got it! ⭐</div>}
+        {won && <div className="coaster__toast">In the basket! 🧺</div>}
       </div>
     </div>
   )

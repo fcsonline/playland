@@ -294,11 +294,6 @@
   z-index: 7;
   animation: frog-wiggle 0.3s ease-in-out infinite;
 }
-/* Out of the tongue's reach — drawn faded so kids see it's too far (for now). */
-.frog__fly.is-far {
-  opacity: 0.45;
-  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.18)) grayscale(0.4);
-}
 @keyframes frog-wiggle {
   0%,
   100% {

@@ -19,7 +19,7 @@ export const ITEMS = [
   { emoji: '🫐', color: 'blue', shape: 'round', category: 'fruit' },
   { emoji: '🥝', color: 'green', shape: 'round', category: 'fruit' },
   { emoji: '🍉', color: ['green', 'red'], shape: 'round', category: 'fruit' },
-  { emoji: '🥕', color: 'red', shape: 'long', category: 'fruit' },
+  { emoji: '🥕', color: 'red', shape: 'pointy', category: 'fruit' },
 
   { emoji: '🐸', color: 'green', shape: 'round', category: 'animal' },
   { emoji: '🐤', color: 'yellow', shape: 'round', category: 'animal' },
@@ -48,28 +48,29 @@ export const RULES = {
       { value: 'green', label: 'Green', emoji: '🟢' },
     ],
   },
-  shape: {
-    key: 'shape',
-    label: 'by Shape',
-    bins: [
-      { value: 'round', label: 'Round', emoji: '⚪' },
-      { value: 'long', label: 'Long', emoji: '🟫' },
-      { value: 'pointy', label: 'Pointy', emoji: '🔺' },
-    ],
-  },
   category: {
     key: 'category',
     label: 'by Kind',
     bins: [
       { value: 'fruit', label: 'Fruit', emoji: '🧺' },
       { value: 'animal', label: 'Animals', emoji: '🐾' },
-      { value: 'vehicle', label: 'Vehicles', emoji: '🛣️' },
+      { value: 'vehicle', label: 'Vehicles', emoji: '🚗' },
+    ],
+  },
+  shape: {
+    key: 'shape',
+    label: 'by Shape',
+    bins: [
+      { value: 'round', label: 'Round', emoji: '⚪' },
+      { value: 'long', label: 'Long', emoji: '🥖' },
+      { value: 'pointy', label: 'Pointy', emoji: '🔺' },
     ],
   },
 }
 
-// Order rules unlock in.
-export const RULE_ORDER = ['color', 'shape', 'category']
+// Order rules unlock in: color first, then the concrete "by Kind", then the
+// trickier "by Shape" last.
+export const RULE_ORDER = ['color', 'category', 'shape']
 
 // How many correct sorts in total before the next rule unlocks.
-export const UNLOCK_AT = { shape: 6, category: 14 }
+export const UNLOCK_AT = { category: 6, shape: 14 }

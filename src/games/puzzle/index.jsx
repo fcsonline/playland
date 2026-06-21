@@ -157,7 +157,7 @@ export default function PuzzleAdventure() {
               className={`puzzle__piece ${wrong === idx ? 'is-wrong' : ''} ${
                 dragging ? 'is-dragging' : ''
               }`}
-              style={{ aspectRatio: `${cols} / ${rows}` }}
+              style={{ aspectRatio: `${rows} / ${cols}` }}
               onPointerDown={(e) => {
                 activeIdx.current = idx
                 onPointerDown(e)
@@ -174,7 +174,7 @@ export default function PuzzleAdventure() {
       {drag && (
         <div
           className="puzzle__floater"
-          style={{ left: drag.x, top: drag.y, aspectRatio: `${cols} / ${rows}` }}
+          style={{ left: drag.x, top: drag.y, aspectRatio: `${rows} / ${cols}` }}
           aria-hidden="true"
         >
           <PieceArt

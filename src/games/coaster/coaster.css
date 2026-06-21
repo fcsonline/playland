@@ -14,8 +14,8 @@
   margin: 0 auto;
   align-self: center;
   padding: 0;
-  /* Dreamy night sky */
-  background: radial-gradient(120% 80% at 80% 10%, #5b6bd6 0%, #3a3f8f 45%, #232452 100%);
+  /* Bright daytime sky */
+  background: linear-gradient(180deg, #aee4ff 0%, #cdeeff 55%, #e6f7ff 100%);
   overflow: hidden;
   touch-action: none;
   min-height: 0;
@@ -49,29 +49,37 @@
   filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.4));
 }
 
-/* ---- Decorative drawn sky (no emoji) ----------------------------------- */
+/* ---- Simple daytime scene (no emoji) ----------------------------------- */
 .coaster__deco {
   position: absolute;
   pointer-events: none;
 }
 
-/* Soft fluffy cloud built from overlapping white blobs. Kept up in the corner,
-   clear of the ball's start spot so the ball never hides behind it. */
+/* Sun in the top-right. */
+.coaster__sun {
+  right: 9%;
+  top: 6%;
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 38% 34%, #fff6c2, #ffd84d 62%, #ffc107);
+  box-shadow: 0 0 26px 8px rgba(255, 216, 77, 0.5);
+}
+
+/* Soft fluffy clouds built from overlapping white blobs. */
 .coaster__cloud {
-  left: 4%;
-  top: 3%;
-  width: 64px;
-  height: 24px;
+  width: 60px;
+  height: 22px;
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.78);
-  box-shadow: 0 4px 10px rgba(0, 0, 0, 0.18);
-  opacity: 0.85;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 5px 12px rgba(80, 110, 150, 0.12);
+  animation: coaster-drift 18s ease-in-out infinite;
 }
 .coaster__cloud::before,
 .coaster__cloud::after {
   content: '';
   position: absolute;
-  background: rgba(255, 255, 255, 0.78);
+  background: rgba(255, 255, 255, 0.92);
   border-radius: 50%;
 }
 .coaster__cloud::before {
@@ -86,69 +94,67 @@
   right: 10px;
   top: -10px;
 }
-
-/* Twinkles: tiny soft glowing dots. */
-.coaster__twinkle {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-  background: #fff;
-  box-shadow: 0 0 8px 2px rgba(255, 255, 255, 0.85);
+.coaster__cloud--a {
+  left: 6%;
+  top: 4%;
+}
+.coaster__cloud--b {
+  left: 40%;
+  top: 16%;
+  transform: scale(0.8);
   opacity: 0.9;
-  animation: coaster-twinkle 2.4s ease-in-out infinite;
+  animation-delay: -9s;
 }
-.coaster__twinkle--a {
-  right: 16%;
-  top: 22%;
-}
-.coaster__twinkle--b {
-  left: 22%;
-  bottom: 16%;
-  animation-delay: 1.1s;
-}
-
-/* Little ringed planet. */
-.coaster__planet {
-  right: 9%;
-  top: 7%;
-  width: 30px;
-  height: 30px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ffd9a0, #e89b54 60%, #b96f33);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
-}
-.coaster__planet::after {
-  content: '';
-  position: absolute;
-  left: 50%;
-  top: 50%;
-  width: 46px;
-  height: 14px;
-  transform: translate(-50%, -50%) rotate(-22deg);
-  border: 3px solid rgba(255, 255, 255, 0.65);
-  border-radius: 50%;
-}
-
-@keyframes coaster-twinkle {
+@keyframes coaster-drift {
   0%,
   100% {
-    opacity: 0.35;
-    transform: scale(0.7);
+    transform: translateX(0);
   }
   50% {
-    opacity: 1;
-    transform: scale(1.1);
+    transform: translateX(14px);
   }
+}
+.coaster__cloud--b {
+  animation-name: coaster-drift-b;
+}
+@keyframes coaster-drift-b {
+  0%,
+  100% {
+    transform: scale(0.8) translateX(0);
+  }
+  50% {
+    transform: scale(0.8) translateX(18px);
+  }
+}
+
+/* Grassy ground strip along the bottom where the basket sits. */
+.coaster__ground {
+  left: 0;
+  right: 0;
+  bottom: 0;
+  height: 12%;
+  background: linear-gradient(180deg, #8fd66a, #69b94a);
+  box-shadow: inset 0 4px 8px rgba(255, 255, 255, 0.3);
+}
+.coaster__ground::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: -5px;
+  height: 10px;
+  background: radial-gradient(circle at 10px 8px, #8fd66a 6px, transparent 7px) repeat-x;
+  background-size: 22px 10px;
 }
 
 .coaster__start {
   position: absolute;
   width: 38px;
-  height: 14px;
+  height: 12px;
   transform: translate(-50%, -50%);
   border-radius: 999px;
-  background: rgba(255, 255, 255, 0.55);
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.25);
+  background: rgba(120, 140, 170, 0.35);
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.15);
   pointer-events: none;
 }
 
@@ -156,78 +162,66 @@
   position: absolute;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 30%, #ff9ec7, #e8528e);
+  background: radial-gradient(circle at 35% 30%, #d3b5ff, #8a5cf0);
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.3);
   pointer-events: none;
 }
 
-/* ---- Drawn gold stars -------------------------------------------------- */
-.coaster__star {
+/* ---- Goal basket ------------------------------------------------------- */
+.coaster__basket {
   position: absolute;
   transform: translate(-50%, -50%);
-  width: clamp(34px, 9vw, 52px);
-  height: clamp(34px, 9vw, 52px);
+  width: clamp(46px, 13vw, 70px);
+  height: clamp(42px, 12vw, 64px);
   display: grid;
   place-items: center;
   pointer-events: none;
-  animation: coaster-goal-pulse 1.4s ease-in-out infinite;
+  animation: coaster-goal-pulse 1.6s ease-in-out infinite;
 }
-.coaster__star-svg {
+.coaster__basket-svg {
   width: 100%;
   height: 100%;
   overflow: visible;
+  filter: drop-shadow(0 4px 5px rgba(0, 0, 0, 0.25));
 }
-.coaster__star-shape {
-  fill: #ffd23f;
-  stroke: #f4a623;
-  stroke-width: 1;
+.coaster__basket-rim {
+  fill: #c98a4a;
+}
+.coaster__basket-body {
+  fill: #e0a566;
+  stroke: #b47636;
+  stroke-width: 1.4;
   stroke-linejoin: round;
-  filter: drop-shadow(0 0 8px rgba(255, 210, 63, 0.85));
 }
-
-/* Collected: dim it and freeze the pulse; a green check appears on top. */
-.coaster__star.is-collected {
-  animation: none;
-  opacity: 0.45;
-}
-.coaster__star.is-collected .coaster__star-shape {
-  fill: #cdb863;
-  stroke: #9c8a3e;
-  filter: none;
-}
-.coaster__star-check {
-  position: absolute;
-  inset: 0;
-  width: 100%;
-  height: 100%;
-}
-.coaster__star-check-mark {
+.coaster__basket-weave {
   fill: none;
-  stroke: #2ecc71;
-  stroke-width: 3.4;
+  stroke: #b47636;
+  stroke-width: 1.6;
   stroke-linecap: round;
-  stroke-linejoin: round;
-  filter: drop-shadow(0 1px 2px rgba(0, 0, 0, 0.45));
+  opacity: 0.7;
+}
+.coaster__basket-front {
+  fill: none;
+  stroke: #f0c089;
+  stroke-width: 3;
+  stroke-linecap: round;
 }
 
-/* On win, every star glows bright and gives a happy pop. */
-.coaster__star.is-won {
+/* Filled / won: stop the pulse and give the basket a happy bounce. */
+.coaster__basket.is-filled {
+  animation: none;
+}
+.coaster__basket.is-won {
   animation: coaster-goal-pop 0.7s ease-out;
-  opacity: 1;
-}
-.coaster__star.is-won .coaster__star-shape {
-  fill: #ffe066;
-  stroke: #f4a623;
-  filter: drop-shadow(0 0 14px rgba(255, 224, 102, 1));
 }
 
-/* ---- Drawn ball (radial-gradient sphere + highlight) ------------------- */
+/* ---- Drawn ball: a simple, cheerful red rubber ball -------------------- */
 .coaster__ball {
   position: absolute;
   transform: translate(-50%, -50%);
   border-radius: 50%;
-  background: radial-gradient(circle at 32% 28%, #ffffff 0%, #dfe6f5 38%, #9aa6c9 78%, #6d78a0 100%);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.4), inset -3px -4px 6px rgba(0, 0, 0, 0.25);
+  background: radial-gradient(circle at 32% 28%, #ff9aa6 0%, #ff5b6e 42%, #e23952 78%, #c12c43 100%);
+  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.32), inset -3px -4px 7px rgba(0, 0, 0, 0.22);
   pointer-events: none;
   z-index: 2;
 }

@@ -84,15 +84,26 @@ function withLoop(points, level, padY, innerW, innerH) {
   )
   // Bend the loop toward whichever vertical side has more room.
   const turn = c.y <= cy0 ? 1 : -1
+  // An ELLIPSE in the loop's own frame: cross-track radius (toward the centre)
+  // keeps the field-fitting footprint, while the along-track radius is narrower,
+  // so the loop reads as a tall oval rather than a plain circle. It enters and
+  // exits exactly at c, so the plane glides through smoothly.
   const perp = ang0 + (turn * Math.PI) / 2
-  const cx = c.x + Math.cos(perp) * radius // loop centre (radius away from c)
-  const cyc = c.y + Math.sin(perp) * radius
-  const startAng = Math.atan2(c.y - cyc, c.x - cx) // angle from centre back to c
-  const steps = 30
+  const ux = Math.cos(ang0)
+  const uy = Math.sin(ang0) // along-track unit vector
+  const vx = Math.cos(perp)
+  const vy = Math.sin(perp) // cross-track unit vector (toward the loop centre)
+  const rb = radius // cross-track semi-axis (same reach as the old circle)
+  const ra = radius * 0.7 // along-track semi-axis — squashed → an ellipse
+  const cx = c.x + vx * rb // ellipse centre, rb away from c
+  const cyc = c.y + vy * rb
+  const steps = 36
   const loop = []
   for (let s = 1; s <= steps; s++) {
-    const a = startAng + (turn * (Math.PI * 2 * s)) / steps
-    loop.push({ x: cx + Math.cos(a) * radius, y: cyc + Math.sin(a) * radius })
+    const theta = -Math.PI / 2 + (turn * (Math.PI * 2 * s)) / steps
+    const lu = ra * Math.cos(theta)
+    const lv = rb * Math.sin(theta)
+    loop.push({ x: cx + ux * lu + vx * lv, y: cyc + uy * lu + vy * lv })
   }
   const out = [...points.slice(0, i + 1), ...loop, ...points.slice(i + 1)]
   // The loop occupies indices [i+1 .. i+steps] in the spliced array.

@@ -349,20 +349,6 @@
   box-shadow: inset 0 -5px 10px rgba(0, 0, 0, 0.18), 0 4px 8px rgba(0, 0, 0, 0.18);
   display: grid;
   place-items: center;
-  transform-origin: center bottom;
-  /* periodic blink — the eyeball squishes shut for a beat */
-  animation: frog-blink 5s ease-in-out infinite;
-}
-@keyframes frog-blink {
-  0%,
-  91%,
-  100% {
-    transform: scaleY(1);
-  }
-  94%,
-  96% {
-    transform: scaleY(0.1);
-  }
 }
 .frog__eye--l {
   left: 16%;
@@ -378,6 +364,20 @@
   display: grid;
   place-items: center;
   box-shadow: inset 0 2px 4px rgba(0, 0, 0, 0.15);
+  transform-origin: center;
+  /* periodic blink — only the white eyeball squishes shut for a beat */
+  animation: frog-blink 5s ease-in-out infinite;
+}
+@keyframes frog-blink {
+  0%,
+  91%,
+  100% {
+    transform: scaleY(1);
+  }
+  94%,
+  96% {
+    transform: scaleY(0.08);
+  }
 }
 .frog__pupil::after {
   content: '';

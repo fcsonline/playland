@@ -1,0 +1,167 @@
+.compare {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  flex: 1;
+}
+
+.compare__hint {
+  margin: 0;
+  text-align: center;
+  font-weight: 900;
+  font-size: clamp(1.1rem, 5vw, 1.5rem);
+  color: var(--white);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.22);
+  flex: none;
+}
+
+/* Two groups with the sign slot between them. */
+.compare__arena {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  gap: clamp(6px, 2vw, 14px);
+}
+
+.compare__group {
+  flex: 1 1 0;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: clamp(8px, 2.5vw, 16px);
+  background: rgba(255, 255, 255, 0.9);
+  transition: transform 0.25s ease, box-shadow 0.25s ease;
+}
+/* The bigger pile pops + glows once solved (so "more" is unmistakable). */
+.compare__group.is-more {
+  transform: translateY(-4px) scale(1.04);
+  box-shadow: 0 0 0 4px rgba(46, 204, 113, 0.5), var(--shadow-lg);
+}
+.compare__group.is-equal {
+  box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.4), var(--shadow);
+}
+
+.compare__pile {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-content: center;
+  justify-content: center;
+  gap: clamp(2px, 1.2vw, 8px);
+  max-width: 100%;
+}
+.compare__fruit {
+  font-size: clamp(1.9rem, 11vw, 3.4rem);
+  line-height: 1;
+  animation: pop-in 0.25s ease both;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.12));
+}
+
+.compare__num {
+  font-weight: 900;
+  font-size: clamp(1.6rem, 9vw, 3rem);
+  color: var(--primary-dark);
+  background: #fff;
+  min-width: clamp(40px, 12vw, 60px);
+  text-align: center;
+  border-radius: 14px;
+  padding: 2px 10px;
+  box-shadow: inset 0 0 0 3px rgba(108, 92, 231, 0.18);
+}
+
+/* The "?" / chosen sign sitting between the two groups. */
+.compare__slot {
+  flex: none;
+  align-self: center;
+  display: grid;
+  place-items: center;
+  width: clamp(34px, 11vw, 60px);
+  font-weight: 900;
+  font-size: clamp(2.2rem, 12vw, 4rem);
+  color: rgba(255, 255, 255, 0.65);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+.compare__slot.is-solved {
+  color: var(--sun);
+  animation: compare-drop 0.4s cubic-bezier(0.18, 1.5, 0.4, 1);
+}
+@keyframes compare-drop {
+  0% {
+    transform: translateY(-40px) scale(0.4);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(0) scale(1.25);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+
+/* The three big choice buttons. */
+.compare__choices {
+  display: flex;
+  justify-content: center;
+  gap: clamp(10px, 4vw, 22px);
+  flex: none;
+}
+.compare__sign {
+  width: clamp(62px, 22vw, 96px);
+  height: clamp(62px, 22vw, 96px);
+  border-radius: 22px;
+  font-weight: 900;
+  font-size: clamp(2rem, 11vw, 3.2rem);
+  color: #fff;
+  background: linear-gradient(180deg, #8a7bf0, var(--primary));
+  box-shadow: var(--shadow), inset 0 -4px 0 rgba(0, 0, 0, 0.12);
+  transition: transform 0.1s ease, filter 0.12s ease;
+}
+.compare__sign:active {
+  transform: translateY(3px) scale(0.96);
+}
+.compare__sign.is-right {
+  background: linear-gradient(180deg, #58e08c, var(--good));
+  animation: compare-pop 0.4s ease;
+}
+.compare__sign.is-wrong {
+  animation: compare-wobble 0.44s ease;
+}
+.compare__sign:disabled {
+  cursor: default;
+}
+.compare__sign:disabled:not(.is-right) {
+  filter: grayscale(0.4) opacity(0.7);
+}
+@keyframes compare-pop {
+  0% { transform: scale(1); }
+  50% { transform: scale(1.18); }
+  100% { transform: scale(1); }
+}
+@keyframes compare-wobble {
+  0%, 100% { transform: translateX(0) rotate(0); }
+  20% { transform: translateX(-7px) rotate(-6deg); }
+  50% { transform: translateX(7px) rotate(6deg); }
+  80% { transform: translateX(-4px) rotate(-3deg); }
+}
+
+/* Landscape phones: keep the groups and buttons within the short height. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .compare {
+    gap: 6px;
+  }
+  .compare__fruit {
+    font-size: clamp(1.1rem, 6vh, 2rem);
+  }
+  .compare__sign {
+    width: clamp(52px, 14vh, 84px);
+    height: clamp(52px, 14vh, 84px);
+  }
+}

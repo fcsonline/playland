@@ -309,6 +309,40 @@ export const GAME_ART = {
       <ellipse cx="86" cy="24" rx="5" ry="6" fill="url(#frgFly)" />
     </svg>
   ),
+
+  // More or Less — a glossy balance scale, tipped to the heavier (left) side.
+  compare: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <linearGradient id="cmpMetal" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#b9a6ef" />
+          <stop offset="1" stopColor="#7d6ae0" />
+        </linearGradient>
+        <linearGradient id="cmpPan" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffe487" />
+          <stop offset="1" stopColor="#f0930c" />
+        </linearGradient>
+      </defs>
+      {/* base + post */}
+      <path d="M34 90 L66 90 L60 80 L40 80 Z" fill="url(#cmpMetal)" />
+      <ellipse cx="50" cy="90" rx="20" ry="4.5" fill="#6a57cf" />
+      <rect x="46.5" y="30" width="7" height="52" rx="3.5" fill="url(#cmpMetal)" />
+      {/* tilted beam (left side dips down — heavier) */}
+      <g transform="rotate(-12 50 30)">
+        <rect x="16" y="27" width="68" height="6" rx="3" fill="url(#cmpMetal)" />
+      </g>
+      <circle cx="50" cy="30" r="5.5" fill="#9b88ea" />
+      <ellipse cx="48" cy="28" rx="1.6" ry="2.2" fill="#ffffff" opacity="0.6" />
+      {/* left pan (low) */}
+      <line x1="23" y1="33" x2="23" y2="52" stroke="#6a57cf" strokeWidth="2" />
+      <path d="M9 52 a14 9 0 0 0 28 0 Z" fill="url(#cmpPan)" />
+      <ellipse cx="18" cy="54" rx="4" ry="2" fill="#ffffff" opacity="0.4" />
+      {/* right pan (high) */}
+      <line x1="77" y1="21" x2="77" y2="38" stroke="#6a57cf" strokeWidth="2" />
+      <path d="M65 38 a12 7.5 0 0 0 24 0 Z" fill="url(#cmpPan)" />
+      <ellipse cx="73" cy="40" rx="3.4" ry="1.7" fill="#ffffff" opacity="0.4" />
+    </svg>
+  ),
 }
 
 export default GAME_ART

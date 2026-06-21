@@ -19,7 +19,7 @@ import './frog.css'
 
 const GOAL = 6 // flies that fill the tummy meter → big cheer, then it refills
 const FLY_COUNT = 4 // tasty flies buzzing at once
-const BEE_COUNT = 2 // a few toxic bees to avoid eating
+const BEE_COUNT = 1 // a single toxic bee to avoid eating
 const TONGUE_SPEED = 1700 // px/s the tongue tip travels
 const CATCH_RADIUS = 38 // tip within this of a bug → caught (generous)
 const TAP_RADIUS = 80 // a tap within this of a bug locks onto it (very forgiving)

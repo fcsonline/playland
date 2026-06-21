@@ -227,18 +227,11 @@ export const GAMES = [
     tagline: 'Pop the glowing bubble!',
   },
   {
-    id: 'circuit',
-    title: 'Light It Up',
-    emoji: '💡',
-    colors: ['#f7971e', '#ffd200'],
-    tagline: 'Match the bulbs to light them!',
-  },
-  {
     id: 'coaster',
     title: 'Ball Run',
     emoji: '🎢',
     colors: ['#84fab0', '#8fd3f4'],
-    tagline: 'Draw ramps, roll to the star!',
+    tagline: 'Draw ramps, roll the ball to the basket!',
   },
   {
     id: 'frog',
@@ -281,7 +274,6 @@ export const GAME_COMPONENTS = {
   trace: lazy(() => import('./trace/index.jsx')),
   cups: lazy(() => import('./cups/index.jsx')),
   popit: lazy(() => import('./popit/index.jsx')),
-  circuit: lazy(() => import('./circuit/index.jsx')),
   coaster: lazy(() => import('./coaster/index.jsx')),
   frog: lazy(() => import('./frog/index.jsx')),
 }

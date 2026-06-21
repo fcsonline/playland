@@ -1,0 +1,151 @@
+.wordsearch {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+/* The 8×8 letter grid. Reuses .play-surface for the white panel, but overrides
+   its flex layout with a square grid (one fraction per row/column). */
+.wordsearch__board {
+  position: relative;
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  grid-template-rows: repeat(8, 1fr);
+  gap: clamp(3px, 1.1vw, 6px);
+  width: 100%;
+  max-width: min(100%, 58vh, 460px);
+  aspect-ratio: 1;
+  margin: 0 auto;
+  padding: clamp(8px, 2.4vw, 14px);
+  touch-action: none; /* drag to select without scrolling the page */
+  user-select: none;
+}
+
+.wordsearch__cell {
+  display: grid;
+  place-items: center;
+  border-radius: clamp(7px, 1.6vw, 11px);
+  background: #f1edff;
+  color: var(--ink);
+  font-weight: 800;
+  font-size: clamp(0.95rem, 4.6vw, 1.6rem);
+  line-height: 1;
+  user-select: none;
+  transition: background 0.12s ease, color 0.12s ease, transform 0.12s ease;
+}
+.wordsearch__cell.is-sel {
+  background: var(--sun);
+  transform: scale(1.05);
+}
+.wordsearch__cell.is-found {
+  background: var(--wc);
+  color: #fff;
+}
+
+/* Footer: the "find these" label + a reshuffle button, then the word chips. */
+.wordsearch__footer {
+  flex: 0 0 auto;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding-bottom: 4px;
+}
+.wordsearch__head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+.wordsearch__label {
+  font-weight: 800;
+  color: var(--white);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+.wordsearch__new {
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  color: var(--ink);
+  background: var(--white);
+  border-radius: 999px;
+  padding: 8px 14px;
+  box-shadow: var(--shadow);
+}
+.wordsearch__new:active {
+  transform: translateY(1px);
+}
+
+.wordsearch__words {
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 8px;
+}
+.wordsearch__word {
+  --wc: #cbd2de;
+  font-weight: 800;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+  background: var(--white);
+  border-radius: 999px;
+  padding: 7px 14px;
+  box-shadow: var(--shadow);
+  transition: background 0.25s ease, color 0.25s ease;
+}
+.wordsearch__word.is-found {
+  background: var(--wc);
+  color: #fff;
+  text-decoration: line-through;
+  text-decoration-thickness: 2px;
+}
+.wordsearch__word.is-found::after {
+  content: ' ✓';
+  text-decoration: none;
+}
+
+/* Win toast overlaid over the board so finishing never shifts the layout. */
+.wordsearch__toast {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 5;
+  padding: 12px 22px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.34);
+  backdrop-filter: blur(3px);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.15rem;
+  text-align: center;
+  pointer-events: none;
+  animation: wordsearch-pop 0.3s ease;
+}
+@keyframes wordsearch-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}
+
+/* Landscape phones are wide & short: sit the word list beside the board. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .wordsearch {
+    flex-direction: row;
+    align-items: center;
+    gap: 14px;
+  }
+  .wordsearch__board {
+    max-width: min(86vh, 60%);
+    margin: 0;
+  }
+  .wordsearch__footer {
+    flex: 1;
+  }
+  .wordsearch__words {
+    justify-content: flex-start;
+  }
+}

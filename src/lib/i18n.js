@@ -81,6 +81,7 @@ export const TITLES = {
     coaster: 'Ball Run',
     frog: 'Froggy Tongue',
     compare: 'More or Less',
+    wordsearch: 'Word Search',
   },
   es: {
     coloring: 'Estudio de Color',
@@ -116,6 +117,7 @@ export const TITLES = {
     coaster: 'Pista de Bola',
     frog: 'Lengua de Rana',
     compare: 'Más o Menos',
+    wordsearch: 'Sopa de Letras',
   },
   ca: {
     coloring: 'Estudi de Color',
@@ -151,6 +153,7 @@ export const TITLES = {
     coaster: 'Pista de Bola',
     frog: 'Llengua de Granota',
     compare: 'Més o Menys',
+    wordsearch: 'Sopa de Lletres',
   },
   fr: {
     coloring: 'Atelier de Coloriage',
@@ -186,6 +189,7 @@ export const TITLES = {
     coaster: 'Parcours de Bille',
     frog: 'Langue de Grenouille',
     compare: 'Plus ou Moins',
+    wordsearch: 'Mots Mêlés',
   },
 }
 

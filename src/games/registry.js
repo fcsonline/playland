@@ -247,6 +247,13 @@ export const GAMES = [
     colors: ['#a18cd1', '#8a7bf0'],
     tagline: 'Which has more? Pick <, = or >',
   },
+  {
+    id: 'wordsearch',
+    title: 'Word Search',
+    emoji: '🔤',
+    colors: ['#ffd3a5', '#fd6585'],
+    tagline: 'Find the hidden words!',
+  },
 ]
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -284,6 +291,7 @@ export const GAME_COMPONENTS = {
   coaster: lazy(() => import('./coaster/index.jsx')),
   frog: lazy(() => import('./frog/index.jsx')),
   compare: lazy(() => import('./compare/index.jsx')),
+  wordsearch: lazy(() => import('./wordsearch/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

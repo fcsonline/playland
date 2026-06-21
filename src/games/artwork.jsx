@@ -343,6 +343,37 @@ export const GAME_ART = {
       <ellipse cx="73" cy="40" rx="3.4" ry="1.7" fill="#ffffff" opacity="0.4" />
     </svg>
   ),
+
+  // Word Search — a glossy letter grid with one "found" word highlighted.
+  wordsearch: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <linearGradient id="wsPanel" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#eef1f7" />
+        </linearGradient>
+        <linearGradient id="wsBar" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#ffd3a5" />
+          <stop offset="1" stopColor="#fd6585" />
+        </linearGradient>
+      </defs>
+      <rect x="14" y="12" width="72" height="76" rx="15" fill="url(#wsPanel)" />
+      <rect x="20" y="17" width="60" height="11" rx="5.5" fill="#ffffff" opacity="0.65" />
+      {/* the highlighted found word */}
+      <rect x="18" y="47" width="64" height="17" rx="8.5" fill="url(#wsBar)" />
+      <g fontFamily="inherit" fontWeight="800" fontSize="14" textAnchor="middle">
+        <text x="33" y="42" fill="#6b7385">C</text>
+        <text x="50" y="42" fill="#6b7385">A</text>
+        <text x="67" y="42" fill="#6b7385">T</text>
+        <text x="33" y="61" fill="#ffffff">D</text>
+        <text x="50" y="61" fill="#ffffff">O</text>
+        <text x="67" y="61" fill="#ffffff">G</text>
+        <text x="33" y="80" fill="#6b7385">S</text>
+        <text x="50" y="80" fill="#6b7385">U</text>
+        <text x="67" y="80" fill="#6b7385">N</text>
+      </g>
+    </svg>
+  ),
 }
 
 export default GAME_ART

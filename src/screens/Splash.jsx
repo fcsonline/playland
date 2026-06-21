@@ -5,7 +5,7 @@ import { useUI } from '../lib/i18n.js'
 import './Splash.css'
 
 // Served from public/ (works under the GitHub Pages subpath and offline).
-const WELCOME_SRC = import.meta.env.BASE_URL + 'logo.png'
+const WELCOME_SRC = import.meta.env.BASE_URL + 'logo.webp'
 
 /**
  * Welcome screen: the Playland logo + a big green "Start" button, plus a subtle

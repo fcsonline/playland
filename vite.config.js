@@ -35,7 +35,7 @@ export default defineConfig({
       workbox: {
         // Precache everything we ship so any game is playable offline, even if
         // it was never opened while online.
-        globPatterns: ['**/*.{js,css,html,svg,png,webmanifest}'],
+        globPatterns: ['**/*.{js,css,html,svg,png,webp,webmanifest}'],
         cleanupOutdatedCaches: true,
         navigateFallback: 'index.html',
         // Some thumbnails are ~60KB; keep the precache budget generous.

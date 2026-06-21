@@ -5,6 +5,12 @@
  */
 
 let ctx = null
+let muted = false
+
+/** Mute/unmute all synthesized sound (driven by the Sound setting). */
+export function setAudioMuted(m) {
+  muted = !!m
+}
 
 function getCtx() {
   if (typeof window === 'undefined') return null
@@ -26,6 +32,7 @@ export const noteFreq = (name) => NOTES[name] || Number(name) || 440
 
 /** Play a single tone. `type` is an OscillatorNode waveform. */
 export function tone(freq, { duration = 0.25, type = 'sine', gain = 0.18, when = 0 } = {}) {
+  if (muted) return
   const ac = getCtx()
   if (!ac) return
   const t0 = ac.currentTime + when
@@ -43,6 +50,7 @@ export function tone(freq, { duration = 0.25, type = 'sine', gain = 0.18, when =
 
 /** A short noise burst — handy for drums / brushing / pops. */
 export function noiseBurst({ duration = 0.18, gain = 0.2, type = 'highpass', freq = 1200 } = {}) {
+  if (muted) return
   const ac = getCtx()
   if (!ac) return
   const len = Math.floor(ac.sampleRate * duration)

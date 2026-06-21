@@ -74,6 +74,18 @@ export default function Splash({ onDone }) {
               </div>
             </div>
 
+            <div className="splash__group splash__group--row">
+              <span className="splash__label">Sound</span>
+              <button
+                className={`splash__toggle ${settings.sound ? 'is-on' : ''}`}
+                onClick={() => setSettings({ sound: !settings.sound })}
+                aria-pressed={settings.sound}
+                aria-label="Toggle sound"
+              >
+                <span className="splash__toggle-knob" />
+              </button>
+            </div>
+
             {fullscreenSupported() && (
               <div className="splash__group splash__group--row">
                 <span className="splash__label">Full screen</span>

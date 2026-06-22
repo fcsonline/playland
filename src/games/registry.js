@@ -254,6 +254,13 @@ export const GAMES = [
     colors: ['#ffd3a5', '#fd6585'],
     tagline: 'Find the hidden words!',
   },
+  {
+    id: 'golf',
+    title: 'Mini Golf',
+    emoji: '⛳',
+    colors: ['#56ab2f', '#a8e063'],
+    tagline: 'Putt the ball in the hole!',
+  },
 ]
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -292,6 +299,7 @@ export const GAME_COMPONENTS = {
   frog: lazy(() => import('./frog/index.jsx')),
   compare: lazy(() => import('./compare/index.jsx')),
   wordsearch: lazy(() => import('./wordsearch/index.jsx')),
+  golf: lazy(() => import('./golf/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

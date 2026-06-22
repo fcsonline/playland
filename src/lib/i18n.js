@@ -82,6 +82,7 @@ export const TITLES = {
     frog: 'Froggy Tongue',
     compare: 'More or Less',
     wordsearch: 'Word Search',
+    golf: 'Mini Golf',
   },
   es: {
     coloring: 'Estudio de Color',
@@ -118,6 +119,7 @@ export const TITLES = {
     frog: 'Lengua de Rana',
     compare: 'Más o Menos',
     wordsearch: 'Sopa de Letras',
+    golf: 'Minigolf',
   },
   ca: {
     coloring: 'Estudi de Color',
@@ -154,6 +156,7 @@ export const TITLES = {
     frog: 'Llengua de Granota',
     compare: 'Més o Menys',
     wordsearch: 'Sopa de Lletres',
+    golf: 'Minigolf',
   },
   fr: {
     coloring: 'Atelier de Coloriage',
@@ -190,6 +193,7 @@ export const TITLES = {
     frog: 'Langue de Grenouille',
     compare: 'Plus ou Moins',
     wordsearch: 'Mots Mêlés',
+    golf: 'Mini-Golf',
   },
 }
 

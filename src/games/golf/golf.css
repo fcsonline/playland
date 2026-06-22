@@ -1,0 +1,195 @@
+.golf {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+.golf__hud {
+  flex: 0 0 auto;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+.golf__chip {
+  font-size: 0.95rem;
+  padding: 6px 14px;
+}
+.golf__reset {
+  margin-left: auto;
+  border: none;
+  cursor: pointer;
+  font: inherit;
+  font-weight: 800;
+  font-size: 1.2rem;
+  color: var(--ink);
+  background: var(--white);
+  width: 42px;
+  height: 42px;
+  border-radius: 999px;
+  box-shadow: var(--shadow);
+}
+.golf__reset:disabled {
+  opacity: 0.4;
+  cursor: default;
+}
+
+/* The green. Reuses .play-surface for the rounded card + shadow, but overrides
+   its white fill/padding with felt so the ball coordinates map 1:1 to the box. */
+.golf__field {
+  flex: 1;
+  position: relative;
+  width: 100%;
+  max-width: min(100%, 92vh);
+  margin: 0 auto;
+  align-self: center;
+  padding: 0;
+  overflow: hidden;
+  touch-action: none;
+  min-height: 0;
+  background: radial-gradient(circle at 50% 32%, #8fe06a 0%, #5fbf4c 62%, #4aa840 100%);
+}
+
+.golf__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+}
+.golf__wall {
+  fill: none;
+  stroke: #c07b3c;
+  stroke-width: 11;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
+}
+.golf__aim {
+  stroke-width: 5;
+  stroke-linecap: round;
+  stroke-dasharray: 2 10;
+  opacity: 0.95;
+}
+
+/* Cup + flag (anchored at the cup center). */
+.golf__cup {
+  position: absolute;
+  width: 0;
+  height: 0;
+}
+.golf__cup-hole {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 34px;
+  height: 34px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 35%, #2c2c2c, #050505 75%);
+  box-shadow: inset 0 2px 5px rgba(0, 0, 0, 0.7), 0 0 0 2px rgba(0, 0, 0, 0.12);
+}
+.golf__flag {
+  position: absolute;
+  left: 0;
+  top: 0;
+  width: 3px;
+  height: 38px;
+  transform: translate(-50%, -100%);
+  background: linear-gradient(#8a6647, #5b4636);
+  border-radius: 2px;
+}
+.golf__flag::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 3px;
+  border-top: 8px solid transparent;
+  border-bottom: 8px solid transparent;
+  border-left: 16px solid #ff5b6e;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.25));
+}
+
+.golf__tee {
+  position: absolute;
+  width: 9px;
+  height: 9px;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  box-shadow: 0 0 0 4px rgba(255, 255, 255, 0.16);
+}
+
+.golf__ball {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  background: radial-gradient(circle at 35% 30%, #ffffff, #d6dae0 80%);
+  box-shadow: 0 3px 5px rgba(0, 0, 0, 0.35);
+}
+.golf__ball-shine {
+  position: absolute;
+  left: 24%;
+  top: 20%;
+  width: 32%;
+  height: 32%;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.9);
+}
+.golf__ball.is-idle {
+  animation: golf-bob 1.8s ease-in-out infinite;
+}
+.golf__ball.is-sunk {
+  animation: golf-sink 0.45s ease forwards;
+}
+@keyframes golf-bob {
+  50% {
+    box-shadow: 0 5px 9px rgba(0, 0, 0, 0.28);
+  }
+}
+@keyframes golf-sink {
+  to {
+    transform: translate(-50%, -50%) scale(0.45);
+    opacity: 0.35;
+  }
+}
+
+.golf__howto {
+  position: absolute;
+  left: 50%;
+  top: 10px;
+  transform: translateX(-50%);
+  max-width: 92%;
+  padding: 8px 14px;
+  border-radius: 14px;
+  background: rgba(0, 0, 0, 0.32);
+  backdrop-filter: blur(3px);
+  color: #fff;
+  font-weight: 800;
+  font-size: 0.95rem;
+  text-align: center;
+  pointer-events: none;
+}
+.golf__toast {
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
+  padding: 12px 22px;
+  border-radius: 18px;
+  background: rgba(0, 0, 0, 0.36);
+  backdrop-filter: blur(3px);
+  color: #fff;
+  font-weight: 800;
+  font-size: 1.2rem;
+  text-align: center;
+  pointer-events: none;
+  animation: golf-pop 0.3s ease;
+}
+@keyframes golf-pop {
+  from {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.9);
+  }
+}

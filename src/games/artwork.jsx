@@ -374,6 +374,34 @@ export const GAME_ART = {
       </g>
     </svg>
   ),
+
+  // Mini Golf — a flagged cup on a glossy green with a ball and a putt line.
+  golf: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <radialGradient id="golfGreen" cx="50%" cy="32%" r="80%">
+          <stop offset="0" stopColor="#9fe87a" />
+          <stop offset="1" stopColor="#4fb441" />
+        </radialGradient>
+        <linearGradient id="golfBall" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#d2d7df" />
+        </linearGradient>
+      </defs>
+      <rect x="8" y="10" width="84" height="80" rx="18" fill="url(#golfGreen)" />
+      {/* dotted putt line from ball to cup */}
+      <path d="M40 71 Q54 58 62 45" fill="none" stroke="#ffffff" strokeWidth="2.6" strokeLinecap="round" strokeDasharray="0.5 6.5" opacity="0.75" />
+      {/* cup */}
+      <ellipse cx="62" cy="44" rx="11" ry="6" fill="#0a0a0a" />
+      <ellipse cx="62" cy="42.6" rx="11" ry="6" fill="#202020" />
+      {/* flag pole + flag */}
+      <rect x="60.8" y="13" width="2.6" height="31" rx="1.3" fill="#6b4f38" />
+      <path d="M63.4 14 L81 19 L63.4 24 Z" fill="#ff5b6e" />
+      {/* ball */}
+      <circle cx="40" cy="71" r="9" fill="url(#golfBall)" />
+      <circle cx="37" cy="68" r="3" fill="#ffffff" opacity="0.9" />
+    </svg>
+  ),
 }
 
 export default GAME_ART

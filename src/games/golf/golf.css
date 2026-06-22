@@ -51,6 +51,22 @@
   background: radial-gradient(circle at 50% 32%, #8fe06a 0%, #5fbf4c 62%, #4aa840 100%);
 }
 
+/* The brown wooden rail framing the green. Thickness is set inline (scales with
+   the field). It is the cushion the ball banks off and the padding that keeps a
+   pull-back lane around the ball. Non-interactive so drags pass through. */
+.golf__rail {
+  position: absolute;
+  inset: 0;
+  border-style: solid;
+  border-color: #b3793c;
+  border-radius: var(--radius);
+  box-sizing: border-box;
+  pointer-events: none;
+  box-shadow:
+    inset 0 0 0 2px rgba(255, 255, 255, 0.18),
+    inset 0 0 13px rgba(0, 0, 0, 0.28);
+}
+
 .golf__svg {
   position: absolute;
   inset: 0;

@@ -74,6 +74,55 @@ const HOLES = [
     cup: { x: 0.82, y: 0.82 },
     walls: [[{ x: 0.62, y: 0.62 }, { x: 1.0, y: 0.62 }]],
   },
+  // 8 — slalom: weave through three staggered walls.
+  {
+    tee: { x: 0.5, y: 0.9 },
+    cup: { x: 0.5, y: 0.1 },
+    walls: [
+      [{ x: 0.0, y: 0.7 }, { x: 0.46, y: 0.7 }],
+      [{ x: 1.0, y: 0.5 }, { x: 0.54, y: 0.5 }],
+      [{ x: 0.0, y: 0.3 }, { x: 0.46, y: 0.3 }],
+    ],
+  },
+  // 9 — diamond obstacle: split around the rhombus.
+  {
+    tee: { x: 0.5, y: 0.88 },
+    cup: { x: 0.5, y: 0.12 },
+    walls: [[{ x: 0.5, y: 0.34 }, { x: 0.66, y: 0.5 }, { x: 0.5, y: 0.66 }, { x: 0.34, y: 0.5 }, { x: 0.5, y: 0.34 }]],
+  },
+  // 10 — S-curve: pass right of one wall, then left of the next.
+  {
+    tee: { x: 0.5, y: 0.88 },
+    cup: { x: 0.22, y: 0.12 },
+    walls: [
+      [{ x: 0.0, y: 0.62 }, { x: 0.6, y: 0.62 }],
+      [{ x: 1.0, y: 0.4 }, { x: 0.4, y: 0.4 }],
+    ],
+  },
+  // 11 — plus sign: thread one quadrant of a cross.
+  {
+    tee: { x: 0.5, y: 0.9 },
+    cup: { x: 0.5, y: 0.1 },
+    walls: [
+      [{ x: 0.5, y: 0.34 }, { x: 0.5, y: 0.66 }],
+      [{ x: 0.34, y: 0.5 }, { x: 0.66, y: 0.5 }],
+    ],
+  },
+  // 12 — horseshoe: drop into a pocket that opens toward the tee.
+  {
+    tee: { x: 0.5, y: 0.9 },
+    cup: { x: 0.5, y: 0.32 },
+    walls: [[{ x: 0.3, y: 0.46 }, { x: 0.3, y: 0.2 }, { x: 0.7, y: 0.2 }, { x: 0.7, y: 0.46 }]],
+  },
+  // 13 — zigzag corridor: two banks to reach the far corner.
+  {
+    tee: { x: 0.18, y: 0.86 },
+    cup: { x: 0.82, y: 0.14 },
+    walls: [
+      [{ x: 0.0, y: 0.58 }, { x: 0.66, y: 0.58 }],
+      [{ x: 1.0, y: 0.36 }, { x: 0.34, y: 0.36 }],
+    ],
+  },
 ]
 
 const holeAt = (n) => HOLES[((n % HOLES.length) + HOLES.length) % HOLES.length]
@@ -137,9 +186,16 @@ function closestOnSegment(px, py, ax, ay, bx, by) {
   return { dist: Math.hypot(dx, dy), nx: dx, ny: dy }
 }
 
+// Thickness of the brown wooden rail framing every hole. It is the cushion the
+// ball banks off, and the padding that keeps the ball away from the card edge so
+// there is always room to pull back and judge power.
+const borderFor = (w, h) => Math.max(16, Math.round(Math.min(w, h) * 0.055))
+
 function makeLayout(w, h, level) {
   const hole = holeAt(level)
-  const scale = (p) => ({ x: p.x * w, y: p.y * h })
+  const B = borderFor(w, h)
+  // Normalized coords map into the green INSIDE the rail (inset by B).
+  const scale = (p) => ({ x: B + p.x * (w - 2 * B), y: B + p.y * (h - 2 * B) })
   return {
     tee: scale(hole.tee),
     cup: scale(hole.cup),
@@ -176,6 +232,7 @@ export default function Golf() {
   const minSide = Math.min(size.w, size.h)
   const MAX_PULL = 0.42 * minSide
   const MAX_SPEED = 2.4 * minSide
+  const BORDER = borderFor(size.w, size.h)
 
   function placeAtTee() {
     const tee = layoutRef.current.tee
@@ -344,22 +401,27 @@ export default function Golf() {
           }
         }
 
-        // Edge cushions.
-        if (b.x < R) {
-          b.x = R
+        // Edge cushions — the inner face of the brown rail.
+        const B = borderFor(w, h)
+        const minX = B + R
+        const maxX = w - B - R
+        const minY = B + R
+        const maxY = h - B - R
+        if (b.x < minX) {
+          b.x = minX
           b.vx = Math.abs(b.vx) * RESTITUTION
           cushion()
-        } else if (b.x > w - R) {
-          b.x = w - R
+        } else if (b.x > maxX) {
+          b.x = maxX
           b.vx = -Math.abs(b.vx) * RESTITUTION
           cushion()
         }
-        if (b.y < R) {
-          b.y = R
+        if (b.y < minY) {
+          b.y = minY
           b.vy = Math.abs(b.vy) * RESTITUTION
           cushion()
-        } else if (b.y > h - R) {
-          b.y = h - R
+        } else if (b.y > maxY) {
+          b.y = maxY
           b.vy = -Math.abs(b.vy) * RESTITUTION
           cushion()
         }
@@ -457,6 +519,10 @@ export default function Golf() {
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp}
       >
+        {/* Brown wooden rail framing the green — the cushion the ball banks off
+            and padding that keeps room to pull back for power. */}
+        <span className="golf__rail" style={{ borderWidth: BORDER }} aria-hidden="true" />
+
         <svg
           className="golf__svg"
           viewBox={`0 0 ${size.w} ${size.h}`}

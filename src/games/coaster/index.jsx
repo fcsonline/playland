@@ -92,10 +92,13 @@ const FIXTURES = [
     pegs: [{ x: 0.5, y: 0.4 }, { x: 0.74, y: 0.64 }],
     star: { x: 0.2, y: 0.86 },
   },
+  // Gentle slope feeds the ball to the right toward one soft peg; the child adds
+  // a single short ramp to finish into the basket. (Simplified — this was a
+  // valley ramp + three pegs funnelling a dead-centre basket, far too fiddly.)
   {
-    ramps: [[{ x: 0.14, y: 0.3 }, { x: 0.5, y: 0.42 }, { x: 0.86, y: 0.3 }]],
-    pegs: [{ x: 0.32, y: 0.56 }, { x: 0.5, y: 0.68 }, { x: 0.68, y: 0.56 }],
-    star: { x: 0.5, y: 0.86 },
+    ramps: [[{ x: 0.1, y: 0.34 }, { x: 0.48, y: 0.48 }]],
+    pegs: [{ x: 0.64, y: 0.6 }],
+    star: { x: 0.82, y: 0.84 },
   },
   {
     ramps: [

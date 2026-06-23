@@ -162,8 +162,9 @@
   transition: transform 0.28s ease, opacity 0.28s ease, filter 0.28s ease;
 }
 
-/* The drawn cup — a tapered tumbler (wide top, narrow base) with a vertical
-   gradient for rounded, lit-from-above shading. */
+/* The drawn cup — an UPSIDE-DOWN tumbler (narrow closed base on top, wide
+   opening resting on the table) so it can hide the ball, like a real shell
+   game. Vertical gradient keeps the lit-from-above shading. */
 .cups__cup-shape {
   position: relative;
   z-index: 1;
@@ -176,31 +177,32 @@
     #d8343c 78%,
     #b62029 100%
   );
-  border-radius: 14px 14px 50% 50% / 14px 14px 26% 26%;
-  clip-path: polygon(8% 0, 92% 0, 78% 100%, 22% 100%);
+  border-radius: 50% 50% 14px 14px / 26% 26% 14px 14px;
+  clip-path: polygon(22% 0, 78% 0, 92% 100%, 8% 100%);
   box-shadow: inset 10px 0 14px rgba(255, 255, 255, 0.25),
     inset -12px 0 16px rgba(120, 10, 20, 0.4),
     inset 0 -16px 20px rgba(110, 8, 16, 0.45),
     0 10px 16px rgba(80, 20, 40, 0.18);
 }
 
-/* The elliptical opening/rim at the top so the cup reads as a real 3D cup. */
+/* The elliptical opening/rim at the BOTTOM (the mouth resting on the table) so
+   the cup reads as a real upside-down 3D cup. */
 .cups__cup-rim {
   position: absolute;
-  top: 4%;
+  bottom: 1%;
   left: 50%;
-  width: 80%;
+  width: 84%;
   height: 16%;
   transform: translateX(-50%);
   border-radius: 50%;
   background: radial-gradient(
-    ellipse at 50% 35%,
+    ellipse at 50% 60%,
     #7d1118 0%,
     #9a1a22 55%,
     #c23038 100%
   );
   box-shadow: inset 0 2px 3px rgba(0, 0, 0, 0.4),
-    0 2px 0 rgba(255, 255, 255, 0.22);
+    0 -2px 0 rgba(255, 255, 255, 0.18);
 }
 
 /* A glossy highlight stripe so the cup reads as shiny plastic. */

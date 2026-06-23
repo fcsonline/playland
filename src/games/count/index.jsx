@@ -114,9 +114,11 @@ export default function CountEm() {
   const [round, setRound] = useState(0)
   const [phase, setPhase] = useState('ready') // 'ready' | 'show' | 'quiz' | 'reveal'
   const [emoji, setEmoji] = useState(() => pick(EMOJIS))
+  // All three must agree on the SAME count for round 0 — deriving movers/choices
+  // from independent random draws made the first round always mismatch.
   const [count, setCount] = useState(() => countForRound(0))
-  const [movers, setMovers] = useState(() => makeMovers(countForRound(0)))
-  const [choices, setChoices] = useState(() => makeChoices(3))
+  const [movers, setMovers] = useState(() => makeMovers(count))
+  const [choices, setChoices] = useState(() => makeChoices(count))
   const [picked, setPicked] = useState(null)
 
   const fieldRef = useRef(null)

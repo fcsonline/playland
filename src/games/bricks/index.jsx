@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDrag } from '../../lib/useDrag.js'
 import { useGame } from '../../state/game.jsx'
-import { sfx } from '../../lib/audio.js'
+import { sfx, tone } from '../../lib/audio.js'
 import { useT } from '../../lib/i18n.js'
 import './bricks.css'
 
@@ -88,7 +88,7 @@ function serve() {
 }
 
 export default function Bricks() {
-  const { earn, award } = useGame()
+  const { earn, award, oops } = useGame()
   const t = useT(STR)
 
   const [bricks, setBricks] = useState(() => buildBricks(0))
@@ -158,13 +158,16 @@ export default function Bricks() {
           sfx.tap()
         }
 
-        // Bottom: trampoline — always bounce back up (no fail state). Add a tiny
-        // sideways nudge so the ball can't get stuck in a vertical loop.
+        // Bottom: the ball still bounces back (no fail state, no game over), but
+        // missing the paddle is a little "oops" — a soft buzzer + red flash so
+        // the child learns to catch it with the paddle. Add a tiny sideways
+        // nudge so the ball can't get stuck in a vertical loop.
         if (b.y > 1 - BALL_R) {
           b.y = 1 - BALL_R
           b.vy = -Math.abs(b.vy)
           b.vx += (Math.random() * 2 - 1) * 0.04
-          sfx.tap()
+          tone(150, { duration: 0.2, type: 'sawtooth', gain: 0.1 })
+          oops()
         }
 
         // Paddle — controllable bounce, angle from where it hit.

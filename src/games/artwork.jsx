@@ -449,6 +449,84 @@ export const GAME_ART = {
     )
   },
 
+  // Math Tiles — a little crossword of teal number tiles + white operator tiles.
+  mathtiles: () => {
+    const num = (x, y, n) => (
+      <g key={`n${x}${y}`}>
+        <rect x={x} y={y} width="20" height="20" rx="4" fill="url(#mtNum)" />
+        <text x={x + 10} y={y + 14.5} fill="#fff" fontSize="13" fontWeight="800" textAnchor="middle">
+          {n}
+        </text>
+      </g>
+    )
+    const op = (x, y, s) => (
+      <g key={`o${x}${y}`}>
+        <rect x={x} y={y} width="20" height="20" rx="4" fill="#ffffff" />
+        <text x={x + 10} y={y + 14.5} fill="#2bb3c4" fontSize="13" fontWeight="800" textAnchor="middle">
+          {s}
+        </text>
+      </g>
+    )
+    return (
+      <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+        <defs>
+          <linearGradient id="mtNum" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#5fd8e4" />
+            <stop offset="1" stopColor="#2bb3c4" />
+          </linearGradient>
+        </defs>
+        {/* across: 2 + 4 = 6 */}
+        {num(6, 26, '2')}
+        {op(28, 26, '+')}
+        {num(50, 26, '4')}
+        {op(72, 26, '=')}
+        {/* down from the 4: 4 - 1 = 3 */}
+        {op(50, 48, '−')}
+        {num(50, 70, '1')}
+        {/* the answer tile, popping in */}
+        {num(72, 70, '6')}
+      </svg>
+    )
+  },
+
+  // Dominoes — two glossy white domino tiles with blue pips.
+  domino: () => {
+    const dot = (cx, cy, k) => <circle key={k} cx={cx} cy={cy} r="3" fill="url(#dmPip)" />
+    return (
+      <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+        <defs>
+          <linearGradient id="dmTile" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#ffffff" />
+            <stop offset="1" stopColor="#e7ecfa" />
+          </linearGradient>
+          <radialGradient id="dmPip" cx="36%" cy="32%" r="75%">
+            <stop offset="0" stopColor="#6f8dff" />
+            <stop offset="100%" stopColor="#2a3aa8" />
+          </radialGradient>
+        </defs>
+        {/* back tile, tilted */}
+        <g transform="rotate(-14 40 40)">
+          <rect x="20" y="14" width="34" height="62" rx="7" fill="url(#dmTile)" />
+          <line x1="22" y1="45" x2="52" y2="45" stroke="#cdd5ef" strokeWidth="2" />
+          {dot(31, 26, 1)}
+          {dot(43, 26, 2)}
+          {dot(31, 64, 3)}
+          {dot(43, 64, 4)}
+          {dot(37, 64, 5)}
+        </g>
+        {/* front tile */}
+        <g transform="rotate(10 66 60)">
+          <rect x="50" y="34" width="34" height="62" rx="7" fill="url(#dmTile)" />
+          <line x1="52" y1="65" x2="82" y2="65" stroke="#cdd5ef" strokeWidth="2" />
+          {dot(67, 49, 6)}
+          {dot(61, 80, 7)}
+          {dot(73, 80, 8)}
+          {dot(67, 80, 9)}
+        </g>
+      </svg>
+    )
+  },
+
   // Hungry Worm — a glossy green worm curving toward a shiny apple.
   worm: () => {
     const seg = (cx, cy, r, light) => (

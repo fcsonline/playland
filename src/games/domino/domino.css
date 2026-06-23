@@ -1,0 +1,209 @@
+.domino {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ---- shared tile + pip-face look ---- */
+.domino__face {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  grid-template-rows: repeat(3, 1fr);
+  width: var(--face, 30px);
+  height: var(--face, 30px);
+  padding: 8%;
+  gap: 4%;
+}
+.domino__pip {
+  border-radius: 50%;
+  background: transparent;
+}
+.domino__pip.is-on {
+  background: radial-gradient(circle at 35% 32%, #5a7bff, #2a3aa8);
+  box-shadow: inset 0 -1px 1px rgba(0, 0, 0, 0.3);
+}
+.domino__div {
+  width: 2px;
+  align-self: stretch;
+  margin: 10% 0;
+  background: rgba(40, 50, 120, 0.25);
+  border-radius: 1px;
+}
+
+.domino__seg,
+.domino__tile {
+  display: inline-flex;
+  align-items: center;
+  background: linear-gradient(180deg, #ffffff, #eef1fa);
+  border: none;
+  border-radius: 10px;
+  box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.8),
+    inset 0 -3px 0 rgba(40, 50, 120, 0.12), 0 3px 6px rgba(0, 0, 0, 0.2);
+  padding: 4px;
+}
+
+/* ---- CPU row (face-down backs) ---- */
+.domino__cpu {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.domino__backs {
+  display: flex;
+  gap: 5px;
+  flex-wrap: wrap;
+}
+.domino__back {
+  width: 22px;
+  height: 40px;
+  border-radius: 7px;
+  background: repeating-linear-gradient(45deg, #5b86e5, #5b86e5 5px, #4a72d6 5px, #4a72d6 10px);
+  box-shadow: inset 0 0 0 2px rgba(255, 255, 255, 0.35), 0 2px 4px rgba(0, 0, 0, 0.22);
+}
+
+.domino__who {
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: var(--white);
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
+}
+
+/* ---- the line of play ---- */
+.domino__board {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  display: grid;
+  place-items: center;
+  overflow: auto;
+  padding: 12px;
+  background: linear-gradient(180deg, #eaf0ff, #dfe7ff);
+}
+.domino__chain {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  justify-content: center;
+  align-content: center;
+}
+.domino__chain .domino__seg {
+  --face: clamp(22px, 6.5vw, 34px);
+}
+.domino__pile {
+  position: absolute;
+  top: 8px;
+  right: 8px;
+  font-size: 0.78rem;
+  font-weight: 800;
+}
+
+.domino__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.28);
+  animation: pop-in 0.3s ease;
+  z-index: 5;
+}
+.domino__overlay-title {
+  margin: 0;
+  font-weight: 900;
+  font-size: clamp(1.2rem, 6vw, 2rem);
+  color: #fff;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.domino__status {
+  flex: none;
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  font-size: clamp(0.85rem, 4vw, 1.1rem);
+  color: var(--white);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+  min-height: 1.4em;
+}
+.domino__status.is-you {
+  color: var(--sun);
+}
+
+/* ---- the child's hand ---- */
+.domino__hand {
+  flex: none;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+}
+.domino__tiles {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}
+.domino__tile {
+  --face: clamp(28px, 9vw, 42px);
+  cursor: pointer;
+  transition: transform 0.12s ease;
+}
+.domino__tile:active {
+  transform: scale(0.94);
+}
+.domino__tile.is-playable {
+  outline: 3px solid var(--good);
+  outline-offset: 2px;
+  animation: domino-glow 1.1s ease-in-out infinite;
+}
+.domino__tile.is-nudge {
+  animation: domino-nudge 0.42s ease;
+}
+.domino__action {
+  align-self: center;
+  padding: 8px 22px;
+}
+
+@keyframes domino-glow {
+  0%,
+  100% {
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.8),
+      inset 0 -3px 0 rgba(40, 50, 120, 0.12), 0 0 0 rgba(46, 204, 113, 0.6),
+      0 3px 6px rgba(0, 0, 0, 0.2);
+  }
+  50% {
+    box-shadow: inset 0 2px 0 rgba(255, 255, 255, 0.8),
+      inset 0 -3px 0 rgba(40, 50, 120, 0.12), 0 0 12px rgba(46, 204, 113, 0.9),
+      0 3px 6px rgba(0, 0, 0, 0.2);
+  }
+}
+@keyframes domino-nudge {
+  0%,
+  100% {
+    transform: translateX(0);
+  }
+  25% {
+    transform: translateX(-5px);
+  }
+  75% {
+    transform: translateX(5px);
+  }
+}
+
+/* Landscape phones: trim vertical gaps so the hand stays on screen. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .domino {
+    gap: 5px;
+  }
+  .domino__back {
+    height: 30px;
+    width: 16px;
+  }
+}

@@ -275,6 +275,20 @@ export const GAMES = [
     colors: ['#9be15d', '#1fc77b'],
     tagline: 'Steer the worm, gobble the fruit!',
   },
+  {
+    id: 'mathtiles',
+    title: 'Math Tiles',
+    emoji: '🟰',
+    colors: ['#36c5d6', '#8ce8e2'],
+    tagline: 'Fill the tiles to finish the sums!',
+  },
+  {
+    id: 'domino',
+    title: 'Dominoes',
+    emoji: '🎲',
+    colors: ['#5b86e5', '#36d1dc'],
+    tagline: 'Match the dots, empty your hand!',
+  },
 ]
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -316,6 +330,8 @@ export const GAME_COMPONENTS = {
   golf: lazy(() => import('./golf/index.jsx')),
   bricks: lazy(() => import('./bricks/index.jsx')),
   worm: lazy(() => import('./worm/index.jsx')),
+  mathtiles: lazy(() => import('./mathtiles/index.jsx')),
+  domino: lazy(() => import('./domino/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

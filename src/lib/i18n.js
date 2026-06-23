@@ -85,6 +85,8 @@ export const TITLES = {
     golf: 'Mini Golf',
     bricks: 'Brick Breaker',
     worm: 'Hungry Worm',
+    mathtiles: 'Math Tiles',
+    domino: 'Dominoes',
   },
   es: {
     coloring: 'Estudio de Color',
@@ -124,6 +126,8 @@ export const TITLES = {
     golf: 'Minigolf',
     bricks: 'Rompe Ladrillos',
     worm: 'Gusano Glotón',
+    mathtiles: 'Fichas de Sumar',
+    domino: 'Dominó',
   },
   ca: {
     coloring: 'Estudi de Color',
@@ -163,6 +167,8 @@ export const TITLES = {
     golf: 'Minigolf',
     bricks: 'Trenca Maons',
     worm: 'Cuc Afamat',
+    mathtiles: 'Fitxes de Sumar',
+    domino: 'Dòmino',
   },
   fr: {
     coloring: 'Atelier de Coloriage',
@@ -202,6 +208,8 @@ export const TITLES = {
     golf: 'Mini-Golf',
     bricks: 'Casse-Briques',
     worm: 'Ver Gourmand',
+    mathtiles: 'Tuiles à Compter',
+    domino: 'Dominos',
   },
 }
 

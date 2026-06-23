@@ -166,6 +166,46 @@
 .domino__tile.is-nudge {
   animation: domino-nudge 0.42s ease;
 }
+
+/* The just-placed tile is hidden while its ghost flies, then pops into view. */
+.domino__seg.is-flying {
+  opacity: 0;
+}
+.domino__seg.is-new {
+  animation: domino-land 0.32s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+@keyframes domino-land {
+  0% {
+    transform: scale(0.62);
+  }
+  60% {
+    transform: scale(1.12);
+  }
+  100% {
+    transform: scale(1);
+  }
+}
+
+/* The flying ghost: a copy of the tile that travels from the hand to its spot.
+   Positioned (fixed) at the landing rect; the transform starts it back at the
+   hand position (scaled to the hand size) and eases it home. */
+.domino__ghost {
+  --face: clamp(22px, 6.5vw, 34px);
+  position: fixed;
+  z-index: 60;
+  margin: 0;
+  pointer-events: none;
+  transform-origin: top left;
+  animation: domino-fly 0.42s cubic-bezier(0.33, 0, 0.2, 1) forwards;
+}
+@keyframes domino-fly {
+  from {
+    transform: translate(var(--dx), var(--dy)) scale(var(--s));
+  }
+  to {
+    transform: translate(0, 0) scale(1);
+  }
+}
 .domino__action {
   align-self: center;
   padding: 8px 22px;

@@ -1,4 +1,4 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { shuffle, pick } from '../../lib/random.js'
 import { sfx, tone } from '../../lib/audio.js'
@@ -134,8 +134,19 @@ export default function Domino() {
   const [turn, setTurn] = useState('you') // 'you' | 'cpu' | 'over'
   const [result, setResult] = useState(null) // null | 'you' | 'cpu'
   const [nudgeId, setNudgeId] = useState(null) // hand tile that wobbled
+  // The played tile flies from the hand to its landing spot. `flyingId` is the
+  // board segment hidden mid-flight; `fly` is the ghost we animate; `newSegId`
+  // pops the freshly-landed tile (also used for the CPU's move, so it's clear
+  // where the computer played).
+  const [flyingId, setFlyingId] = useState(null)
+  const [fly, setFly] = useState(null)
+  const [newSegId, setNewSegId] = useState(null)
   const passesRef = useRef(0)
   const timers = useRef([])
+  const boardRef = useRef(null)
+  const flyRef = useRef(null) // { from: DOMRect, tile }
+  const handRef = useRef(hand)
+  handRef.current = hand
 
   useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
@@ -160,9 +171,21 @@ export default function Domino() {
     [award],
   )
 
-  // ---- The child's move ----
-  const playFromHand = (tile) => {
-    if (turn !== 'you' || result) return
+  // Land the flying tile: reveal it on the board, pop it in, then hand over.
+  const finalize = useCallback(() => {
+    const tileId = flyRef.current?.tile?.id ?? null
+    setFly(null)
+    setFlyingId(null)
+    setNewSegId(tileId)
+    sfx.pop()
+    earn(1)
+    if (handRef.current.length === 0) endGame('you')
+    else setTurn('cpu')
+  }, [earn, endGame])
+
+  // ---- The child's move: commit it (hidden), then fly the tile to its spot ----
+  const playFromHand = (tile, e) => {
+    if (turn !== 'you' || result || flyingId != null) return
     if (!canPlay(tile)) {
       setNudgeId(tile.id)
       tone(180, { duration: 0.14, type: 'sine', gain: 0.07 })
@@ -171,16 +194,43 @@ export default function Domino() {
       return
     }
     passesRef.current = 0
-    sfx.pop()
-    earn(1)
+    tone(540, { duration: 0.08, type: 'sine', gain: 0.06 }) // little "whoosh"
+    flyRef.current = { from: e.currentTarget.getBoundingClientRect(), tile }
+    setFlyingId(tile.id)
     setGame((g) => ({
       ...g,
       board: placeOnBoard(g.board, tile),
       hand: g.hand.filter((h) => h.id !== tile.id),
     }))
-    if (hand.length === 1) endGame('you')
-    else setTurn('cpu')
   }
+
+  // Once the move is committed, the hidden landing tile exists in the DOM — so we
+  // can measure where it ended up and animate a ghost from the hand to it.
+  useLayoutEffect(() => {
+    if (flyingId == null) return
+    const seg = boardRef.current?.querySelector(`[data-segid="${flyingId}"]`)
+    const info = flyRef.current
+    const landed = board.find((s) => s.id === flyingId)
+    if (!seg || !info || !landed) {
+      finalize() // can't measure (e.g. headless) — just place it
+      return
+    }
+    const to = seg.getBoundingClientRect()
+    const from = info.from
+    setFly({
+      l: landed.l,
+      r: landed.r,
+      left: to.left,
+      top: to.top,
+      dx: from.left - to.left,
+      dy: from.top - to.top,
+      s: to.width ? from.width / to.width : 1,
+    })
+    const id = setTimeout(finalize, 440)
+    timers.current.push(id)
+    return () => clearTimeout(id)
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [flyingId])
 
   const drawTile = () => {
     if (turn !== 'you' || result || bone.length === 0) return
@@ -206,6 +256,7 @@ export default function Domino() {
         const tile = pick(playable)
         passesRef.current = 0
         sfx.tap()
+        setNewSegId(tile.id) // pop the CPU's tile in so its landing spot is clear
         setGame((g) => ({
           ...g,
           board: placeOnBoard(g.board, tile),
@@ -228,10 +279,14 @@ export default function Domino() {
 
   const newGame = useCallback(() => {
     passesRef.current = 0
+    flyRef.current = null
     setGame(deal())
     setResult(null)
     setTurn('you')
     setNudgeId(null)
+    setFly(null)
+    setFlyingId(null)
+    setNewSegId(null)
   }, [])
 
   const youCanPlay = hand.some(canPlay)
@@ -258,14 +313,22 @@ export default function Domino() {
 
       {/* The line of play */}
       <div className="domino__board play-surface">
-        <div className="domino__chain">
-          {board.map((seg) => (
-            <span key={seg.id} className="domino__seg">
-              <Face n={seg.l} />
-              <span className="domino__div" />
-              <Face n={seg.r} />
-            </span>
-          ))}
+        <div className="domino__chain" ref={boardRef}>
+          {board.map((seg) => {
+            const flying = seg.id === flyingId
+            const fresh = seg.id === newSegId && !flying
+            return (
+              <span
+                key={seg.id}
+                data-segid={seg.id}
+                className={`domino__seg${flying ? ' is-flying' : ''}${fresh ? ' is-new' : ''}`}
+              >
+                <Face n={seg.l} />
+                <span className="domino__div" />
+                <Face n={seg.r} />
+              </span>
+            )
+          })}
         </div>
         <span className="domino__pile chip">{t('pile', { n: bone.length })}</span>
 
@@ -295,8 +358,8 @@ export default function Domino() {
                 className={`domino__tile ${playable ? 'is-playable' : ''} ${
                   nudgeId === tile.id ? 'is-nudge' : ''
                 }`}
-                onClick={() => playFromHand(tile)}
-                disabled={turn !== 'you' || !!result}
+                onClick={(e) => playFromHand(tile, e)}
+                disabled={turn !== 'you' || !!result || flyingId != null}
                 aria-label={`domino ${tile.a} ${tile.b}`}
               >
                 <Face n={tile.a} />
@@ -313,6 +376,25 @@ export default function Domino() {
           </button>
         )}
       </div>
+
+      {/* The tile in flight from the hand to its landing spot on the chain. */}
+      {fly && (
+        <span
+          className="domino__ghost domino__seg"
+          style={{
+            left: `${fly.left}px`,
+            top: `${fly.top}px`,
+            '--dx': `${fly.dx}px`,
+            '--dy': `${fly.dy}px`,
+            '--s': fly.s,
+          }}
+          aria-hidden="true"
+        >
+          <Face n={fly.l} />
+          <span className="domino__div" />
+          <Face n={fly.r} />
+        </span>
+      )}
     </div>
   )
 }

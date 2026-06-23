@@ -402,6 +402,183 @@ export const GAME_ART = {
       <circle cx="37" cy="68" r="3" fill="#ffffff" opacity="0.9" />
     </svg>
   ),
+
+  // Brick Breaker — a glossy wall of colored bricks, a ball and a paddle.
+  bricks: () => {
+    const rows = [
+      ['#ff6b81', '#ffa94d', '#ffd43b'],
+      ['#69db7c', '#4dabf7', '#b197fc'],
+    ]
+    const cells = []
+    rows.forEach((row, r) =>
+      row.forEach((color, c) => {
+        cells.push(
+          <rect
+            key={`${r}-${c}`}
+            x={14 + c * 25}
+            y={16 + r * 15}
+            width="22"
+            height="12"
+            rx="3"
+            fill={color}
+          />,
+        )
+      }),
+    )
+    return (
+      <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+        <defs>
+          <radialGradient id="brkBall" cx="34%" cy="30%" r="75%">
+            <stop offset="0" stopColor="#ffffff" />
+            <stop offset="55%" stopColor="#ffe14d" />
+            <stop offset="100%" stopColor="#f0930c" />
+          </radialGradient>
+          <linearGradient id="brkPad" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#7be0ff" />
+            <stop offset="1" stopColor="#2f9fe0" />
+          </linearGradient>
+        </defs>
+        {cells}
+        {/* ball */}
+        <circle cx="58" cy="62" r="7.5" fill="url(#brkBall)" />
+        <ellipse cx="55" cy="59" rx="2.4" ry="3" fill="#ffffff" opacity="0.8" />
+        {/* paddle */}
+        <rect x="34" y="82" width="38" height="9" rx="4.5" fill="url(#brkPad)" />
+        <rect x="38" y="84" width="20" height="3" rx="1.5" fill="#ffffff" opacity="0.4" />
+      </svg>
+    )
+  },
+
+  // Rock Paper Scissors — a glossy rock, paper and scissors trio.
+  rps: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <radialGradient id="rpsRock" cx="38%" cy="30%" r="78%">
+          <stop offset="0" stopColor="#b9c2cf" />
+          <stop offset="100%" stopColor="#6b7585" />
+        </radialGradient>
+        <linearGradient id="rpsPaper" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#e3e8f0" />
+        </linearGradient>
+        <linearGradient id="rpsSciss" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ff8a98" />
+          <stop offset="1" stopColor="#e43850" />
+        </linearGradient>
+      </defs>
+      {/* paper (behind) */}
+      <g transform="rotate(-8 40 40)">
+        <rect x="24" y="14" width="34" height="42" rx="5" fill="url(#rpsPaper)" />
+        <path d="M48 14h10l-10 10z" fill="#cfd6e2" />
+        <rect x="29" y="24" width="22" height="3" rx="1.5" fill="#c2cad8" />
+        <rect x="29" y="32" width="22" height="3" rx="1.5" fill="#c2cad8" />
+        <rect x="29" y="40" width="14" height="3" rx="1.5" fill="#c2cad8" />
+      </g>
+      {/* rock */}
+      <ellipse cx="32" cy="74" rx="20" ry="15" fill="url(#rpsRock)" />
+      <ellipse cx="26" cy="68" rx="6" ry="4" fill="#ffffff" opacity="0.45" />
+      {/* scissors */}
+      <g transform="rotate(18 74 56)" stroke="url(#rpsSciss)" strokeWidth="6" strokeLinecap="round" fill="none">
+        <line x1="62" y1="40" x2="84" y2="64" />
+        <line x1="84" y1="40" x2="62" y2="64" />
+      </g>
+      <circle cx="64" cy="66" r="6" fill="none" stroke="url(#rpsSciss)" strokeWidth="4" />
+      <circle cx="82" cy="66" r="6" fill="none" stroke="url(#rpsSciss)" strokeWidth="4" />
+    </svg>
+  ),
+
+  // Bottle Flip — a glossy bottle mid-spin above a shelf, with a rotation arrow.
+  bottleflip: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <linearGradient id="bflBottle" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#9be3ff" />
+          <stop offset="0.5" stopColor="#4db8e8" />
+          <stop offset="1" stopColor="#2a8fc4" />
+        </linearGradient>
+        <linearGradient id="bflShelf" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#c98a4f" />
+          <stop offset="1" stopColor="#8a5a2b" />
+        </linearGradient>
+      </defs>
+      {/* spin arrow */}
+      <path d="M30 30a24 24 0 1 1-4 24" fill="none" stroke="#ffffff" strokeWidth="5" strokeLinecap="round" opacity="0.8" />
+      <path d="M30 22l2 12-12-3z" fill="#ffffff" opacity="0.8" />
+      {/* bottle (tilted mid-flip) */}
+      <g transform="rotate(-24 50 50)">
+        <rect x="42" y="30" width="16" height="34" rx="7" fill="url(#bflBottle)" />
+        <rect x="46" y="20" width="8" height="12" rx="3" fill="url(#bflBottle)" />
+        <rect x="46.5" y="16" width="7" height="6" rx="2" fill="#2a8fc4" />
+        <rect x="44" y="34" width="3" height="24" rx="1.5" fill="#ffffff" opacity="0.45" />
+        <rect x="42" y="46" width="16" height="6" fill="#ffffff" opacity="0.25" />
+      </g>
+      {/* shelf */}
+      <rect x="22" y="78" width="56" height="9" rx="4.5" fill="url(#bflShelf)" />
+      <rect x="26" y="80" width="30" height="3" rx="1.5" fill="#ffffff" opacity="0.25" />
+    </svg>
+  ),
+
+  // Tower Stack — a glossy stack of offset colorful blocks.
+  stack: () => {
+    const blocks = [
+      { x: 26, w: 48, c: '#4dabf7' },
+      { x: 22, w: 52, c: '#69db7c' },
+      { x: 30, w: 44, c: '#ffd43b' },
+      { x: 24, w: 46, c: '#ff8787' },
+      { x: 34, w: 38, c: '#b197fc' },
+    ]
+    return (
+      <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+        {blocks.map((b, i) => (
+          <g key={i}>
+            <rect x={b.x} y={74 - i * 15} width={b.w} height="13" rx="3" fill={b.c} />
+            <rect x={b.x + 3} y={76 - i * 15} width={b.w - 6} height="3" rx="1.5" fill="#ffffff" opacity="0.4" />
+          </g>
+        ))}
+      </svg>
+    )
+  },
+
+  // Hungry Worm — a glossy green worm curving toward a shiny apple.
+  worm: () => {
+    const seg = (cx, cy, r, light) => (
+      <circle cx={cx} cy={cy} r={r} fill={light ? 'url(#wrmHead)' : 'url(#wrmBody)'} />
+    )
+    return (
+      <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+        <defs>
+          <radialGradient id="wrmBody" cx="35%" cy="30%" r="75%">
+            <stop offset="0" stopColor="#7bdc5a" />
+            <stop offset="100%" stopColor="#3fae3f" />
+          </radialGradient>
+          <radialGradient id="wrmHead" cx="35%" cy="30%" r="75%">
+            <stop offset="0" stopColor="#95e870" />
+            <stop offset="100%" stopColor="#4fbb45" />
+          </radialGradient>
+          <radialGradient id="wrmApple" cx="36%" cy="30%" r="75%">
+            <stop offset="0" stopColor="#ff9aa6" />
+            <stop offset="55%" stopColor="#f0414f" />
+            <stop offset="100%" stopColor="#c5263a" />
+          </radialGradient>
+        </defs>
+        {/* body trail */}
+        {seg(22, 76, 9, false)}
+        {seg(34, 80, 9.5, false)}
+        {seg(46, 74, 10, false)}
+        {seg(40, 60, 10.5, false)}
+        {/* head */}
+        {seg(34, 46, 12, true)}
+        <circle cx="31" cy="43" r="2.6" fill="#1c2230" />
+        <circle cx="39" cy="43" r="2.6" fill="#1c2230" />
+        <path d="M31 50q3 3 7 0" fill="none" stroke="#2f8a23" strokeWidth="2" strokeLinecap="round" />
+        {/* apple */}
+        <circle cx="70" cy="32" r="15" fill="url(#wrmApple)" />
+        <path d="M70 18c0-5 4-7 7-7-1 5-3 7-7 7z" fill="#5bbf4a" />
+        <rect x="69" y="14" width="2.4" height="6" rx="1.2" fill="#7a5230" />
+        <ellipse cx="64" cy="26" rx="3.4" ry="4.6" fill="#ffffff" opacity="0.6" />
+      </svg>
+    )
+  },
 }
 
 export default GAME_ART

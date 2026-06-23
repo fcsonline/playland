@@ -83,6 +83,11 @@ export const TITLES = {
     compare: 'More or Less',
     wordsearch: 'Word Search',
     golf: 'Mini Golf',
+    bricks: 'Brick Breaker',
+    rps: 'Rock Paper Scissors',
+    bottleflip: 'Bottle Flip',
+    stack: 'Tower Stack',
+    worm: 'Hungry Worm',
   },
   es: {
     coloring: 'Estudio de Color',
@@ -120,6 +125,11 @@ export const TITLES = {
     compare: 'Más o Menos',
     wordsearch: 'Sopa de Letras',
     golf: 'Minigolf',
+    bricks: 'Rompe Ladrillos',
+    rps: 'Piedra Papel Tijera',
+    bottleflip: 'Voltea la Botella',
+    stack: 'Apila la Torre',
+    worm: 'Gusano Glotón',
   },
   ca: {
     coloring: 'Estudi de Color',
@@ -157,6 +167,11 @@ export const TITLES = {
     compare: 'Més o Menys',
     wordsearch: 'Sopa de Lletres',
     golf: 'Minigolf',
+    bricks: 'Trenca Maons',
+    rps: 'Pedra Paper Tisora',
+    bottleflip: "Tomba l'Ampolla",
+    stack: 'Apila la Torre',
+    worm: 'Cuc Afamat',
   },
   fr: {
     coloring: 'Atelier de Coloriage',
@@ -194,6 +209,11 @@ export const TITLES = {
     compare: 'Plus ou Moins',
     wordsearch: 'Mots Mêlés',
     golf: 'Mini-Golf',
+    bricks: 'Casse-Briques',
+    rps: 'Pierre Feuille Ciseaux',
+    bottleflip: 'Bouteille Flip',
+    stack: 'Tour à Empiler',
+    worm: 'Ver Gourmand',
   },
 }
 

@@ -1,0 +1,169 @@
+.worm {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  flex: 1;
+  align-items: center;
+}
+
+.worm__board {
+  position: relative;
+  width: min(100%, 70vh);
+  aspect-ratio: 1 / 1;
+  margin: 0 auto;
+  padding: 0;
+  overflow: hidden;
+  touch-action: none;
+  background: linear-gradient(135deg, #cdedb4 0%, #aee08a 100%);
+  background-image: linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px);
+  background-size: calc(100% / 11) calc(100% / 11);
+}
+
+.worm__hud {
+  position: absolute;
+  top: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 6;
+  font-weight: 900;
+  font-size: 1rem;
+  color: #2f6e2a;
+  background: rgba(255, 255, 255, 0.7);
+  border-radius: 999px;
+  padding: 2px 12px;
+  pointer-events: none;
+}
+
+.worm__fruit {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  font-size: 1.4rem;
+  line-height: 1;
+  animation: worm-bob 1s ease-in-out infinite;
+  pointer-events: none;
+}
+
+.worm__seg {
+  position: absolute;
+  display: grid;
+  place-items: center;
+  padding: 3%;
+  pointer-events: none;
+}
+.worm__seg::before {
+  content: '';
+  width: 94%;
+  height: 94%;
+  border-radius: 32%;
+  background: radial-gradient(circle at 35% 30%, #7bdc5a, #3fae3f);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+}
+.worm__seg--head::before {
+  border-radius: 42%;
+  background: radial-gradient(circle at 35% 30%, #95e870, #4fbb45);
+}
+.worm__seg--head {
+  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+}
+
+.worm__eyes {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 22%;
+}
+.worm__eye {
+  width: 16%;
+  height: 16%;
+  border-radius: 50%;
+  background: #1c2230;
+  /* Nudge the pair toward the leading edge (right by default; rotated per dir). */
+  transform: translateX(60%);
+}
+
+.worm__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  text-align: center;
+  background: rgba(0, 0, 0, 0.3);
+  animation: pop-in 0.3s ease;
+  z-index: 8;
+}
+.worm__overlay-title {
+  margin: 0;
+  font-weight: 900;
+  font-size: clamp(1.2rem, 6vw, 2rem);
+  color: #fff;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.4);
+}
+
+.worm__pad {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+}
+.worm__pad-mid {
+  display: flex;
+  gap: 44px;
+}
+.worm__arrow {
+  width: 50px;
+  height: 44px;
+  border: none;
+  border-radius: 12px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  color: var(--primary);
+  font-size: 1.1rem;
+  font-weight: 900;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.1s ease;
+}
+.worm__arrow:active {
+  transform: scale(0.9);
+}
+
+.worm__hint {
+  margin: 0;
+  text-align: center;
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}
+
+@keyframes worm-bob {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  50% {
+    transform: scale(1.15);
+  }
+}
+
+/* Landscape: put the d-pad beside the board and shrink it. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .worm {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+  }
+  .worm__board {
+    width: min(100%, 70vh);
+    height: 100%;
+  }
+}

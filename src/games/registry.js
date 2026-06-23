@@ -261,6 +261,41 @@ export const GAMES = [
     colors: ['#56ab2f', '#a8e063'],
     tagline: 'Putt the ball in the hole!',
   },
+  {
+    id: 'bricks',
+    title: 'Brick Breaker',
+    emoji: '🧱',
+    colors: ['#7b6cf6', '#9d50bb'],
+    tagline: 'Bounce the ball, smash the wall!',
+  },
+  {
+    id: 'rps',
+    title: 'Rock Paper Scissors',
+    emoji: '✊',
+    colors: ['#ffd86f', '#fc6262'],
+    tagline: 'Rock, paper, scissors — shoot!',
+  },
+  {
+    id: 'bottleflip',
+    title: 'Bottle Flip',
+    emoji: '🍾',
+    colors: ['#2193b0', '#6dd5ed'],
+    tagline: 'Flip it and land it upright!',
+  },
+  {
+    id: 'stack',
+    title: 'Tower Stack',
+    emoji: '🏗️',
+    colors: ['#5ee7df', '#66a6ff'],
+    tagline: 'Drop the blocks, build it high!',
+  },
+  {
+    id: 'worm',
+    title: 'Hungry Worm',
+    emoji: '🐛',
+    colors: ['#9be15d', '#1fc77b'],
+    tagline: 'Steer the worm, gobble the fruit!',
+  },
 ]
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -300,6 +335,11 @@ export const GAME_COMPONENTS = {
   compare: lazy(() => import('./compare/index.jsx')),
   wordsearch: lazy(() => import('./wordsearch/index.jsx')),
   golf: lazy(() => import('./golf/index.jsx')),
+  bricks: lazy(() => import('./bricks/index.jsx')),
+  rps: lazy(() => import('./rps/index.jsx')),
+  bottleflip: lazy(() => import('./bottleflip/index.jsx')),
+  stack: lazy(() => import('./stack/index.jsx')),
+  worm: lazy(() => import('./worm/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

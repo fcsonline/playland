@@ -84,9 +84,6 @@ export const TITLES = {
     wordsearch: 'Word Search',
     golf: 'Mini Golf',
     bricks: 'Brick Breaker',
-    rps: 'Rock Paper Scissors',
-    bottleflip: 'Bottle Flip',
-    stack: 'Tower Stack',
     worm: 'Hungry Worm',
   },
   es: {
@@ -126,9 +123,6 @@ export const TITLES = {
     wordsearch: 'Sopa de Letras',
     golf: 'Minigolf',
     bricks: 'Rompe Ladrillos',
-    rps: 'Piedra Papel Tijera',
-    bottleflip: 'Voltea la Botella',
-    stack: 'Apila la Torre',
     worm: 'Gusano Glotón',
   },
   ca: {
@@ -168,9 +162,6 @@ export const TITLES = {
     wordsearch: 'Sopa de Lletres',
     golf: 'Minigolf',
     bricks: 'Trenca Maons',
-    rps: 'Pedra Paper Tisora',
-    bottleflip: "Tomba l'Ampolla",
-    stack: 'Apila la Torre',
     worm: 'Cuc Afamat',
   },
   fr: {
@@ -210,9 +201,6 @@ export const TITLES = {
     wordsearch: 'Mots Mêlés',
     golf: 'Mini-Golf',
     bricks: 'Casse-Briques',
-    rps: 'Pierre Feuille Ciseaux',
-    bottleflip: 'Bouteille Flip',
-    stack: 'Tour à Empiler',
     worm: 'Ver Gourmand',
   },
 }

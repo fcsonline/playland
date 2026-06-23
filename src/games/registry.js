@@ -269,27 +269,6 @@ export const GAMES = [
     tagline: 'Bounce the ball, smash the wall!',
   },
   {
-    id: 'rps',
-    title: 'Rock Paper Scissors',
-    emoji: '✊',
-    colors: ['#ffd86f', '#fc6262'],
-    tagline: 'Rock, paper, scissors — shoot!',
-  },
-  {
-    id: 'bottleflip',
-    title: 'Bottle Flip',
-    emoji: '🍾',
-    colors: ['#2193b0', '#6dd5ed'],
-    tagline: 'Flip it and land it upright!',
-  },
-  {
-    id: 'stack',
-    title: 'Tower Stack',
-    emoji: '🏗️',
-    colors: ['#5ee7df', '#66a6ff'],
-    tagline: 'Drop the blocks, build it high!',
-  },
-  {
     id: 'worm',
     title: 'Hungry Worm',
     emoji: '🐛',
@@ -336,9 +315,6 @@ export const GAME_COMPONENTS = {
   wordsearch: lazy(() => import('./wordsearch/index.jsx')),
   golf: lazy(() => import('./golf/index.jsx')),
   bricks: lazy(() => import('./bricks/index.jsx')),
-  rps: lazy(() => import('./rps/index.jsx')),
-  bottleflip: lazy(() => import('./bottleflip/index.jsx')),
-  stack: lazy(() => import('./stack/index.jsx')),
   worm: lazy(() => import('./worm/index.jsx')),
 }
 

@@ -15,10 +15,13 @@
   padding: 0;
   overflow: hidden;
   touch-action: none;
-  background: linear-gradient(135deg, #cdedb4 0%, #aee08a 100%);
-  background-image: linear-gradient(rgba(255, 255, 255, 0.18) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(255, 255, 255, 0.18) 1px, transparent 1px);
-  background-size: calc(100% / 11) calc(100% / 11);
+  /* Deep grass + a mowed-lawn checkerboard so the bright worm pops against it. */
+  background-color: #3f9a35;
+  background-image: repeating-conic-gradient(
+    #46a83a 0deg 90deg,
+    #3c9331 90deg 180deg
+  );
+  background-size: calc(200% / 11) calc(200% / 11);
 }
 
 .worm__hud {
@@ -50,23 +53,29 @@
   position: absolute;
   display: grid;
   place-items: center;
-  padding: 3%;
+  /* No % padding here — on an absolutely-positioned box it resolves against the
+     board width, not the cell, which would shrink the body to tiny beads. */
   pointer-events: none;
+  filter: drop-shadow(0 2px 2px rgba(0, 0, 0, 0.3));
 }
 .worm__seg::before {
   content: '';
-  width: 94%;
-  height: 94%;
+  width: 92%;
+  height: 92%;
+  box-sizing: border-box;
   border-radius: 32%;
-  background: radial-gradient(circle at 35% 30%, #7bdc5a, #3fae3f);
-  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.15);
+  /* Bright lime body with a bold dark-green outline → high contrast on grass. */
+  background: radial-gradient(circle at 35% 28%, #e0ff8f, #6fd02f 60%, #3f9e22);
+  border: 2.5px solid #1f5e16;
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.2);
 }
 .worm__seg--head::before {
-  border-radius: 42%;
-  background: radial-gradient(circle at 35% 30%, #95e870, #4fbb45);
+  border-radius: 46%;
+  background: radial-gradient(circle at 35% 26%, #f3ffce, #86e23f 55%, #4aa82a);
+  border-color: #163f0f;
 }
 .worm__seg--head {
-  filter: drop-shadow(0 2px 3px rgba(0, 0, 0, 0.25));
+  filter: drop-shadow(0 3px 4px rgba(0, 0, 0, 0.4));
 }
 
 .worm__eyes {
@@ -75,15 +84,26 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 22%;
+  gap: 12%;
+  z-index: 2;
 }
 .worm__eye {
-  width: 16%;
-  height: 16%;
+  width: 30%;
+  height: 30%;
   border-radius: 50%;
-  background: #1c2230;
+  background: #ffffff;
+  box-shadow: 0 0 0 1.5px rgba(0, 0, 0, 0.25);
+  display: grid;
+  place-items: center;
   /* Nudge the pair toward the leading edge (right by default; rotated per dir). */
-  transform: translateX(60%);
+  transform: translateX(34%);
+}
+.worm__eye::after {
+  content: '';
+  width: 52%;
+  height: 52%;
+  border-radius: 50%;
+  background: #11151d;
 }
 
 .worm__overlay {

@@ -90,24 +90,30 @@ svg.card__art {
   animation: wiggle 0.3s ease;
 }
 
-/* Portrait: lay the catalogue in rows that fill the height and scroll the whole
-   list HORIZONTALLY (swipe left/right) instead of paging down a tall column.
-   `grid-auto-flow: column` fills each column top→bottom, then adds columns to
-   the right; `auto-fill` rows pack as many as the height allows. */
-@media (orientation: portrait) {
-  /* An EXPLICIT height is required so `auto-fill` packs multiple rows (a flex /
-     percentage height counts as indefinite and collapses to a single row), so
-     the grid height is the viewport minus the home's own top/bottom padding. */
+/* Portrait keeps the default grid: rows of cards that page DOWN (vertical
+   scroll). Landscape flips it: rows fill the (short) height and the list flows
+   into columns that scroll left↔right (swipe), instead of a tall page.
+   `grid-auto-flow: column` fills each column top→bottom then adds columns to the
+   right; `auto-fill` rows pack as many as the height allows — which needs an
+   EXPLICIT height (a flex/percentage height is treated as indefinite and would
+   collapse to a single row), so the grid height is the viewport minus the
+   home's top/bottom padding. */
+@media (orientation: landscape) {
   .home {
+    max-width: none;
     overflow: hidden;
+    padding: 8px 12px;
+    padding-left: max(12px, env(safe-area-inset-left));
+    padding-right: max(12px, env(safe-area-inset-right));
   }
   .home__grid {
-    --cell: min(30vw, 138px);
-    height: calc(100svh - max(14px, env(safe-area-inset-top)) - 8px);
+    --cell: min(26vh, 128px);
+    height: calc(100svh - 16px);
     grid-template-columns: none;
     grid-template-rows: repeat(auto-fill, var(--cell));
     grid-auto-flow: column;
     grid-auto-columns: var(--cell);
+    gap: 12px;
     align-content: start;
     justify-content: start;
     overflow-x: auto;
@@ -117,19 +123,5 @@ svg.card__art {
   }
   .card {
     scroll-snap-align: start;
-  }
-}
-
-/* Landscape phones: wide but short — keep the page tidy and scrollable. */
-@media (orientation: landscape) and (max-height: 600px) {
-  .home {
-    max-width: none;
-    padding: 8px 12px;
-    padding-left: max(12px, env(safe-area-inset-left));
-    padding-right: max(12px, env(safe-area-inset-right));
-  }
-  .home__grid {
-    grid-template-columns: repeat(auto-fill, minmax(104px, 1fr));
-    gap: 10px;
   }
 }

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { enterFullscreen, fullscreenSupported } from '../lib/fullscreen.js'
 import { useSettings, setSettings, AGE_OPTIONS, LOCALE_OPTIONS } from '../lib/settings.js'
 import { useUI } from '../lib/i18n.js'
+import { forceUpdate } from '../lib/update.js'
 import './Splash.css'
 
 // Served from public/ (works under the GitHub Pages subpath and offline).
@@ -19,6 +20,12 @@ export default function Splash({ onDone }) {
   const settings = useSettings()
   const t = useUI()
   const [showSettings, setShowSettings] = useState(false)
+  const [updating, setUpdating] = useState(false)
+
+  function update() {
+    setUpdating(true)
+    forceUpdate() // clears the offline cache + service worker, then reloads
+  }
 
   function start() {
     if (settings.fullscreen) enterFullscreen()
@@ -103,6 +110,17 @@ export default function Splash({ onDone }) {
                 </button>
               </div>
             )}
+
+            <div className="splash__group splash__update-row">
+              <button
+                className="splash__update"
+                onClick={update}
+                disabled={updating}
+              >
+                <span aria-hidden="true">↻</span> {updating ? t('updating') : t('update')}
+              </button>
+              <span className="splash__update-hint">{t('updateHint')}</span>
+            </div>
 
             <button className="splash__done" onClick={() => setShowSettings(false)}>
               {t('done')}

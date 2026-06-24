@@ -242,6 +242,9 @@ export const UI = {
     excellent: 'Excellent!',
     wellDone: 'Well done!',
     goodTry: 'Good try!',
+    update: 'Update app',
+    updating: 'Updating…',
+    updateHint: 'Get the newest games & fixes',
   },
   es: {
     start: 'Empezar',
@@ -263,6 +266,9 @@ export const UI = {
     excellent: '¡Excelente!',
     wellDone: '¡Muy bien!',
     goodTry: '¡Buen intento!',
+    update: 'Actualizar app',
+    updating: 'Actualizando…',
+    updateHint: 'Consigue los juegos y mejoras más nuevos',
   },
   ca: {
     start: 'Comença',
@@ -284,6 +290,9 @@ export const UI = {
     excellent: 'Excel·lent!',
     wellDone: 'Molt bé!',
     goodTry: 'Bon intent!',
+    update: "Actualitza l'app",
+    updating: 'Actualitzant…',
+    updateHint: 'Aconsegueix els jocs i millores més nous',
   },
   fr: {
     start: 'Commencer',
@@ -305,6 +314,9 @@ export const UI = {
     excellent: 'Excellent !',
     wellDone: 'Bravo !',
     goodTry: 'Bien essayé !',
+    update: "Mettre à jour",
+    updating: 'Mise à jour…',
+    updateHint: 'Obtiens les nouveaux jeux et correctifs',
   },
 }
 

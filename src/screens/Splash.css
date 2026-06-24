@@ -97,6 +97,9 @@
 }
 .splash__panel {
   width: min(100%, 360px);
+  /* Scroll inside the panel if it's taller than a short (landscape) screen. */
+  max-height: 100%;
+  overflow-y: auto;
   background: #fff;
   border-radius: 22px;
   padding: 22px 20px;
@@ -174,6 +177,37 @@
 }
 .splash__toggle.is-on .splash__toggle-knob {
   transform: translateX(24px);
+}
+
+/* "Update app" — re-fetch the latest build and refresh the offline cache. */
+.splash__update-row {
+  align-items: center;
+  gap: 6px;
+  padding-top: 6px;
+  border-top: 2px solid #f0eef8;
+}
+.splash__update {
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: 1rem;
+  color: var(--primary-dark);
+  padding: 10px 22px;
+  border-radius: 999px;
+  background: color-mix(in srgb, var(--primary) 14%, #fff);
+  border: 2px solid var(--primary);
+  transition: transform 0.1s ease, opacity 0.15s ease;
+}
+.splash__update:active {
+  transform: scale(0.95);
+}
+.splash__update:disabled {
+  opacity: 0.6;
+}
+.splash__update-hint {
+  font-size: 0.78rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-align: center;
 }
 
 .splash__done {

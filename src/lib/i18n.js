@@ -87,6 +87,7 @@ export const TITLES = {
     worm: 'Hungry Worm',
     mathtiles: 'Math Tiles',
     domino: 'Dominoes',
+    blocks: 'Block Drop',
   },
   es: {
     coloring: 'Estudio de Color',
@@ -128,6 +129,7 @@ export const TITLES = {
     worm: 'Gusano Glotón',
     mathtiles: 'Fichas de Sumar',
     domino: 'Dominó',
+    blocks: 'Caída de Bloques',
   },
   ca: {
     coloring: 'Estudi de Color',
@@ -169,6 +171,7 @@ export const TITLES = {
     worm: 'Cuc Afamat',
     mathtiles: 'Fitxes de Sumar',
     domino: 'Dòmino',
+    blocks: 'Caiguda de Blocs',
   },
   fr: {
     coloring: 'Atelier de Coloriage',
@@ -210,6 +213,7 @@ export const TITLES = {
     worm: 'Ver Gourmand',
     mathtiles: 'Tuiles à Compter',
     domino: 'Dominos',
+    blocks: 'Chute de Blocs',
   },
 }
 

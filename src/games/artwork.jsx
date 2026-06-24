@@ -567,6 +567,39 @@ export const GAME_ART = {
       </svg>
     )
   },
+
+  // Block Drop — a glossy dark board with stacked tetromino blocks + a falling T.
+  blocks: () => {
+    // Each block: [x, y, color]. Grid step = 16, blocks are 15px squares.
+    const cell = (x, y, c, key) => (
+      <g key={key}>
+        <rect x={x} y={y} width="15" height="15" rx="3" fill={c} />
+        <rect x={x + 2} y={y + 2} width="11" height="3.5" rx="1.75" fill="#ffffff" opacity="0.35" />
+      </g>
+    )
+    return (
+      <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+        <defs>
+          <linearGradient id="blkBoard" x1="0" y1="0" x2="0" y2="1">
+            <stop offset="0" stopColor="#3b3170" />
+            <stop offset="1" stopColor="#2b2456" />
+          </linearGradient>
+        </defs>
+        <rect x="20" y="6" width="60" height="88" rx="10" fill="url(#blkBoard)" />
+        {/* falling T piece near the top */}
+        {cell(40, 16, '#b06cf0', 't0')}
+        {cell(24, 32, '#b06cf0', 't1')}
+        {cell(40, 32, '#b06cf0', 't2')}
+        {cell(56, 32, '#b06cf0', 't3')}
+        {/* settled stack at the bottom */}
+        {cell(24, 62, '#5b8def', 's0')}
+        {cell(56, 62, '#ffa14a', 's1')}
+        {cell(24, 78, '#5fd35f', 'b0')}
+        {cell(40, 78, '#ffd23f', 'b1')}
+        {cell(56, 78, '#ff6b6b', 'b2')}
+      </svg>
+    )
+  },
 }
 
 export default GAME_ART

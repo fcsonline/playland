@@ -1,0 +1,132 @@
+.blocks {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  flex: 1;
+  align-items: center;
+}
+
+.blocks__hud {
+  flex: none;
+  font-weight: 900;
+  font-size: 1rem;
+  color: var(--white);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+.blocks__stage {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.blocks__board {
+  position: relative;
+  height: 100%;
+  aspect-ratio: var(--cols) / var(--rows);
+  max-width: 100%;
+  padding: 0;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), 1fr);
+  grid-template-rows: repeat(var(--rows), 1fr);
+  gap: 2px;
+  background: linear-gradient(180deg, #2b2456, #3b3170);
+  overflow: hidden;
+}
+.blocks__board.is-flash {
+  animation: blocks-flash 0.25s ease;
+}
+
+.blocks__cell {
+  border-radius: 4px;
+  background: rgba(255, 255, 255, 0.05);
+}
+.blocks__cell.is-on {
+  box-shadow: inset 0 3px 0 rgba(255, 255, 255, 0.35),
+    inset 0 -3px 0 rgba(0, 0, 0, 0.22);
+}
+
+.blocks__toast {
+  position: absolute;
+  top: 40%;
+  left: 50%;
+  transform: translateX(-50%);
+  font-weight: 900;
+  font-size: clamp(1.1rem, 6vw, 1.8rem);
+  color: #fff;
+  text-shadow: 0 3px 10px rgba(0, 0, 0, 0.45);
+  white-space: nowrap;
+  animation: pop-in 0.3s ease;
+  pointer-events: none;
+}
+
+.blocks__controls {
+  flex: none;
+  display: flex;
+  gap: 10px;
+  align-items: center;
+  justify-content: center;
+}
+.blocks__btn {
+  width: 60px;
+  height: 48px;
+  border: none;
+  border-radius: 12px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  color: var(--primary);
+  font-size: 1.3rem;
+  font-weight: 900;
+  cursor: pointer;
+  touch-action: manipulation;
+  transition: transform 0.1s ease;
+}
+.blocks__btn:active {
+  transform: scale(0.9);
+}
+.blocks__btn--drop {
+  background: linear-gradient(180deg, #58e08c, var(--good));
+  color: #fff;
+}
+
+.blocks__hint {
+  flex: none;
+  margin: 0;
+  text-align: center;
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--white);
+  text-shadow: 0 1px 4px rgba(0, 0, 0, 0.25);
+}
+
+@keyframes blocks-flash {
+  0% {
+    filter: brightness(1);
+  }
+  40% {
+    filter: brightness(1.8);
+  }
+  100% {
+    filter: brightness(1);
+  }
+}
+
+/* Landscape phones: board beside the controls so everything fits the height. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .blocks {
+    flex-direction: row;
+    flex-wrap: wrap;
+    justify-content: center;
+  }
+  .blocks__stage {
+    width: auto;
+    height: 100%;
+  }
+  .blocks__controls {
+    flex-direction: column;
+  }
+}

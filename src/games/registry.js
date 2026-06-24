@@ -289,6 +289,13 @@ export const GAMES = [
     colors: ['#5b86e5', '#36d1dc'],
     tagline: 'Match the dots, empty your hand!',
   },
+  {
+    id: 'blocks',
+    title: 'Block Drop',
+    emoji: '🟦',
+    colors: ['#30cfd0', '#330867'],
+    tagline: 'Fill rows with falling blocks!',
+  },
 ]
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -332,6 +339,7 @@ export const GAME_COMPONENTS = {
   worm: lazy(() => import('./worm/index.jsx')),
   mathtiles: lazy(() => import('./mathtiles/index.jsx')),
   domino: lazy(() => import('./domino/index.jsx')),
+  blocks: lazy(() => import('./blocks/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

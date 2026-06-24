@@ -144,11 +144,19 @@ export default function Domino() {
   const passesRef = useRef(0)
   const timers = useRef([])
   const boardRef = useRef(null)
+  const scrollRef = useRef(null) // the horizontally-scrolling board
   const flyRef = useRef(null) // { from: DOMRect, tile }
   const handRef = useRef(hand)
   handRef.current = hand
 
   useEffect(() => () => timers.current.forEach(clearTimeout), [])
+
+  // Keep the freshly-placed tile in view as the chain scrolls horizontally.
+  useEffect(() => {
+    if (newSegId == null) return
+    const seg = scrollRef.current?.querySelector(`[data-segid="${newSegId}"]`)
+    seg?.scrollIntoView({ inline: 'center', block: 'nearest', behavior: 'smooth' })
+  }, [newSegId])
 
   const L = board[0].l
   const R = board[board.length - 1].r
@@ -312,7 +320,7 @@ export default function Domino() {
       </div>
 
       {/* The line of play */}
-      <div className="domino__board play-surface">
+      <div className="domino__board play-surface" ref={scrollRef}>
         <div className="domino__chain" ref={boardRef}>
           {board.map((seg) => {
             const flying = seg.id === flyingId

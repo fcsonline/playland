@@ -40,7 +40,7 @@ Designed for phones and tablets, with big finger-friendly targets.
 |---|---|---|
 | 🎨 Coloring Studio | 🧩 Puzzle Adventure | 🚂 Train Builder |
 | 🚰 Pipe Connect | 🏙️ City Builder | 🃏 Memory Match |
-| 🚜 Tractor Maze | 📦 Sorting Factory | 🦋 Butterfly Catcher |
+| 🚜 Tractor Maze | 🦋 Butterfly Catcher | |
 | 🏰 Block Castle | 🐠 Magic Aquarium | 🎵 Music Band |
 | 🎂 Cake Designer | 🏎️ Star Racing | 🌻 Happy Garden |
 | 🐾 Animal Tracks | ⚙️ Invention Machine | 🖼️ Mosaic Art |

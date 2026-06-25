@@ -59,13 +59,6 @@ export const GAMES = [
     tagline: 'Trace a path to the treat!',
   },
   {
-    id: 'sorting',
-    title: 'Sorting Factory',
-    emoji: '📦',
-    colors: ['#fddb92', '#d1fdff'],
-    tagline: 'Sort everything in its place',
-  },
-  {
     id: 'butterfly',
     title: 'Butterfly Catcher',
     emoji: '🦋',
@@ -306,7 +299,6 @@ export const GAME_COMPONENTS = {
   pipes: lazy(() => import('./pipes/index.jsx')),
   memory: lazy(() => import('./memory/index.jsx')),
   maze: lazy(() => import('./maze/index.jsx')),
-  sorting: lazy(() => import('./sorting/index.jsx')),
   butterfly: lazy(() => import('./butterfly/index.jsx')),
   aquarium: lazy(() => import('./aquarium/index.jsx')),
   music: lazy(() => import('./music/index.jsx')),

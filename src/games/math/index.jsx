@@ -3,6 +3,7 @@ import { useGame } from '../../state/game.jsx'
 import { randInt, pick, shuffle } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import { useT } from '../../lib/i18n.js'
+import CalmDown, { useCalmBreak } from '../../components/CalmDown.jsx'
 import './math.css'
 
 const STR = {
@@ -79,6 +80,7 @@ function makeProblem(solved) {
 export default function AddItUp() {
   const { earn, award, oops } = useGame()
   const t = useT(STR)
+  const calm = useCalmBreak()
   const [solved, setSolved] = useState(0)
   const [problem, setProblem] = useState(() => makeProblem(0))
   const [picked, setPicked] = useState(null) // the value tapped this problem
@@ -115,6 +117,7 @@ export default function AddItUp() {
       setResult('wrong')
       sfx.tap()
       oops()
+      calm.note()
       setTimeout(() => next(solved), 1150)
     }
   }
@@ -124,6 +127,7 @@ export default function AddItUp() {
 
   return (
     <div className="math">
+      {calm.calming && <CalmDown onDone={calm.dismiss} />}
       <div
         className={`math__stage play-surface ${result === 'right' ? 'is-right' : ''} ${
           result === 'wrong' ? 'is-wrong' : ''

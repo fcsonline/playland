@@ -4,6 +4,7 @@ import { pick, shuffle, randInt } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import { useT } from '../../lib/i18n.js'
 import Countdown from '../../components/Countdown.jsx'
+import CalmDown, { useCalmBreak } from '../../components/CalmDown.jsx'
 import './count.css'
 
 const STR = {
@@ -110,6 +111,7 @@ function makeChoices(n) {
 export default function CountEm() {
   const { earn, award, oops } = useGame()
   const t = useT(STR)
+  const calm = useCalmBreak()
 
   const [round, setRound] = useState(0)
   const [phase, setPhase] = useState('ready') // 'ready' | 'show' | 'quiz' | 'reveal'
@@ -206,11 +208,13 @@ export default function CountEm() {
       // Gentle "not quite" — the same soft red feedback the other games use. No
       // penalty; the reveal still shows the right number.
       oops()
+      calm.note()
     }
   }
 
   return (
     <div className="count">
+      {calm.calming && <CalmDown onDone={calm.dismiss} />}
       <div className="count__hud">
         {phase === 'ready' && (
           <span className="count__hint chip">{t('getReady')}</span>

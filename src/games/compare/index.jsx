@@ -4,6 +4,7 @@ import { pick, randInt } from '../../lib/random.js'
 import { sfx, tone } from '../../lib/audio.js'
 import { getSettings } from '../../lib/settings.js'
 import { useT } from '../../lib/i18n.js'
+import CalmDown, { useCalmBreak } from '../../components/CalmDown.jsx'
 import './compare.css'
 
 const STR = {
@@ -93,11 +94,13 @@ function Pile({ emoji, n }) {
 }
 
 export default function Compare() {
-  const { earn, award } = useGame()
+  const { earn, award, oops } = useGame()
   const t = useT(STR)
+  const calm = useCalmBreak()
   const [round, setRound] = useState(makeRound)
   const [picked, setPicked] = useState(null) // the correct sign, once solved
   const [wrong, setWrong] = useState(null) // a sign that just wobbled
+  const [flash, setFlash] = useState(null) // 'right' | 'wrong' — a quick arena wash
   const [streak, setStreak] = useState(0)
   const timers = useRef([])
 
@@ -110,30 +113,39 @@ export default function Compare() {
 
   const solved = picked != null
 
-  function choose(sign) {
+  function choose(sign, e) {
     if (solved) return
     if (sign === round.answer) {
       setPicked(sign)
+      setFlash('right')
       sfx.good()
       tone(660, { duration: 0.1, type: 'triangle', gain: 0.1 })
       later(() => tone(880, { duration: 0.12, type: 'triangle', gain: 0.1 }), 110)
-      earn(1)
+      // Stars burst from the sign the child tapped (like the other maths games).
+      earn(1, { x: e?.clientX, y: e?.clientY })
       const ns = streak + 1
       setStreak(ns)
       if (ns % 5 === 0) {
         sfx.win()
         award(Math.min(3, 1 + Math.floor(ns / 5)), { praise: t('praise'), count: 18 })
       }
+      later(() => setFlash((f) => (f === 'right' ? null : f)), 720)
       later(() => {
         setRound(makeRound())
         setPicked(null)
       }, 1350)
     } else {
-      // Gentle nudge — no penalty, keep trying.
+      // Gentle "not quite" — the same soft red veil + cross the other maths
+      // games show, plus a wobble and a red arena wash. No penalty: the child
+      // keeps trying the same round.
       setWrong(sign)
+      setFlash('wrong')
       sfx.tap()
       tone(200, { duration: 0.12, type: 'sine', gain: 0.06 })
+      oops()
+      calm.note()
       later(() => setWrong((w) => (w === sign ? null : w)), 440)
+      later(() => setFlash((f) => (f === 'wrong' ? null : f)), 480)
     }
   }
 
@@ -144,9 +156,10 @@ export default function Compare() {
 
   return (
     <div className="compare">
+      {calm.calming && <CalmDown onDone={calm.dismiss} />}
       <p className="compare__hint">{solved ? t('yes') : t('whichMore')}</p>
 
-      <div className="compare__arena">
+      <div className={`compare__arena ${flash ? `is-${flash}` : ''}`}>
         <div className={`compare__group play-surface ${moreLeft ? 'is-more' : ''} ${equal ? 'is-equal' : ''}`}>
           <Pile emoji={left.emoji} n={left.n} />
           <span className="compare__num">{left.n}</span>
@@ -167,7 +180,7 @@ export default function Compare() {
           <button
             key={s}
             className={`compare__sign ${picked === s ? 'is-right' : ''} ${wrong === s ? 'is-wrong' : ''}`}
-            onClick={() => choose(s)}
+            onClick={(e) => choose(s, e)}
             disabled={solved}
             aria-label={s === '<' ? t('lessThan') : s === '>' ? t('greaterThan') : t('equal')}
           >

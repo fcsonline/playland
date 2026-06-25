@@ -36,7 +36,7 @@
   gap: 8px;
   padding: clamp(8px, 2.5vw, 16px);
   background: rgba(255, 255, 255, 0.9);
-  transition: transform 0.25s ease, box-shadow 0.25s ease;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, background 0.18s ease;
 }
 /* The bigger pile pops + glows once solved (so "more" is unmistakable). */
 .compare__group.is-more {
@@ -45,6 +45,21 @@
 }
 .compare__group.is-equal {
   box-shadow: 0 0 0 4px rgba(108, 92, 231, 0.4), var(--shadow);
+}
+
+/* A quick whole-arena wash on every answer — green for right, red for wrong —
+   so the feedback lands as loudly as the other maths games. */
+.compare__arena.is-right .compare__group {
+  background: #eafff1;
+}
+.compare__arena.is-wrong .compare__group {
+  background: #ffeef0;
+  animation: compare-arena-shake 0.4s ease;
+}
+@keyframes compare-arena-shake {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 .compare__pile {

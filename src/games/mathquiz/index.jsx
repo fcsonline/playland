@@ -3,6 +3,7 @@ import { useGame } from '../../state/game.jsx'
 import { useT } from '../../lib/i18n.js'
 import { randInt, shuffle } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
+import CalmDown, { useCalmBreak } from '../../components/CalmDown.jsx'
 import './mathquiz.css'
 
 const STR = {
@@ -125,8 +126,9 @@ const END = {
 export default function MathQuiz() {
   const { earn, award, oops } = useGame()
   const t = useT(STR)
-  const cbs = useRef({ earn, award, oops })
-  cbs.current = { earn, award, oops }
+  const calm = useCalmBreak()
+  const cbs = useRef({ earn, award, oops, note: calm.note })
+  cbs.current = { earn, award, oops, note: calm.note }
 
   const [questions, setQuestions] = useState(() => makeRound())
   const [index, setIndex] = useState(0)
@@ -190,6 +192,7 @@ export default function MathQuiz() {
     setShake(true)
     sfx.tap()
     cbs.current.oops()
+    cbs.current.note()
     advance(score)
   }
 
@@ -246,6 +249,7 @@ export default function MathQuiz() {
 
   return (
     <div className="mathquiz">
+      {calm.calming && <CalmDown onDone={calm.dismiss} />}
       <div className="mathquiz__bar" aria-hidden="true">
         <div
           className="mathquiz__bar-fill"

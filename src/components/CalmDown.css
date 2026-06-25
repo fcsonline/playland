@@ -1,0 +1,132 @@
+/* Full-screen, low-stimulation "let's breathe" overlay. Sits above the whole
+   game frame (header z-index is 60 in landscape) so the playfield's bright
+   colours fade away and only the calm scene remains. */
+.calm {
+  position: fixed;
+  inset: 0;
+  z-index: 200;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  /* A soft twilight wash — calm, not dark or scary. */
+  background: radial-gradient(circle at 50% 38%, rgba(122, 150, 230, 0.55), rgba(58, 44, 90, 0.82) 70%);
+  -webkit-backdrop-filter: blur(8px);
+  backdrop-filter: blur(8px);
+  animation: calm-fade 0.5s ease both;
+}
+
+@keyframes calm-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+.calm__card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  gap: 14px;
+  max-width: 420px;
+}
+
+/* The breathing orb: a soft glowing circle that slowly expands (inhale) and
+   contracts (exhale) on a calm 8s cycle. */
+.calm__orb {
+  width: clamp(120px, 42vw, 190px);
+  height: clamp(120px, 42vw, 190px);
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  background: radial-gradient(circle at 50% 42%, rgba(255, 255, 255, 0.92), rgba(160, 200, 255, 0.5) 60%, rgba(160, 200, 255, 0) 72%);
+  box-shadow: 0 0 60px rgba(180, 210, 255, 0.6);
+  animation: calm-breathe 8s ease-in-out infinite;
+  margin-bottom: 6px;
+}
+
+.calm__orb-core {
+  width: 46%;
+  height: 46%;
+  border-radius: 50%;
+  background: radial-gradient(circle at 50% 40%, #ffffff, #cfe3ff);
+  box-shadow: 0 0 26px rgba(255, 255, 255, 0.85);
+}
+
+@keyframes calm-breathe {
+  0%,
+  100% {
+    transform: scale(0.62);
+  }
+  50% {
+    transform: scale(1);
+  }
+}
+
+.calm__title {
+  margin: 0;
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: clamp(1.4rem, 6vw, 2rem);
+  color: #fff;
+  text-shadow: 0 2px 10px rgba(0, 0, 0, 0.25);
+}
+
+/* The "Breathe in… / Breathe out…" cue — re-mounts on each phase (keyed in JSX)
+   so it gently fades in every time the word changes. */
+.calm__breath {
+  margin: 0;
+  font-family: var(--font);
+  font-weight: 700;
+  font-size: clamp(1.05rem, 4.5vw, 1.4rem);
+  color: #eaf2ff;
+  letter-spacing: 0.5px;
+  animation: calm-cue 0.6s ease both;
+}
+
+@keyframes calm-cue {
+  from {
+    opacity: 0;
+    transform: translateY(4px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.calm__sub {
+  margin: 0;
+  font-family: var(--font);
+  font-size: clamp(0.9rem, 3.6vw, 1.05rem);
+  color: rgba(255, 255, 255, 0.82);
+}
+
+/* The "I'm ready" button stays dim and untappable for the first breath, then
+   wakes up — so the pause actually happens before the child can rush on. */
+.calm__go {
+  margin-top: 8px;
+  font-size: 1.15rem;
+  opacity: 0.35;
+  transition: opacity 0.6s ease, transform 0.15s ease;
+}
+.calm__go.is-awake {
+  opacity: 1;
+}
+.calm__go:disabled {
+  cursor: default;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .calm,
+  .calm__breath {
+    animation-duration: 0.01ms;
+  }
+  .calm__orb {
+    /* Hold a calm mid-breath size instead of pulsing. */
+    animation: none;
+    transform: scale(0.85);
+  }
+}

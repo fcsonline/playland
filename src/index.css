@@ -35,6 +35,15 @@ html,
 body {
   height: 100%;
   margin: 0;
+  /* No page scrollbar: the catalogue scrolls the document vertically in
+     portrait, and a visible bar clutters the otherwise full-screen, app-like
+     UI. Swipe / drag / wheel scrolling is unaffected. */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge / IE */
+}
+html::-webkit-scrollbar,
+body::-webkit-scrollbar {
+  display: none; /* Chromium / WebKit (incl. iOS Safari) */
 }
 
 #root {

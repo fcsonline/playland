@@ -38,6 +38,15 @@
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   gap: 14px;
   align-content: start;
+  /* Hide the horizontal scrollbar that appears when the catalogue scrolls
+     sideways in landscape — swipe / drag still scrolls freely. */
+  scrollbar-width: none; /* Firefox */
+  -ms-overflow-style: none; /* old Edge / IE */
+}
+.home__grid::-webkit-scrollbar {
+  width: 0;
+  height: 0;
+  display: none; /* Chromium / WebKit (incl. iOS Safari) */
 }
 
 .card {

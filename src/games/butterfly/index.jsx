@@ -37,19 +37,24 @@ const STR = {
  * penalty.
  */
 
-// Butterfly colors, made by hue-rotating the 🦋 emoji. `hue` is shared by the
-// flying bug and its matching goal chip so they're always the same color.
-// The first three are a full 120° apart (maximally distinct) and the rest fill
-// the gaps at 60°, so even at higher levels no two colors look alike. A strong
-// saturation/contrast boost makes each one vivid instead of washed-out, which is
-// what made them hard to tell apart before.
+// Butterfly colors, made by hue-rotating the (blue) 🦋 emoji. `hue` is shared by
+// the flying bug and its matching goal chip so they always render identically.
+//
+// The emoji isn't a single pure hue, so an even spread of rotations makes
+// several land on near-identical colors — the old palette's 240° and 300° both
+// came out green, which is exactly what made the butterflies hard to tell apart.
+// These rotations are instead hand-picked from the rendered result so every
+// colour is clearly distinct, ordered most-distinct-first: the early levels (which
+// use the first 3-4) get blue / orange / green — the boldest trio — before the
+// subtler pink, purple and teal join in. A saturation/contrast boost keeps them
+// vivid rather than washed-out.
 const COLORS = [
-  { id: 'blue', hue: 0 },      // base 🦋 is blue
-  { id: 'green', hue: 120 },   // blue → green
-  { id: 'magenta', hue: 240 }, // blue → magenta/pink
-  { id: 'gold', hue: 60 },     // blue → gold/yellow
-  { id: 'purple', hue: 300 },  // blue → purple
-  { id: 'red', hue: 180 },     // blue → warm red/orange
+  { id: 'blue', hue: 0 },     // base 🦋 is blue
+  { id: 'orange', hue: 180 },
+  { id: 'green', hue: 240 },  // lime / yellow-green
+  { id: 'pink', hue: 120 },
+  { id: 'purple', hue: 60 },
+  { id: 'teal', hue: 330 },
 ]
 const COLOR_BY_ID = Object.fromEntries(COLORS.map((c) => [c.id, c]))
 

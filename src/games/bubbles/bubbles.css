@@ -1,0 +1,189 @@
+.bubbles {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  padding: 8px;
+  gap: 6px;
+  user-select: none;
+  touch-action: none;
+}
+
+.bubbles__field {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  cursor: crosshair;
+  /* Override the white play-surface background with a deep sky/night look */
+  background: linear-gradient(175deg, #0d1b2a 0%, #1b2f4a 55%, #2a4a6e 100%) !important;
+  box-shadow: inset 0 0 60px rgba(0, 0, 0, 0.4);
+}
+
+/* Faint star field */
+.bubbles__field::before {
+  content: '· · · · · · · · · · · · · · · · · · · ·';
+  position: absolute;
+  top: 8%; left: 0; right: 0;
+  color: rgba(255, 255, 255, 0.18);
+  font-size: 10px;
+  letter-spacing: 14px;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+.bubbles__field::after {
+  content: '· · · · · · · · · · · · · · · · · · · ·';
+  position: absolute;
+  top: 22%; left: 0; right: 0;
+  color: rgba(255, 255, 255, 0.10);
+  font-size: 8px;
+  letter-spacing: 20px;
+  pointer-events: none;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+/* SVG overlay for aim guide */
+.bubbles__svg {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  pointer-events: none;
+  z-index: 5;
+}
+
+/* ---- Bubbles ---- */
+.bubbles__bubble {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--bc, #888);
+  /* Inner shadow for depth, bright top-left highlight */
+  box-shadow:
+    inset -3px -4px 10px rgba(0, 0, 0, 0.32),
+    inset 3px 4px 8px rgba(255, 255, 255, 0.28),
+    0 3px 8px rgba(0, 0, 0, 0.3);
+  pointer-events: none;
+}
+
+/* Glossy specular highlight */
+.bubbles__bubble::after {
+  content: '';
+  position: absolute;
+  top: 14%;
+  left: 18%;
+  width: 36%;
+  height: 28%;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  transform: rotate(-25deg);
+}
+
+/* Flying projectile — slightly larger z-index so it renders on top */
+.bubbles__proj {
+  z-index: 20;
+}
+
+/* ---- Pop burst ---- */
+.bubbles__pop {
+  position: absolute;
+  border-radius: 50%;
+  background: var(--bc, #888);
+  pointer-events: none;
+  z-index: 15;
+  animation: bbl-pop 0.55s ease-out forwards;
+}
+.bubbles__pop::after {
+  content: '';
+  position: absolute;
+  top: 14%;
+  left: 18%;
+  width: 36%;
+  height: 28%;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  transform: rotate(-25deg);
+}
+
+@keyframes bbl-pop {
+  0%   { transform: scale(1);   opacity: 1; }
+  45%  { transform: scale(1.75); opacity: 0.8; }
+  100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* ---- Shooter ring ---- */
+.bubbles__shooter {
+  position: absolute;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.08);
+  border: 2px solid rgba(255, 255, 255, 0.22);
+  box-shadow: 0 0 18px rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  z-index: 10;
+}
+
+/* Current bubble inside the shooter (relative, not absolute) */
+.bubbles__shooter-bubble {
+  position: relative;
+  border-radius: 50%;
+  background: var(--bc, #888);
+  box-shadow:
+    inset -3px -4px 10px rgba(0, 0, 0, 0.32),
+    inset 3px 4px 8px rgba(255, 255, 255, 0.28),
+    0 3px 8px rgba(0, 0, 0, 0.3);
+  flex-shrink: 0;
+}
+.bubbles__shooter-bubble::after {
+  content: '';
+  position: absolute;
+  top: 14%;
+  left: 18%;
+  width: 36%;
+  height: 28%;
+  background: rgba(255, 255, 255, 0.55);
+  border-radius: 50%;
+  transform: rotate(-25deg);
+}
+
+/* ---- Next bubble preview ---- */
+.bubbles__next {
+  position: absolute;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 3px;
+  pointer-events: none;
+  z-index: 10;
+  transform: translate(0, -50%);
+}
+
+.bubbles__next-label {
+  font-size: 9px;
+  font-weight: 700;
+  letter-spacing: 0.06em;
+  color: rgba(255, 255, 255, 0.5);
+  text-transform: uppercase;
+}
+
+/* ---- Level chip ---- */
+.bubbles__level {
+  position: absolute;
+  top: 8px;
+  right: 10px;
+  pointer-events: none;
+  opacity: 0.75;
+  font-size: 0.75rem;
+}
+
+/* ---- Hint text ---- */
+.bubbles__hint {
+  text-align: center;
+  font-size: 0.75rem;
+  color: var(--ink-soft);
+  margin: 0;
+  padding: 2px 0 0;
+}

@@ -289,6 +289,13 @@ export const GAMES = [
     colors: ['#30cfd0', '#330867'],
     tagline: 'Fill rows with falling blocks!',
   },
+  {
+    id: 'bubbles',
+    title: 'Bubble Pop',
+    emoji: '🫧',
+    colors: ['#0d1b2a', '#3a86ff'],
+    tagline: 'Shoot and match 3 bubbles!',
+  },
 ]
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -332,6 +339,7 @@ export const GAME_COMPONENTS = {
   mathtiles: lazy(() => import('./mathtiles/index.jsx')),
   domino: lazy(() => import('./domino/index.jsx')),
   blocks: lazy(() => import('./blocks/index.jsx')),
+  bubbles: lazy(() => import('./bubbles/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

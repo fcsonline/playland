@@ -302,7 +302,7 @@ export default function Bubbles() {
     sfx.tap()
     swapAnimRef.current = true
     setSwapAnim(true)
-    setTimeout(() => { swapAnimRef.current = false; setSwapAnim(false) }, 400)
+    setTimeout(() => { swapAnimRef.current = false; setSwapAnim(false) }, 320)
     repaint()
   }
 

@@ -6,7 +6,6 @@
   display: flex;
   flex-direction: column;
   background: linear-gradient(160deg, var(--g-from, #a1c4fd), var(--g-to, #c2e9fb));
-  animation: pop-in 0.25s ease;
 }
 
 .game-frame__bar {

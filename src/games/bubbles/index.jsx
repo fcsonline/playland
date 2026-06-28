@@ -302,7 +302,7 @@ export default function Bubbles() {
     sfx.tap()
     swapAnimRef.current = true
     setSwapAnim(true)
-    setTimeout(() => { swapAnimRef.current = false; setSwapAnim(false) }, 320)
+    setTimeout(() => { swapAnimRef.current = false; setSwapAnim(false) }, 360)
     repaint()
   }
 
@@ -505,12 +505,10 @@ export default function Bubbles() {
             onPointerDown={(e) => e.stopPropagation()}
             onPointerUp={(e) => { e.stopPropagation(); swap() }}
           >
-            <span className="bubbles__next-label">{t('next')}</span>
             <div className={`bubbles__next-slot${swapAnim ? ' bubbles__next-slot--swap' : ''}`}>
               <BubbleDiv bubble={nxt} size={r * 1.4}
                 style={{ position: 'relative', cursor: 'pointer' }} />
             </div>
-            <span className="bubbles__swap-hint">{t('swap')}</span>
           </div>
         )}
 

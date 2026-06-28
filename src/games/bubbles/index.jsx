@@ -15,6 +15,8 @@ const COLS = 8
 const SQRT3 = Math.sqrt(3)
 const MAX_ROWS = 9
 const SHOOT_SPEED = 2.3
+const MIN_SHOOT_DEG = 12                                        // min degrees above horizontal
+const MIN_SHOOT_SIN = Math.sin((MIN_SHOOT_DEG * Math.PI) / 180)
 
 const PALETTE = ['#e63946', '#3a86ff', '#06d6a0', '#fb8500', '#8338ec', '#ff006e']
 
@@ -109,7 +111,8 @@ function aimSegments(sx, sy, tx, ty, W, r) {
   const dx = tx - sx, dy = ty - sy
   const len = Math.hypot(dx, dy)
   if (len < 8 || dy >= 0) return []
-  const ux = dx / len, uy = dy / len
+  let ux = dx / len, uy = dy / len
+  if (-uy < MIN_SHOOT_SIN) { uy = -MIN_SHOOT_SIN; ux = Math.sqrt(1 - uy * uy) * Math.sign(dx || 1) }
   const tTop = (r - sy) / uy
   let tWall = Infinity
   if (ux < 0) tWall = (r - sx) / ux
@@ -280,8 +283,10 @@ export default function Bubbles() {
     const dx = tx - sx, dy = ty - sy
     const len = Math.hypot(dx, dy)
     if (len < 10 || dy >= 0) return
+    let ux = dx / len, uy = dy / len
+    if (-uy < MIN_SHOOT_SIN) { uy = -MIN_SHOOT_SIN; ux = Math.sqrt(1 - uy * uy) * Math.sign(dx || 1) }
     const spd = W * SHOOT_SPEED
-    projRef.current = { x: sx, y: sy, vx: (dx / len) * spd, vy: (dy / len) * spd, bubble: curRef.current }
+    projRef.current = { x: sx, y: sy, vx: ux * spd, vy: uy * spd, bubble: curRef.current }
     aimPtRef.current = null
     sfx.tap()
     repaint()
@@ -388,6 +393,7 @@ export default function Bubbles() {
   const H = rect?.height ?? 0
   const r = W ? r_from_W(W) : 20
   const diam = r * 2
+  const pad = W ? Math.max(1, Math.round(r * 0.08)) : 0   // visual gap between grid bubbles
   const sx = W / 2, sy = H - r * 4
 
   const grid = gridRef.current
@@ -432,8 +438,8 @@ export default function Bubbles() {
                   key={`g-${ri}-${ci}`}
                   className="bubbles__bubble"
                   style={{
-                    left: cellX(ri, ci, W) - r, top: cellY(ri, W) - r,
-                    width: diam, height: diam, '--bc': color,
+                    left: cellX(ri, ci, W) - r + pad, top: cellY(ri, W) - r + pad,
+                    width: diam - pad * 2, height: diam - pad * 2, '--bc': color,
                   }}
                 />
               )
@@ -458,7 +464,7 @@ export default function Bubbles() {
           <BubbleDiv
             className="bubbles__proj"
             bubble={proj.bubble}
-            style={{ position: 'absolute', left: proj.x - r, top: proj.y - r }}
+            style={{ position: 'absolute', left: proj.x - r + pad, top: proj.y - r + pad, width: diam - pad * 2, height: diam - pad * 2 }}
           />
         )}
 
@@ -466,7 +472,7 @@ export default function Bubbles() {
         {poppingRef.current.map((p) => (
           <div key={p.id}
             className={`bubbles__pop${p.big ? ' bubbles__pop--big' : ''}`}
-            style={{ left: p.x - r, top: p.y - r, width: diam, height: diam, '--bc': p.color }}
+            style={{ left: p.x - r + pad, top: p.y - r + pad, width: diam - pad * 2, height: diam - pad * 2, '--bc': p.color }}
           />
         ))}
 
@@ -474,7 +480,7 @@ export default function Bubbles() {
         {fallingRef.current.map((f) => (
           <div key={f.id} className="bubbles__bubble"
             style={{
-              left: f.x - r, top: f.y - r, width: diam, height: diam, '--bc': f.color,
+              left: f.x - r + pad, top: f.y - r + pad, width: diam - pad * 2, height: diam - pad * 2, '--bc': f.color,
               opacity: Math.max(0, 1 - (Date.now() - f.born) / 1100),
             }}
           />

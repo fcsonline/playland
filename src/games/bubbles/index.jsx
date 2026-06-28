@@ -5,34 +5,27 @@ import { useT } from '../../lib/i18n.js'
 import './bubbles.css'
 
 const STR = {
-  en: { hint: 'Tap anywhere to aim and shoot · Match 3 to pop! 🫧', next: 'Next' },
-  es: { hint: '¡Toca para apuntar y disparar · combina 3 para explotar! 🫧', next: 'Siguiente' },
-  ca: { hint: 'Toca per apuntar i disparar · combina 3 per explotar! 🫧', next: 'Següent' },
-  fr: { hint: 'Appuie pour viser · relie 3 bulles pour les éclater ! 🫧', next: 'Suivant' },
+  en: { hint: 'Tap to aim and shoot · Match 3 to pop! 🫧', next: 'NEXT', swap: '⇅ swap' },
+  es: { hint: '¡Toca para apuntar · combina 3! 🫧', next: 'SIG.', swap: '⇅ cambiar' },
+  ca: { hint: 'Toca per apuntar · combina 3! 🫧', next: 'SEG.', swap: '⇅ canviar' },
+  fr: { hint: 'Appuie pour viser · relie 3 ! 🫧', next: 'SUIV.', swap: '⇅ changer' },
 }
 
-// Grid layout: 8 bubbles on even rows, 7 on odd rows (hex offset)
 const COLS = 8
 const SQRT3 = Math.sqrt(3)
 const MAX_ROWS = 9
-const SHOOT_SPEED = 2.3  // field-widths per second
+const SHOOT_SPEED = 2.3
 
 const PALETTE = ['#e63946', '#3a86ff', '#06d6a0', '#fb8500', '#8338ec', '#ff006e']
 
 const colsForRow = (row) => (row % 2 === 0 ? COLS : COLS - 1)
-
-// Pixel centers of hex grid cells given field width W
 const r_from_W = (W) => W / (COLS * 2)
 const cellX = (row, col, W) => {
   const r = r_from_W(W)
   return row % 2 === 0 ? (2 * col + 1) * r : (2 * col + 2) * r
 }
-const cellY = (row, W) => {
-  const r = r_from_W(W)
-  return r + row * r * SQRT3
-}
+const cellY = (row, W) => r_from_W(W) * (1 + row * SQRT3)
 
-// Hex neighbors (offset grid — even rows left-anchored, odd rows shifted right)
 function hexNeighbors(row, col, gridLen) {
   const ns =
     row % 2 === 0
@@ -78,8 +71,7 @@ function connectedToTop(grid) {
 
 function nearestEmpty(px, py, grid, W) {
   const maxRow = Math.min(grid.length + 1, MAX_ROWS)
-  let best = null
-  let bestD = Infinity
+  let best = null, bestD = Infinity
   for (let row = 0; row < maxRow; row++) {
     for (let col = 0; col < colsForRow(row); col++) {
       if (grid[row]?.[col]) continue
@@ -104,27 +96,29 @@ function pickFromGrid(grid) {
   return present[Math.floor(Math.random() * present.length)]
 }
 
-// Compute aim-guide line segments from shooter (sx,sy) toward tap (tx,ty).
-// Reflects off left/right walls once.
+// Each bubble in the queue/shooter: { type: 'normal'|'bomb'|'rainbow', color, emoji }
+function makeBubble(grid) {
+  const roll = Math.random()
+  if (roll < 0.09) return { type: 'bomb',    color: '#1c1c1e', emoji: '💣' }
+  if (roll < 0.17) return { type: 'rainbow', color: '#d4b4fe', emoji: '🌈' }
+  return { type: 'normal', color: pickFromGrid(grid), emoji: null }
+}
+
+// Aim guide: dashed line(s) from shooter toward tap, one wall reflection.
 function aimSegments(sx, sy, tx, ty, W, r) {
   const dx = tx - sx, dy = ty - sy
   const len = Math.hypot(dx, dy)
   if (len < 8 || dy >= 0) return []
-  const ux = dx / len, uy = dy / len // uy < 0 (upward)
-
-  const tTop = (r - sy) / uy // time to y = r (positive)
+  const ux = dx / len, uy = dy / len
+  const tTop = (r - sy) / uy
   let tWall = Infinity
   if (ux < 0) tWall = (r - sx) / ux
   else if (ux > 0) tWall = (W - r - sx) / ux
-
   if (tWall > 0 && tWall < tTop) {
-    const wx = sx + ux * tWall
-    const wy = sy + uy * tWall
-    const rux = -ux // reflected x-velocity
-    // Time from wall bounce to reach top, side wall, or field edge
+    const wx = sx + ux * tWall, wy = sy + uy * tWall
+    const rux = -ux
     const tTop2 = (r - wy) / uy
-    const tWall2 =
-      rux > 0 ? (W - r - wx) / rux : rux < 0 ? (r - wx) / rux : Infinity
+    const tWall2 = rux > 0 ? (W - r - wx) / rux : rux < 0 ? (r - wx) / rux : Infinity
     const t2 = Math.min(tTop2, Math.abs(tWall2))
     return [
       { x1: sx, y1: sy, x2: wx, y2: wy },
@@ -146,93 +140,132 @@ export default function Bubbles() {
   const [, tick] = useState(0)
   const repaint = () => tick((n) => (n + 1) % 1e6)
 
-  // All live game state lives in refs so the rAF loop never reads stale closures
   const gridRef = useRef(makeGrid(1))
-  const curRef = useRef(pickFromGrid(gridRef.current))
-  const nxtRef = useRef(pickFromGrid(gridRef.current))
-  const projRef = useRef(null)     // { x, y, vx, vy }
-  const aimPtRef = useRef(null)    // { x, y } finger position
-  const poppingRef = useRef([])    // [{ id, x, y, color, born }]
-  const fallingRef = useRef([])    // [{ id, x, y, vx, vy, color, born }]
+  // curRef/nxtRef hold bubble objects: { type, color, emoji }
+  const curRef = useRef(makeBubble(gridRef.current))
+  const nxtRef = useRef(makeBubble(gridRef.current))
+  const projRef = useRef(null)     // { x, y, vx, vy, bubble }
+  const aimPtRef = useRef(null)    // { x, y } — updated on every pointermove, NO repaint call
+  const poppingRef = useRef([])    // [{ id, x, y, color, born, big? }]
+  const fallingRef = useRef([])
   const levelRef = useRef(1)
-  const busyRef = useRef(false)    // locked during level-win pause
+  const busyRef = useRef(false)
 
-  // Called when flying bubble snaps to a grid cell
+  // Landing handler — set every render so it always closes over fresh repaint/refs
   const onLandRef = useRef(null)
   onLandRef.current = (row, col) => {
     if (busyRef.current) return
     const grid = gridRef.current
-    const color = curRef.current
+    const bubble = curRef.current
     const rect = fieldRef.current?.getBoundingClientRect()
     const W = rect?.width ?? 320
     const r = r_from_W(W)
 
-    // Extend grid rows if needed
-    while (grid.length <= row) grid.push(Array(colsForRow(grid.length)).fill(null))
-    grid[row][col] = color
     projRef.current = null
+    // Ensure grid rows exist up to landing row
+    while (grid.length <= row) grid.push(Array(colsForRow(grid.length)).fill(null))
 
-    const matches = bfsColor(grid, row, col)
-    if (matches.length >= 3) {
-      sfx.pop()
-      tone(523, { duration: 0.18, type: 'sine', gain: 0.11 })
-      matches.forEach(([mr, mc]) => {
-        poppingRef.current.push({
-          id: ++uid,
-          x: cellX(mr, mc, W),
-          y: cellY(mr, W),
-          color,
-          born: Date.now(),
-        })
-        grid[mr][mc] = null
-      })
-      cbRef.current.earn(matches.length)
+    const addPop = (rr, cc, big = false) => {
+      const color = grid[rr]?.[cc] ?? bubble.color
+      poppingRef.current.push({ id: ++uid, x: cellX(rr, cc, W), y: cellY(rr, W), color, born: Date.now(), big })
+      if (grid[rr]) grid[rr][cc] = null
+    }
 
-      // Drop bubbles no longer connected to the ceiling
+    const dropFloating = () => {
       const connected = connectedToTop(grid)
-      const floating = []
+      const fell = []
       for (let rr = 0; rr < grid.length; rr++) {
         for (let cc = 0; cc < colsForRow(rr); cc++) {
-          if (grid[rr]?.[cc] && !connected.has(`${rr},${cc}`)) floating.push([rr, cc])
+          if (grid[rr]?.[cc] && !connected.has(`${rr},${cc}`)) fell.push([rr, cc])
         }
       }
-      if (floating.length) {
-        floating.forEach(([fr, fc]) => {
+      if (fell.length) {
+        fell.forEach(([fr, fc]) => {
           const fcolor = grid[fr][fc]
           grid[fr][fc] = null
           fallingRef.current.push({
-            id: ++uid,
-            x: cellX(fr, fc, W), y: cellY(fr, W),
-            vx: (Math.random() - 0.5) * 90, vy: -40,
-            color: fcolor, born: Date.now(),
+            id: ++uid, x: cellX(fr, fc, W), y: cellY(fr, W),
+            vx: (Math.random() - 0.5) * 90, vy: -40, color: fcolor, born: Date.now(),
           })
         })
-        cbRef.current.earn(floating.length)
-        setTimeout(() => tone(659, { duration: 0.18, type: 'sine', gain: 0.09 }), 100)
+        cbRef.current.earn(fell.length)
+        setTimeout(() => tone(659, { duration: 0.18, type: 'sine', gain: 0.09 }), 110)
       }
-    } else {
-      tone(310, { duration: 0.1, type: 'sine', gain: 0.07 })
     }
 
-    // Trim completely-empty trailing rows
+    if (bubble.type === 'bomb') {
+      // Explode: pop everything within ~5 bubble-diameters
+      const bx = cellX(row, col, W), by = cellY(row, W)
+      const BLAST = r * 5
+      const hits = []
+      for (let rr = 0; rr < grid.length; rr++)
+        for (let cc = 0; cc < colsForRow(rr); cc++)
+          if (grid[rr][cc] && Math.hypot(cellX(rr, cc, W) - bx, cellY(rr, W) - by) <= BLAST)
+            hits.push([rr, cc])
+
+      hits.forEach(([rr, cc]) => addPop(rr, cc, true))
+      if (hits.length) {
+        cbRef.current.earn(hits.length)
+        tone(80, { duration: 0.38, type: 'sawtooth', gain: 0.18 })
+        sfx.pop()
+        dropFloating()
+      } else {
+        tone(200, { duration: 0.12, type: 'sine', gain: 0.06 })
+      }
+    } else if (bubble.type === 'rainbow') {
+      // Pop every adjacent same-color cluster (regardless of cluster size)
+      const gridLen = Math.max(grid.length, row + 2)
+      const removeSet = new Set()
+      hexNeighbors(row, col, gridLen).forEach(([nr, nc]) => {
+        const color = grid[nr]?.[nc]
+        if (!color || removeSet.has(`${nr},${nc}`)) return
+        bfsColor(grid, nr, nc).forEach(([cr, cc]) => removeSet.add(`${cr},${cc}`))
+      })
+      const hits = [...removeSet].map((k) => k.split(',').map(Number))
+      hits.forEach(([rr, cc]) => addPop(rr, cc))
+      if (hits.length) {
+        cbRef.current.earn(hits.length)
+        tone(523, { duration: 0.14, type: 'sine', gain: 0.1 })
+        setTimeout(() => tone(659, { duration: 0.14, type: 'sine', gain: 0.1 }), 80)
+        setTimeout(() => tone(784, { duration: 0.14, type: 'sine', gain: 0.1 }), 160)
+        sfx.pop()
+        dropFloating()
+      } else {
+        tone(440, { duration: 0.18, type: 'sine', gain: 0.08 })
+      }
+    } else {
+      // Normal bubble: place on grid, check match-3
+      grid[row][col] = bubble.color
+      const matches = bfsColor(grid, row, col)
+      if (matches.length >= 3) {
+        sfx.pop()
+        tone(523, { duration: 0.18, type: 'sine', gain: 0.11 })
+        matches.forEach(([mr, mc]) => addPop(mr, mc))
+        cbRef.current.earn(matches.length)
+        dropFloating()
+      } else {
+        tone(310, { duration: 0.1, type: 'sine', gain: 0.07 })
+      }
+    }
+
+    // Trim empty trailing rows
     while (grid.length > 0 && grid[grid.length - 1].every((c) => !c)) grid.pop()
 
     if (!grid.some((row) => row.some(Boolean))) {
-      // All cleared — level complete!
       sfx.win()
       cbRef.current.award(3, { count: 22 })
       busyRef.current = true
       setTimeout(() => {
         levelRef.current++
         gridRef.current = makeGrid(levelRef.current)
-        curRef.current = pickFromGrid(gridRef.current)
-        nxtRef.current = pickFromGrid(gridRef.current)
+        curRef.current = makeBubble(gridRef.current)
+        nxtRef.current = makeBubble(gridRef.current)
         busyRef.current = false
         repaint()
       }, 1900)
     } else {
       curRef.current = nxtRef.current
-      nxtRef.current = pickFromGrid(grid)
+      nxtRef.current = makeBubble(grid)
     }
     repaint()
   }
@@ -248,36 +281,44 @@ export default function Bubbles() {
     const len = Math.hypot(dx, dy)
     if (len < 10 || dy >= 0) return
     const spd = W * SHOOT_SPEED
-    projRef.current = { x: sx, y: sy, vx: (dx / len) * spd, vy: (dy / len) * spd }
+    projRef.current = { x: sx, y: sy, vx: (dx / len) * spd, vy: (dy / len) * spd, bubble: curRef.current }
     aimPtRef.current = null
     sfx.tap()
     repaint()
   }
 
+  const swap = () => {
+    if (projRef.current || busyRef.current) return
+    const tmp = curRef.current
+    curRef.current = nxtRef.current
+    nxtRef.current = tmp
+    sfx.tap()
+    repaint()
+  }
+
+  // Pointer handlers — pointermove does NOT call repaint(); the rAF loop
+  // repaints at 60 fps and reads aimPtRef directly, eliminating aim-line lag.
   const onPointerDown = (e) => {
     e.currentTarget.setPointerCapture(e.pointerId)
     const rect = fieldRef.current?.getBoundingClientRect()
     if (!rect) return
     aimPtRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
-    repaint()
   }
   const onPointerMove = (e) => {
     if (!aimPtRef.current) return
     const rect = fieldRef.current?.getBoundingClientRect()
     if (!rect) return
     aimPtRef.current = { x: e.clientX - rect.left, y: e.clientY - rect.top }
-    repaint()
+    // No repaint — rAF picks up the updated ref on the next frame
   }
   const onPointerUp = (e) => {
     const rect = fieldRef.current?.getBoundingClientRect()
     if (!rect) return
-    const tx = e.clientX - rect.left
-    const ty = e.clientY - rect.top
     aimPtRef.current = null
-    fire(tx, ty)
+    fire(e.clientX - rect.left, e.clientY - rect.top)
   }
 
-  // rAF physics loop — runs once on mount, uses only refs
+  // Physics loop
   useEffect(() => {
     let raf = 0, last = 0
     const step = (ts) => {
@@ -295,61 +336,41 @@ export default function Bubbles() {
         if (p) {
           p.x += p.vx * dt
           p.y += p.vy * dt
-
-          // Bounce off side walls
           if (p.x < r)     { p.x = r;     p.vx = Math.abs(p.vx) }
           if (p.x > W - r) { p.x = W - r; p.vx = -Math.abs(p.vx) }
 
-          // Hit top wall → snap to grid
           if (p.y <= r) {
             const snap = nearestEmpty(p.x, r, grid, W)
             if (snap) onLandRef.current(snap.row, snap.col)
-            else {
-              projRef.current = null
-              curRef.current = nxtRef.current
-              nxtRef.current = pickFromGrid(grid)
-            }
+            else { projRef.current = null; curRef.current = nxtRef.current; nxtRef.current = makeBubble(grid) }
           }
 
-          // Collision with an existing bubble
           if (projRef.current) {
             let hit = false
             outer: for (let row = 0; row < grid.length; row++) {
               for (let col = 0; col < colsForRow(row); col++) {
                 if (!grid[row][col]) continue
-                const cx = cellX(row, col, W), cy = cellY(row, W)
-                if (Math.hypot(p.x - cx, p.y - cy) < r * 2.05) {
+                if (Math.hypot(p.x - cellX(row, col, W), p.y - cellY(row, W)) < r * 2.05) {
                   const snap = nearestEmpty(p.x, p.y, grid, W)
                   if (snap) onLandRef.current(snap.row, snap.col)
-                  else {
-                    projRef.current = null
-                    curRef.current = nxtRef.current
-                    nxtRef.current = pickFromGrid(grid)
-                  }
-                  hit = true
-                  break outer
+                  else { projRef.current = null; curRef.current = nxtRef.current; nxtRef.current = makeBubble(grid) }
+                  hit = true; break outer
                 }
               }
             }
-            // Exited the field
             if (!hit && p && (p.y > H + r || p.x < -r || p.x > W + r)) {
               projRef.current = null
               curRef.current = nxtRef.current
-              nxtRef.current = pickFromGrid(grid)
+              nxtRef.current = makeBubble(grid)
             }
           }
         }
 
-        // Falling bubbles (gravity)
         const now = Date.now()
         fallingRef.current = fallingRef.current.filter((f) => {
-          f.vy += 650 * dt
-          f.x += f.vx * dt
-          f.y += f.vy * dt
+          f.vy += 650 * dt; f.x += f.vx * dt; f.y += f.vy * dt
           return now - f.born < 1100
         })
-
-        // Expire pop animations
         poppingRef.current = poppingRef.current.filter((pp) => now - pp.born < 580)
       }
 
@@ -367,14 +388,31 @@ export default function Bubbles() {
   const H = rect?.height ?? 0
   const r = W ? r_from_W(W) : 20
   const diam = r * 2
-  const sx = W / 2
-  const sy = H - r * 4
+  const sx = W / 2, sy = H - r * 4
 
   const grid = gridRef.current
   const proj = projRef.current
   const aimPt = aimPtRef.current
+  const cur = curRef.current
+  const nxt = nxtRef.current
 
   const segs = aimPt && !proj && W > 0 ? aimSegments(sx, sy, aimPt.x, aimPt.y, W, r) : []
+
+  // Helper: render a bubble div (normal or special)
+  const BubbleDiv = ({ className = '', style = {}, bubble, size }) => {
+    const sz = size ?? diam
+    const isSpecial = bubble?.type && bubble.type !== 'normal'
+    return (
+      <div
+        className={`bubbles__bubble${isSpecial ? ` bubbles__bubble--${bubble.type}` : ''} ${className}`}
+        style={{ width: sz, height: sz, '--bc': bubble?.color ?? '#888', ...style }}
+      >
+        {bubble?.emoji && (
+          <span className="bubbles__emoji" style={{ fontSize: sz * 0.52 }}>{bubble.emoji}</span>
+        )}
+      </div>
+    )
+  }
 
   return (
     <div className="bubbles">
@@ -394,11 +432,8 @@ export default function Bubbles() {
                   key={`g-${ri}-${ci}`}
                   className="bubbles__bubble"
                   style={{
-                    left: cellX(ri, ci, W) - r,
-                    top: cellY(ri, W) - r,
-                    width: diam,
-                    height: diam,
-                    '--bc': color,
+                    left: cellX(ri, ci, W) - r, top: cellY(ri, W) - r,
+                    width: diam, height: diam, '--bc': color,
                   }}
                 />
               )
@@ -409,88 +444,64 @@ export default function Bubbles() {
         {segs.length > 0 && (
           <svg className="bubbles__svg" aria-hidden="true">
             {segs.map((s, i) => (
-              <line
-                key={i}
-                x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2}
-                stroke="rgba(255,255,255,0.55)"
-                strokeWidth="2.5"
-                strokeDasharray="9 6"
-                strokeLinecap="round"
-              />
+              <line key={i} x1={s.x1} y1={s.y1} x2={s.x2} y2={s.y2}
+                stroke="rgba(255,255,255,0.55)" strokeWidth="2.5"
+                strokeDasharray="9 6" strokeLinecap="round" />
             ))}
-            {/* Dot at aim tip */}
-            {segs.length > 0 && (
-              <circle
-                cx={segs[segs.length - 1].x2}
-                cy={segs[segs.length - 1].y2}
-                r="4"
-                fill="rgba(255,255,255,0.7)"
-              />
-            )}
+            <circle cx={segs[segs.length - 1].x2} cy={segs[segs.length - 1].y2}
+              r="4" fill="rgba(255,255,255,0.7)" />
           </svg>
         )}
 
         {/* Flying projectile */}
         {proj && W > 0 && (
-          <div
-            className="bubbles__bubble bubbles__proj"
-            style={{ left: proj.x - r, top: proj.y - r, width: diam, height: diam, '--bc': curRef.current }}
+          <BubbleDiv
+            className="bubbles__proj"
+            bubble={proj.bubble}
+            style={{ position: 'absolute', left: proj.x - r, top: proj.y - r }}
           />
         )}
 
         {/* Pop burst animations */}
         {poppingRef.current.map((p) => (
-          <div
-            key={p.id}
-            className="bubbles__pop"
+          <div key={p.id}
+            className={`bubbles__pop${p.big ? ' bubbles__pop--big' : ''}`}
             style={{ left: p.x - r, top: p.y - r, width: diam, height: diam, '--bc': p.color }}
           />
         ))}
 
         {/* Falling bubbles */}
         {fallingRef.current.map((f) => (
-          <div
-            key={f.id}
-            className="bubbles__bubble"
+          <div key={f.id} className="bubbles__bubble"
             style={{
-              left: f.x - r,
-              top: f.y - r,
-              width: diam,
-              height: diam,
-              '--bc': f.color,
+              left: f.x - r, top: f.y - r, width: diam, height: diam, '--bc': f.color,
               opacity: Math.max(0, 1 - (Date.now() - f.born) / 1100),
             }}
           />
         ))}
 
-        {/* Shooter base + current bubble */}
+        {/* Shooter ring + current bubble */}
         {W > 0 && (
-          <div
-            className="bubbles__shooter"
-            style={{ left: sx - r * 1.6, top: sy - r * 1.6, width: r * 3.2, height: r * 3.2 }}
+          <div className="bubbles__shooter"
+            style={{ left: sx - r * 1.6, top: sy - r * 1.6, width: r * 3.2, height: r * 3.2 }}>
+            <BubbleDiv bubble={cur} style={{ position: 'relative' }} />
+          </div>
+        )}
+
+        {/* Next bubble — tap to swap */}
+        {W > 0 && (
+          <div className="bubbles__next" style={{ left: sx + r * 3, top: sy }}
+            onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => { e.stopPropagation(); swap() }}
           >
-            <div
-              className="bubbles__shooter-bubble"
-              style={{ width: diam, height: diam, '--bc': curRef.current }}
-            />
-          </div>
-        )}
-
-        {/* Next bubble preview */}
-        {W > 0 && (
-          <div className="bubbles__next" style={{ left: sx + r * 3, top: sy }}>
             <span className="bubbles__next-label">{t('next')}</span>
-            <div
-              className="bubbles__bubble"
-              style={{ width: r * 1.35, height: r * 1.35, '--bc': nxtRef.current }}
-            />
+            <BubbleDiv bubble={nxt} size={r * 1.4}
+              style={{ position: 'relative', cursor: 'pointer' }} />
+            <span className="bubbles__swap-hint">{t('swap')}</span>
           </div>
         )}
 
-        {/* Level chip */}
-        <div className="bubbles__level chip" aria-hidden="true">
-          Lv {levelRef.current}
-        </div>
+        <div className="bubbles__level chip" aria-hidden="true">Lv {levelRef.current}</div>
       </div>
 
       <p className="bubbles__hint">{t('hint')}</p>

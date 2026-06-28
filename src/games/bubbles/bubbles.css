@@ -85,6 +85,39 @@
   z-index: 20;
 }
 
+/* ---- Special bubble variants ---- */
+.bubbles__bubble--bomb {
+  box-shadow:
+    inset -3px -4px 10px rgba(0, 0, 0, 0.55),
+    inset 3px 4px 8px rgba(255, 120, 0, 0.25),
+    0 0 14px rgba(255, 80, 0, 0.55),
+    0 3px 8px rgba(0, 0, 0, 0.4);
+}
+
+.bubbles__bubble--rainbow {
+  background: conic-gradient(
+    #e63946 0%, #fb8500 17%, #f9d423 34%,
+    #06d6a0 51%, #3a86ff 68%, #8338ec 85%, #e63946 100%
+  ) !important;
+  box-shadow:
+    inset -3px -4px 10px rgba(0, 0, 0, 0.22),
+    inset 3px 4px 8px rgba(255, 255, 255, 0.35),
+    0 0 16px rgba(180, 100, 255, 0.6),
+    0 3px 8px rgba(0, 0, 0, 0.3);
+}
+
+/* Emoji label centred inside a bubble */
+.bubbles__emoji {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  line-height: 1;
+  pointer-events: none;
+  z-index: 1;
+}
+
 /* ---- Pop burst ---- */
 .bubbles__pop {
   position: absolute;
@@ -110,6 +143,17 @@
   0%   { transform: scale(1);   opacity: 1; }
   45%  { transform: scale(1.75); opacity: 0.8; }
   100% { transform: scale(2.5); opacity: 0; }
+}
+
+/* Bomb explosion — bigger, slower burst */
+.bubbles__pop--big {
+  animation: bbl-pop-big 0.65s ease-out forwards;
+}
+
+@keyframes bbl-pop-big {
+  0%   { transform: scale(1);    opacity: 1; }
+  40%  { transform: scale(2.4);  opacity: 0.9; }
+  100% { transform: scale(4.0);  opacity: 0; }
 }
 
 /* ---- Shooter ring ---- */
@@ -149,16 +193,17 @@
   transform: rotate(-25deg);
 }
 
-/* ---- Next bubble preview ---- */
+/* ---- Next bubble preview (tappable — swap) ---- */
 .bubbles__next {
   position: absolute;
   display: flex;
   flex-direction: column;
   align-items: center;
   gap: 3px;
-  pointer-events: none;
+  pointer-events: auto;
   z-index: 10;
   transform: translate(0, -50%);
+  cursor: pointer;
 }
 
 .bubbles__next-label {
@@ -167,6 +212,12 @@
   letter-spacing: 0.06em;
   color: rgba(255, 255, 255, 0.5);
   text-transform: uppercase;
+}
+
+.bubbles__swap-hint {
+  font-size: 8px;
+  color: rgba(255, 255, 255, 0.38);
+  letter-spacing: 0.04em;
 }
 
 /* ---- Level chip ---- */

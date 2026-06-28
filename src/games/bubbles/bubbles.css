@@ -251,17 +251,26 @@
   box-shadow: inset 0 0 10px rgba(0, 0, 0, 0.3), 0 0 14px 4px rgba(255, 255, 255, 0.14);
 }
 
-/* ---- Swap entry animations ---- */
+/* ---- Swap entry animations — opposite spins hint at circular exchange ---- */
 
-.bubbles__shooter--swap .bubbles__bubble,
-.bubbles__next-slot--swap .bubbles__bubble {
-  animation: bbl-swap-pop 0.32s ease-out forwards;
+.bubbles__shooter--swap .bubbles__bubble {
+  animation: bbl-swap-cw 0.36s ease-out forwards;
 }
 
-@keyframes bbl-swap-pop {
-  0%   { transform: scale(0);    opacity: 0; }
-  55%  { transform: scale(1.22); opacity: 1; }
-  100% { transform: scale(1);    opacity: 1; }
+.bubbles__next-slot--swap .bubbles__bubble {
+  animation: bbl-swap-ccw 0.36s ease-out forwards;
+}
+
+@keyframes bbl-swap-cw {
+  0%   { transform: rotate(-200deg) scale(0.1); opacity: 0; }
+  70%  { transform: rotate(12deg)   scale(1.12); opacity: 1; }
+  100% { transform: rotate(0deg)    scale(1);    opacity: 1; }
+}
+
+@keyframes bbl-swap-ccw {
+  0%   { transform: rotate(200deg) scale(0.1); opacity: 0; }
+  70%  { transform: rotate(-12deg) scale(1.12); opacity: 1; }
+  100% { transform: rotate(0deg)   scale(1);    opacity: 1; }
 }
 
 /* ---- Level chip ---- */

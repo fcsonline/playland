@@ -142,6 +142,8 @@ export default function Bubbles() {
   const fieldRef = useRef(null)
   const [, tick] = useState(0)
   const repaint = () => tick((n) => (n + 1) % 1e6)
+  const [swapAnim, setSwapAnim] = useState(false)
+  const swapAnimRef = useRef(false)  // ref mirror so swap() always reads fresh value
 
   const gridRef = useRef(makeGrid(1))
   // curRef/nxtRef hold bubble objects: { type, color, emoji }
@@ -293,11 +295,14 @@ export default function Bubbles() {
   }
 
   const swap = () => {
-    if (projRef.current || busyRef.current) return
+    if (projRef.current || busyRef.current || swapAnimRef.current) return
     const tmp = curRef.current
     curRef.current = nxtRef.current
     nxtRef.current = tmp
     sfx.tap()
+    swapAnimRef.current = true
+    setSwapAnim(true)
+    setTimeout(() => { swapAnimRef.current = false; setSwapAnim(false) }, 400)
     repaint()
   }
 
@@ -488,7 +493,7 @@ export default function Bubbles() {
 
         {/* Shooter ring + current bubble */}
         {W > 0 && (
-          <div className="bubbles__shooter"
+          <div className={`bubbles__shooter${swapAnim ? ' bubbles__shooter--swap' : ''}`}
             style={{ left: sx - r * 1.6, top: sy - r * 1.6, width: r * 3.2, height: r * 3.2 }}>
             <BubbleDiv bubble={cur} style={{ position: 'relative' }} />
           </div>
@@ -501,8 +506,10 @@ export default function Bubbles() {
             onPointerUp={(e) => { e.stopPropagation(); swap() }}
           >
             <span className="bubbles__next-label">{t('next')}</span>
-            <BubbleDiv bubble={nxt} size={r * 1.4}
-              style={{ position: 'relative', cursor: 'pointer' }} />
+            <div className={`bubbles__next-slot${swapAnim ? ' bubbles__next-slot--swap' : ''}`}>
+              <BubbleDiv bubble={nxt} size={r * 1.4}
+                style={{ position: 'relative', cursor: 'pointer' }} />
+            </div>
             <span className="bubbles__swap-hint">{t('swap')}</span>
           </div>
         )}

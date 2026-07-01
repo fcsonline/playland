@@ -1,5 +1,5 @@
 import { useEffect, useState } from 'react'
-import { setAudioMuted } from './audio.js'
+import { setAudioMuted, setMusicEnabled } from './audio.js'
 
 /**
  * Tiny app-wide settings store (localStorage), with a React hook. Kept simple:
@@ -26,7 +26,7 @@ export const LOCALE_OPTIONS = [
   { id: 'fr', label: 'Français' },
 ]
 
-const DEFAULTS = { ageRange: 'all', locale: 'en', fullscreen: true, sound: true }
+const DEFAULTS = { ageRange: 'all', locale: 'en', fullscreen: true, sound: true, music: true }
 
 export function getSettings() {
   if (typeof localStorage === 'undefined') return { ...DEFAULTS }
@@ -39,6 +39,7 @@ export function getSettings() {
 
 export function applySettings(s) {
   setAudioMuted(!s.sound)
+  setMusicEnabled(s.music)
   if (typeof document === 'undefined') return
   document.documentElement.lang = s.locale || 'en'
   document.documentElement.dataset.age = s.ageRange || 'all'

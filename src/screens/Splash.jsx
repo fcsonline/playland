@@ -3,6 +3,7 @@ import { enterFullscreen, fullscreenSupported } from '../lib/fullscreen.js'
 import { useSettings, setSettings, AGE_OPTIONS, LOCALE_OPTIONS } from '../lib/settings.js'
 import { useUI } from '../lib/i18n.js'
 import { forceUpdate } from '../lib/update.js'
+import { startMusic } from '../lib/audio.js'
 import './Splash.css'
 
 // Served from public/ (works under the GitHub Pages subpath and offline).
@@ -29,7 +30,15 @@ export default function Splash({ onDone }) {
 
   function start() {
     if (settings.fullscreen) enterFullscreen()
+    if (settings.music) startMusic() // this tap is the gesture that unlocks audio
     cb.current?.()
+  }
+
+  // Turning music on is itself a user gesture, so start playing right away.
+  function toggleMusic() {
+    const next = !settings.music
+    setSettings({ music: next })
+    if (next) startMusic()
   }
 
   return (
@@ -92,6 +101,18 @@ export default function Splash({ onDone }) {
                 onClick={() => setSettings({ sound: !settings.sound })}
                 aria-pressed={settings.sound}
                 aria-label={t('toggleSound')}
+              >
+                <span className="splash__toggle-knob" />
+              </button>
+            </div>
+
+            <div className="splash__group splash__group--row">
+              <span className="splash__label">{t('music')}</span>
+              <button
+                className={`splash__toggle ${settings.music ? 'is-on' : ''}`}
+                onClick={toggleMusic}
+                aria-pressed={settings.music}
+                aria-label={t('toggleMusic')}
               >
                 <span className="splash__toggle-knob" />
               </button>

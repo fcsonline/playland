@@ -28,15 +28,10 @@
   font-weight: 800;
 }
 .merge__nextfruit {
-  display: inline-grid;
-  place-items: center;
-  width: 26px;
-  height: 26px;
-  border-radius: 50%;
-  font-size: 15px;
-  line-height: 1;
-  background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.6), var(--fc) 72%);
-  box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.18);
+  width: 28px;
+  height: 28px;
+  object-fit: contain;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.2));
 }
 
 /* ---- The basket / playfield -------------------------------------------- */
@@ -90,19 +85,31 @@
   pointer-events: none;
 }
 
-/* ---- Fruit: a glossy disc with the emoji on top ------------------------- */
+/* ---- Fruit: a sticker image (split from the sprite sheet) --------------- */
+/* Outer box positions the fruit, carries the world-vertical squash, and casts
+   a drop shadow that stays gravity-down (it doesn't rotate with the fruit). */
 .merge__fruit {
   position: absolute;
   transform: translate(-50%, -50%);
-  border-radius: 50%;
-  display: grid;
-  place-items: center;
-  line-height: 1;
   pointer-events: none;
-  background: radial-gradient(circle at 34% 28%, rgba(255, 255, 255, 0.6), var(--fc) 70%);
-  box-shadow: 0 3px 6px rgba(0, 0, 0, 0.18), inset -4px -5px 9px rgba(0, 0, 0, 0.18),
-    inset 3px 3px 7px rgba(255, 255, 255, 0.35);
   z-index: 1;
+  filter: drop-shadow(0 4px 4px rgba(0, 0, 0, 0.28));
+}
+/* Inner layer spins (rolls). */
+.merge__fruit-spin {
+  position: absolute;
+  inset: 0;
+}
+/* The fruit art, scaled a touch past the collision circle so bodies visually
+   touch (the sticker's white rim adds a little padding). */
+.merge__img {
+  position: absolute;
+  inset: -8%;
+  width: 116%;
+  height: 116%;
+  object-fit: contain;
+  -webkit-user-drag: none;
+  user-select: none;
 }
 
 /* Waiting fruit: sits above the basket with a gentle breathing bob. */
@@ -117,22 +124,6 @@
   }
   50% {
     transform: translate(-50%, -54%) scale(1.03);
-  }
-}
-
-/* Freshly merged fruit: a satisfying little pop. */
-.merge__fruit.is-pop {
-  animation: merge-pop 0.28s ease;
-}
-@keyframes merge-pop {
-  0% {
-    transform: translate(-50%, -50%) scale(0.4);
-  }
-  60% {
-    transform: translate(-50%, -50%) scale(1.15);
-  }
-  100% {
-    transform: translate(-50%, -50%) scale(1);
   }
 }
 
@@ -201,17 +192,13 @@
   align-items: center;
   justify-content: center;
   flex-wrap: wrap;
-  gap: 4px;
+  gap: 3px;
   padding: 2px 4px;
 }
 .merge__legend-fruit {
-  display: inline-grid;
-  place-items: center;
-  border-radius: 50%;
-  line-height: 1;
   flex: none;
-  background: radial-gradient(circle at 34% 30%, rgba(255, 255, 255, 0.6), var(--fc) 72%);
-  box-shadow: inset -2px -2px 4px rgba(0, 0, 0, 0.16);
+  object-fit: contain;
+  filter: drop-shadow(0 1px 1px rgba(0, 0, 0, 0.18));
 }
 
 /* Landscape phones: keep the basket within the short height. */

@@ -6,6 +6,22 @@ import { pick } from '../../lib/random.js'
 import { sfx, tone, noiseBurst } from '../../lib/audio.js'
 import './merge.css'
 
+// Fruit artwork — one sticker PNG per chain level, split from the sprite sheet
+// (src/assets/fruits/sprite.png). Vite bundles + hashes each file; we key them
+// by the number in the filename so ART[level] is that fruit's image URL.
+const ART = []
+{
+  const mods = import.meta.glob('../../assets/fruits/fruit-*.png', {
+    eager: true,
+    query: '?url',
+    import: 'default',
+  })
+  for (const path in mods) {
+    const m = path.match(/fruit-(\d+)\.png$/)
+    if (m) ART[Number(m[1])] = mods[path]
+  }
+}
+
 const STR = {
   en: {
     score: 'Score',
@@ -66,34 +82,47 @@ const STR = {
 // The merge chain, smallest → biggest. `rf` is each fruit's radius as a
 // fraction of the basket width, so everything scales with the screen. `color`
 // tints the soft disc drawn behind the emoji (its "footprint").
+// The merge chain, smallest → biggest — one sticker per fruit from the sprite
+// sheet. `rf` is the radius as a fraction of the basket width; `color` tints the
+// merge sparkle rings.
 const FRUITS = [
   { emoji: '🫐', color: '#5b6fce', rf: 0.050 }, // blueberry
-  { emoji: '🍒', color: '#d63a52', rf: 0.062 }, // cherry
-  { emoji: '🍓', color: '#f2506e', rf: 0.077 }, // strawberry
-  { emoji: '🍊', color: '#ffa028', rf: 0.094 }, // tangerine
-  { emoji: '🍎', color: '#ff5b5b', rf: 0.113 }, // apple
-  { emoji: '🍐', color: '#b6d64f', rf: 0.134 }, // pear
-  { emoji: '🍑', color: '#ffb08a', rf: 0.158 }, // peach
-  { emoji: '🍍', color: '#f4d13d', rf: 0.186 }, // pineapple
-  { emoji: '🥥', color: '#b98a5e', rf: 0.218 }, // coconut
+  { emoji: '🍇', color: '#8a4fb0', rf: 0.062 }, // blackberry
+  { emoji: '🍎', color: '#e23a3a', rf: 0.077 }, // red apple
+  { emoji: '🍊', color: '#ff8c1a', rf: 0.094 }, // orange
+  { emoji: '🍏', color: '#6bb82f', rf: 0.113 }, // green apple
+  { emoji: '🍑', color: '#ff9db0', rf: 0.134 }, // peach
+  { emoji: '🥥', color: '#a9743f', rf: 0.158 }, // coconut
+  { emoji: '🐉', color: '#e34a8c', rf: 0.186 }, // dragonfruit
+  { emoji: '🍍', color: '#f4c430', rf: 0.218 }, // pineapple
   { emoji: '🍉', color: '#5fbf6b', rf: 0.255 }, // watermelon (biggest)
 ]
 const MAX_LVL = FRUITS.length - 1
 
-// Only the smallest few ever drop (heavier on the tiniest), like the classic.
-const DROP_BAG = [0, 0, 0, 1, 1, 1, 2, 2, 3]
+// Only sizes 1–5 (the five smallest) are ever thrown — bigger fruit can ONLY be
+// made by merging. Weighted heavier toward the tiniest, like the classic.
+const DROP_BAG = [0, 0, 0, 1, 1, 1, 2, 2, 3, 4]
 
 // Physics (pixels / seconds). Gentle and forgiving for little ones.
-const GRAVITY = 1800 // downward acceleration (px/s²)
-const MAX_SPEED = 2600 // speed cap so nothing tunnels through a fruit
+const GRAVITY = 2200 // downward acceleration (px/s²) — a weighty, natural fall
+const MAX_SPEED = 3000 // speed cap so nothing tunnels through a fruit
 const REST = 0.1 // fruit-on-fruit bounciness (soft)
 const WALL_REST = 0.25 // wall/floor bounciness
-const FLOOR_FRICTION = 0.9 // rolling friction on the floor
+const FLOOR_FRICTION = 0.985 // gentle rolling drag, applied once/frame on the floor
 const AIR = 0.999 // tiny per-frame velocity damping
 const POS_CORRECT = 0.8 // how firmly overlaps are pushed apart
 const ITER = 7 // relaxation passes per frame (stacking stability)
 const MERGE_PAD = 3 // merge on contact: touching (+ a few px) is enough
 const DROP_COOLDOWN = 430 // ms before the next fruit is ready to drop
+
+// Spin & squash — makes fruit roll and land with weight.
+const ANG_DAMP = 0.94 // angular friction — spin bleeds off so it never spins forever
+const ROLL_BLEND = 0.18 // how quickly spin matches true rolling (ω = v / r)
+const ROLL_MIN = 14 // px/s of horizontal speed below which a fruit isn't "rolling"
+const SPIN_SLEEP = 0.2 // rad/s below which spin snaps to 0 (kills endless creep)
+const SQUASH_DECAY = 0.82 // impact squash springs back each frame
+const SQUASH_MAX = 0.42 // most a fruit flattens on a hard landing
+const SQUASH_MIN_IMPACT = 260 // downward speed (px/s) killed before squash shows
 
 const OVERFLOW_TIME = 2.5 // s a fruit may rest above the line before a tidy-up
 const OVERFLOW_SPEED = 45 // px/s — below this a fruit counts as "settled"
@@ -252,6 +281,9 @@ export default function Merge() {
       vx: 0,
       vy: 40,
       r,
+      angle: 0,
+      spin: 0,
+      squash: 0,
       born: nowRef.current || performance.now(),
       merged: false,
     })
@@ -290,6 +322,7 @@ export default function Merge() {
     // 1) Integrate gravity → velocity → position.
     for (const f of fruits) {
       f.r = radiusFor(f.lvl, w)
+      f.squash *= SQUASH_DECAY // spring an earlier impact back toward round
       f.vy += GRAVITY * dt
       const sp = Math.hypot(f.vx, f.vy)
       if (sp > MAX_SPEED) {
@@ -301,6 +334,7 @@ export default function Merge() {
       f.y += f.vy * dt
       f.vx *= AIR
       f.vy *= AIR
+      f.vyIn = f.vy // downward speed entering collision (for the landing squash)
     }
 
     // 2) Find same-kind touching pairs to merge (each fruit merges once/frame).
@@ -344,10 +378,27 @@ export default function Merge() {
       fruitsRef.current = fruits.filter((f) => !consumed.has(f.id))
     }
 
-    // 5) Overflow → gentle tidy-up (no game over).
+    // 5) Roll + land: spin follows true rolling (ω = v / r), and a hard landing
+    // flattens the fruit briefly. Done once per frame from the settled velocity.
+    for (const f of fruitsRef.current) {
+      if (f.y >= h - f.r - 1) f.vx *= FLOOR_FRICTION // gentle drag on the floor
+      // Only feed rolling when actually moving; otherwise let friction win so a
+      // resting fruit's residual jitter can't keep it turning forever.
+      const target = Math.abs(f.vx) > ROLL_MIN ? f.vx / f.r : 0
+      f.spin += (target - f.spin) * ROLL_BLEND
+      f.spin *= ANG_DAMP // angular friction
+      if (Math.abs(f.spin) < SPIN_SLEEP) f.spin = 0 // stop the endless slow creep
+      f.angle += f.spin * dt
+      const impact = (f.vyIn || 0) - f.vy // downward speed lost to a landing
+      if (impact > SQUASH_MIN_IMPACT) {
+        f.squash = Math.min(SQUASH_MAX, Math.max(f.squash, impact / 1800))
+      }
+    }
+
+    // 6) Overflow → gentle tidy-up (no game over).
     detectOverflow(dt, w, ts)
 
-    // 6) Age out the merge sparkles.
+    // 7) Age out the merge sparkles.
     fxRef.current = fxRef.current.filter((fx) => ts - fx.born < 420)
   }
 
@@ -401,7 +452,6 @@ export default function Merge() {
     if (f.y > h - f.r) {
       f.y = h - f.r
       if (f.vy > 0) f.vy = -f.vy * WALL_REST
-      f.vx *= FLOOR_FRICTION // roll, then rest
     }
     if (f.y < f.r) {
       f.y = f.r
@@ -434,6 +484,9 @@ export default function Merge() {
       vx: (a.vx + b.vx) * 0.25,
       vy: (a.vy + b.vy) * 0.25 - 40, // a little upward pop
       r: radiusFor(nl, w),
+      angle: 0,
+      spin: (Math.random() - 0.5) * 5, // a small birth twirl
+      squash: 0,
       born: ts,
       merged: true,
     })
@@ -530,9 +583,7 @@ export default function Merge() {
         <span className="chip merge__nextchip">
           {t('next')}
           {next != null && (
-            <span className="merge__nextfruit" aria-hidden="true" style={{ '--fc': FRUITS[next].color }}>
-              {FRUITS[next].emoji}
-            </span>
+            <img className="merge__nextfruit" src={ART[next]} alt="" draggable="false" aria-hidden="true" />
           )}
         </span>
       </div>
@@ -569,9 +620,22 @@ export default function Merge() {
         )}
 
         {/* The fruit in the basket. */}
-        {fruits.map((f) => (
-          <Fruit key={f.id} lvl={f.lvl} x={f.x} y={f.y} r={f.r} pop={f.merged} />
-        ))}
+        {fruits.map((f) => {
+          // Merged fruit pops into existence, growing from small to full size.
+          const grow = f.merged ? Math.min(1, 0.55 + (nowRef.current - f.born) / 400) : 1
+          return (
+            <Fruit
+              key={f.id}
+              lvl={f.lvl}
+              x={f.x}
+              y={f.y}
+              r={f.r}
+              angle={f.angle}
+              squash={f.squash}
+              grow={grow}
+            />
+          )
+        })}
 
         {/* Merge sparkle rings. */}
         {fx.map((s) => (
@@ -589,29 +653,42 @@ export default function Merge() {
 
       {/* Legend: the whole chain, small → big, so kids see the sizes. */}
       <div className="merge__legend" aria-hidden="true">
-        {FRUITS.map((f, i) => (
-          <span
+        {FRUITS.map((_, i) => (
+          <img
             key={i}
             className="merge__legend-fruit"
-            style={{ '--fc': f.color, width: 16 + i * 1.9, height: 16 + i * 1.9, fontSize: 10 + i * 1.4 }}
-          >
-            {f.emoji}
-          </span>
+            src={ART[i]}
+            alt=""
+            draggable="false"
+            style={{ width: 16 + i * 2.0, height: 16 + i * 2.0 }}
+          />
         ))}
       </div>
     </div>
   )
 }
 
-function Fruit({ lvl, x, y, r, hover, pop }) {
-  const f = FRUITS[lvl]
+function Fruit({ lvl, x, y, r, hover, angle = 0, squash = 0, grow = 1 }) {
+  // Squash is world-vertical (gravity), so it lives on the outer box; the inner
+  // layer spins so a rolling fruit turns without skewing the squash.
+  const sx = (grow * (1 + squash * 0.4)).toFixed(3)
+  const sy = (grow * (1 - squash * 0.4)).toFixed(3)
   return (
     <span
-      className={`merge__fruit${hover ? ' is-hover' : ''}${pop ? ' is-pop' : ''}`}
-      style={{ left: x, top: y, width: r * 2, height: r * 2, fontSize: r * 1.15, '--fc': f.color }}
+      className={`merge__fruit${hover ? ' is-hover' : ''}`}
+      style={{
+        left: x,
+        top: y,
+        width: r * 2,
+        height: r * 2,
+        // Hover fruit uses its CSS bob animation; dropped fruit gets the squash.
+        transform: hover ? undefined : `translate(-50%, -50%) scale(${sx}, ${sy})`,
+      }}
       aria-hidden="true"
     >
-      {f.emoji}
+      <span className="merge__fruit-spin" style={{ transform: `rotate(${angle}rad)` }}>
+        <img className="merge__img" src={ART[lvl]} alt="" draggable="false" />
+      </span>
     </span>
   )
 }

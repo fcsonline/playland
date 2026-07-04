@@ -87,6 +87,7 @@ export const TITLES = {
     mathtiles: 'Math Tiles',
     domino: 'Dominoes',
     blocks: 'Block Drop',
+    merge: 'Fruit Merge',
   },
   es: {
     coloring: 'Estudio de Color',
@@ -128,6 +129,7 @@ export const TITLES = {
     mathtiles: 'Fichas de Sumar',
     domino: 'Dominó',
     blocks: 'Caída de Bloques',
+    merge: 'Une Frutas',
   },
   ca: {
     coloring: 'Estudi de Color',
@@ -169,6 +171,7 @@ export const TITLES = {
     mathtiles: 'Fitxes de Sumar',
     domino: 'Dòmino',
     blocks: 'Caiguda de Blocs',
+    merge: 'Uneix Fruites',
   },
   fr: {
     coloring: 'Atelier de Coloriage',
@@ -210,6 +213,7 @@ export const TITLES = {
     mathtiles: 'Tuiles à Compter',
     domino: 'Dominos',
     blocks: 'Chute de Blocs',
+    merge: 'Fusion de Fruits',
   },
 }
 

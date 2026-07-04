@@ -296,6 +296,13 @@ export const GAMES = [
     colors: ['#0d1b2a', '#3a86ff'],
     tagline: 'Shoot and match 3 bubbles!',
   },
+  {
+    id: 'merge',
+    title: 'Fruit Merge',
+    emoji: '🍇',
+    colors: ['#ffb75e', '#ed5464'],
+    tagline: 'Drop fruit — match pairs to grow a watermelon!',
+  },
 ]
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -340,6 +347,7 @@ export const GAME_COMPONENTS = {
   domino: lazy(() => import('./domino/index.jsx')),
   blocks: lazy(() => import('./blocks/index.jsx')),
   bubbles: lazy(() => import('./bubbles/index.jsx')),
+  merge: lazy(() => import('./merge/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

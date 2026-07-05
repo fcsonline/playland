@@ -8,6 +8,54 @@
   background: linear-gradient(160deg, var(--g-from, #a1c4fd), var(--g-to, #c2e9fb));
 }
 
+/* Inactivity timeout prompt — covers the whole game, then it closes to Home. */
+.game-frame__timeout {
+  position: fixed;
+  inset: 0;
+  z-index: 60;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: rgba(20, 16, 40, 0.55);
+  -webkit-backdrop-filter: blur(3px);
+  backdrop-filter: blur(3px);
+  animation: gf-fade 0.25s ease;
+}
+.game-frame__timeout-card {
+  width: 100%;
+  max-width: 320px;
+  padding: 26px 24px;
+  text-align: center;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  animation: pop-in 0.3s ease;
+}
+.game-frame__timeout-emoji {
+  font-size: 3.2rem;
+  line-height: 1;
+}
+.game-frame__timeout-title {
+  margin: 10px 0 4px;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--ink);
+}
+.game-frame__timeout-hint {
+  margin: 0 0 18px;
+  color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+@keyframes gf-fade {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .game-frame__bar {
   display: flex;
   align-items: center;

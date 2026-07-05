@@ -1,4 +1,4 @@
-import { Suspense, useCallback, useMemo } from 'react'
+import { Suspense, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { GAME_BY_ID, GAME_COMPONENTS } from '../games/registry.js'
 import { GameContext } from '../state/game.jsx'
 import { useProgress } from '../state/progress.jsx'
@@ -18,6 +18,37 @@ export default function GameFrame({ gameId, onBack }) {
   const { popStars, cheer, oops } = useReward()
   const t = useUI()
   const title = useTitle()
+
+  // Auto-close a game after 2 minutes with no taps or key presses, so a kid who
+  // wandered off gently lands back on the games grid instead of a stuck screen.
+  const IDLE_MS = 120000
+  const [timedOut, setTimedOut] = useState(false)
+  const idleTimer = useRef(null)
+  const backRef = useRef(onBack)
+  backRef.current = onBack
+
+  useEffect(() => {
+    setTimedOut(false)
+    const arm = () => {
+      clearTimeout(idleTimer.current)
+      idleTimer.current = setTimeout(() => setTimedOut(true), IDLE_MS)
+    }
+    arm()
+    window.addEventListener('pointerdown', arm, { passive: true })
+    window.addEventListener('keydown', arm)
+    return () => {
+      clearTimeout(idleTimer.current)
+      window.removeEventListener('pointerdown', arm)
+      window.removeEventListener('keydown', arm)
+    }
+  }, [gameId])
+
+  // Once timed out, show the prompt briefly, then head back home.
+  useEffect(() => {
+    if (!timedOut) return
+    const id = setTimeout(() => backRef.current?.(), 3500)
+    return () => clearTimeout(id)
+  }, [timedOut])
 
   const earnStars = useCallback(
     (n = 1, opts = {}) => popStars(n, opts),
@@ -86,6 +117,19 @@ export default function GameFrame({ gameId, onBack }) {
           </Suspense>
         </GameContext.Provider>
       </main>
+
+      {timedOut && (
+        <div className="game-frame__timeout" role="alertdialog" aria-modal="true">
+          <div className="game-frame__timeout-card">
+            <span className="game-frame__timeout-emoji" aria-hidden="true">💤</span>
+            <p className="game-frame__timeout-title">{t('idleTitle')}</p>
+            <p className="game-frame__timeout-hint">{t('idleHint')}</p>
+            <button className="btn" onClick={onBack}>
+              {t('backHome')}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

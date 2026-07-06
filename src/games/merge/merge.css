@@ -76,6 +76,36 @@
   }
 }
 
+/* ---- Spectacular combo (3+ watermelons joined) ------------------------- */
+.merge__field.is-combo {
+  animation: merge-shake 0.6s ease;
+}
+@keyframes merge-shake {
+  0%, 100% { transform: translate(0, 0); }
+  12% { transform: translate(-7px, 4px); }
+  28% { transform: translate(7px, -4px); }
+  44% { transform: translate(-6px, -3px); }
+  60% { transform: translate(6px, 3px); }
+  78% { transform: translate(-3px, 2px); }
+}
+.merge__combo {
+  position: absolute;
+  inset: 0;
+  z-index: 5;
+  pointer-events: none;
+  background: radial-gradient(circle at 50% 52%,
+    rgba(255, 255, 255, 0.9),
+    rgba(255, 226, 128, 0.55) 32%,
+    rgba(255, 150, 90, 0.18) 55%,
+    transparent 72%);
+  animation: merge-combo-flash 0.75s ease-out forwards;
+}
+@keyframes merge-combo-flash {
+  0% { opacity: 0; transform: scale(0.35); }
+  22% { opacity: 1; }
+  100% { opacity: 0; transform: scale(1.45); }
+}
+
 /* Dashed vertical aim guide under the waiting fruit. */
 .merge__guide {
   position: absolute;

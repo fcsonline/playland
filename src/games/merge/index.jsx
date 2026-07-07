@@ -31,6 +31,7 @@ const STR = {
     howto: 'Drop the fruit — two of the same join into a bigger one!',
     wow: 'Watermelon! 🍉',
     combo: 'MELON COMBO! 🍉',
+    combox: 'Combo ×{n}',
     play: 'Fruit basket — tap to drop a fruit',
   },
   es: {
@@ -41,6 +42,7 @@ const STR = {
     howto: '¡Suelta la fruta! Dos iguales se unen en una más grande.',
     wow: '¡Sandía! 🍉',
     combo: '¡COMBO SANDÍA! 🍉',
+    combox: 'Combo ×{n}',
     play: 'Cesta de fruta — toca para soltar una fruta',
   },
   ca: {
@@ -51,6 +53,7 @@ const STR = {
     howto: 'Deixa anar la fruita! Dues iguals s’uneixen en una de més gran.',
     wow: 'Síndria! 🍉',
     combo: 'COMBO SÍNDRIA! 🍉',
+    combox: 'Combo ×{n}',
     play: 'Cistella de fruita — toca per deixar anar una fruita',
   },
   fr: {
@@ -61,6 +64,7 @@ const STR = {
     howto: 'Lâche le fruit ! Deux pareils fusionnent en un plus gros.',
     wow: 'Pastèque ! 🍉',
     combo: 'COMBO PASTÈQUE ! 🍉',
+    combox: 'Combo ×{n}',
     play: 'Panier de fruits — touche pour lâcher un fruit',
   },
 }
@@ -125,6 +129,10 @@ const COMBO_PAD = 12 // px slack for grouping top fruit into a cluster
 const COMBO_MIN = 3 // this many joined top fruits trigger the combo
 const COMBO_POINTS = 120 // score for a top-fruit combo
 
+// Chain combo: merges landing within this window of one another count as a
+// single run. Two or more in a run pop a floating "Combo ×N" callout.
+const COMBO_WINDOW = 700 // ms
+
 // Spin & squash — makes fruit roll and land with weight.
 const ANG_DAMP = 0.94 // angular friction — spin bleeds off so it never spins forever
 const ROLL_BLEND = 0.18 // how quickly spin matches true rolling (ω = v / r)
@@ -186,6 +194,7 @@ export default function Merge() {
   const [toast, setToast] = useState(false) // "Tidy up!" banner
   const [comboSeq, setComboSeq] = useState(0) // bumps to fire the combo flash
   const [shaking, setShaking] = useState(false) // combo screen-shake is active
+  const [comboFx, setComboFx] = useState(null) // floating "Combo ×N" chain callout
 
   // Live game state (kept out of React state so the loop stays smooth).
   const fruitsRef = useRef([]) // [{ id, lvl, x, y, vx, vy, r, born, merged }]
@@ -196,6 +205,7 @@ export default function Merge() {
   const readyRef = useRef(false)
   const overflowRef = useRef(0) // seconds spent above the danger line
   const milestonesRef = useRef(new Set())
+  const comboRef = useRef({ n: 0, deadline: 0 }) // chain-combo run counter
 
   const later = (fn, ms) => {
     const id = setTimeout(fn, ms)
@@ -214,6 +224,27 @@ export default function Merge() {
     const id = setTimeout(() => setShaking(false), 900)
     return () => clearTimeout(id)
   }, [comboSeq])
+
+  // Chain-combo callout: each merge within COMBO_WINDOW of the previous one bumps
+  // the run counter; two or more pops a floating "Combo ×N" where it happened.
+  const registerMerge = (ts, x, y) => {
+    const c = comboRef.current
+    if (ts > c.deadline) c.n = 0 // the run lapsed — start counting fresh
+    c.n += 1
+    c.deadline = ts + COMBO_WINDOW
+    if (c.n >= 2) {
+      const w = sizeRef.current.w || 0
+      const cx = w > 20 ? clamp(x, 44, w - 44) : x
+      setComboFx({ n: c.n, x: cx, y: Math.max(44, y), seq: idSeq++ })
+      tone(520 + Math.min(c.n, 6) * 70, { duration: 0.12, type: 'triangle', gain: 0.09 })
+    }
+  }
+  // Retire the callout after it floats away (restarts if a bigger combo lands).
+  useEffect(() => {
+    if (!comboFx) return
+    const id = setTimeout(() => setComboFx(null), 1100)
+    return () => clearTimeout(id)
+  }, [comboFx])
 
   const setCurrentLvl = (l) => {
     currentRef.current = l
@@ -449,18 +480,27 @@ export default function Merge() {
       fruitsRef.current = fruits.filter((f) => !consumed.has(f.id))
     }
 
-    // 5) Roll + land + sleep. Spin follows true rolling (ω = v / r); a hard
-    // landing flattens the fruit; and once it's been still a moment it sleeps,
-    // which freezes it so a settled pile stops vibrating.
+    // 5) Roll + land + sleep. Spin follows true rolling (ω = v / r) while a fruit
+    // is moving; a hard landing flattens it; and once it's been still a moment it
+    // sleeps, which freezes its position so a settled pile stops vibrating. During
+    // that SAME settling window we also stabilize rotation — spin is calmed to a
+    // hard stop so the fruit stops turning/wobbling as it comes to rest, instead
+    // of only when it finally sleeps.
     for (const f of fruitsRef.current) {
       if (f.asleep) continue
       if (f.y >= h - f.r - 1) f.vx *= FLOOR_FRICTION // gentle drag on the floor
-      // Only feed rolling when actually moving; otherwise let friction win so a
-      // resting fruit's residual jitter can't keep it turning forever.
-      const target = Math.abs(f.vx) > ROLL_MIN ? f.vx / f.r : 0
-      f.spin += (target - f.spin) * ROLL_BLEND
+      // "Settling" = supported and barely moving — the very condition that lets a
+      // fruit nod off. It gates both the position sleep timer and rotation calming.
+      const settling = f.supported && Math.hypot(f.vx, f.vy) < SLEEP_SPEED
+      // Feed rolling only while actually moving (never while settling), so a
+      // resting fruit's residual jitter can't keep it turning.
+      const target = !settling && Math.abs(f.vx) > ROLL_MIN ? f.vx / f.r : 0
+      // While settling, blend spin toward 0 much faster so it winds down quickly.
+      f.spin += (target - f.spin) * (settling ? 0.5 : ROLL_BLEND)
       f.spin *= ANG_DAMP // angular friction
-      if (Math.abs(f.spin) < SPIN_SLEEP) f.spin = 0 // stop the endless slow creep
+      // Snap spin to a hard stop — sooner while settling so the angle freezes in
+      // step with the position and there's no residual rotational vibration.
+      if (Math.abs(f.spin) < (settling ? SPIN_SLEEP * 4 : SPIN_SLEEP)) f.spin = 0
       f.angle += f.spin * dt
       const impact = (f.vyIn || 0) - f.vy // downward speed lost to a landing
       if (impact > SQUASH_MIN_IMPACT) {
@@ -468,7 +508,7 @@ export default function Merge() {
       }
       // Nod off once it's been essentially still for a moment AND is actually
       // supported (on the floor or a static fruit) — never mid-air.
-      if (f.supported && Math.hypot(f.vx, f.vy) < SLEEP_SPEED) {
+      if (settling) {
         f.still = (f.still || 0) + dt
         if (f.still > SLEEP_TIME) {
           f.asleep = true
@@ -580,6 +620,7 @@ export default function Merge() {
     fxRef.current.push({ id: idSeq++, x: mx, y: my, r: a.r * 1.4, color: FRUITS[lvl].color, born: ts })
 
     wakeAbove(my, a.r) // fruit resting on these may have lost their support
+    registerMerge(ts, mx, my) // count this merge toward the chain combo
 
     if (lvl >= MAX_LVL) {
       // Two watermelons! They burst away for a big reward and free the basket.
@@ -649,6 +690,7 @@ export default function Merge() {
     fxRef.current.push({ id: idSeq++, x: cx, y: cy, r: w * 0.7, color: '#ffe680', born: ts })
 
     wakeAbove(cy, w * 0.5) // clearing a big cluster drops everything above it
+    registerMerge(ts, cx, cy) // the melon burst also feeds the chain combo
 
     bumpScore(COMBO_POINTS + (group.length - COMBO_MIN) * 40, cx, cy)
 
@@ -801,6 +843,18 @@ export default function Merge() {
 
         {/* Spectacular combo flash across the whole basket. */}
         {shaking && <span key={comboSeq} className="merge__combo" aria-hidden="true" />}
+
+        {/* Chain combo callout: "Combo ×N" floating up from the merge spot. */}
+        {comboFx && (
+          <div
+            key={comboFx.seq}
+            className="merge__combox"
+            style={{ left: comboFx.x, top: comboFx.y }}
+            aria-hidden="true"
+          >
+            {t('combox', { n: comboFx.n })}
+          </div>
+        )}
 
         {showHint && <div className="merge__howto" aria-hidden="true">{t('howto')}</div>}
         {toast && <div className="merge__toast">{t('tidy')}</div>}

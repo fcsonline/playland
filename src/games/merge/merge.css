@@ -106,6 +106,42 @@
   100% { opacity: 0; transform: scale(1.45); }
 }
 
+/* ---- Chain combo callout: "Combo ×N" floats up from the merge spot ------ */
+.merge__combox {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  z-index: 6;
+  pointer-events: none;
+  white-space: nowrap;
+  font-weight: 900;
+  font-size: clamp(1.1rem, 6vw, 1.9rem);
+  letter-spacing: 0.5px;
+  color: #fff;
+  /* Warm outline + glow so it reads over any fruit colour. */
+  text-shadow:
+    0 0 1px #b5460a,
+    2px 2px 0 #d2691e,
+    0 4px 10px rgba(0, 0, 0, 0.35);
+  animation: merge-combox 1.05s cubic-bezier(0.2, 0.8, 0.3, 1) forwards;
+}
+@keyframes merge-combox {
+  0% {
+    opacity: 0;
+    transform: translate(-50%, -50%) scale(0.4) rotate(-6deg);
+  }
+  18% {
+    opacity: 1;
+    transform: translate(-50%, -80%) scale(1.18) rotate(3deg);
+  }
+  38% {
+    transform: translate(-50%, -95%) scale(1) rotate(0deg);
+  }
+  100% {
+    opacity: 0;
+    transform: translate(-50%, -155%) scale(1) rotate(0deg);
+  }
+}
+
 /* Dashed vertical aim guide under the waiting fruit. */
 .merge__guide {
   position: absolute;

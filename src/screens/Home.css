@@ -35,6 +35,8 @@
   position: relative;
   z-index: 1;
   display: grid;
+  /* Fluid on wider screens; pinned to exactly 3 across in portrait below so a
+     110px min can't drop narrow phones (<~386px) to 2 oversized columns. */
   grid-template-columns: repeat(auto-fill, minmax(110px, 1fr));
   gap: 14px;
   align-content: start;
@@ -47,6 +49,14 @@
   width: 0;
   height: 0;
   display: none; /* Chromium / WebKit (incl. iOS Safari) */
+}
+/* Portrait phones: always exactly 3 columns, regardless of device width, so
+   narrow phones don't fall back to 2 oversized covers. Landscape overrides the
+   columns below. */
+@media (orientation: portrait) {
+  .home__grid {
+    grid-template-columns: repeat(3, 1fr);
+  }
 }
 
 .card {

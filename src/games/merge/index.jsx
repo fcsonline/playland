@@ -32,6 +32,9 @@ const STR = {
     wow: 'Watermelon! 🍉',
     combo: 'MELON COMBO! 🍉',
     combox: 'Combo ×{n}',
+    keepCalm: 'Keep calm 😌',
+    over: 'Basket full! 🧺',
+    playAgain: 'Play again',
     play: 'Fruit basket — tap to drop a fruit',
   },
   es: {
@@ -43,6 +46,9 @@ const STR = {
     wow: '¡Sandía! 🍉',
     combo: '¡COMBO SANDÍA! 🍉',
     combox: 'Combo ×{n}',
+    keepCalm: 'Con calma 😌',
+    over: '¡Cesta llena! 🧺',
+    playAgain: 'Jugar otra vez',
     play: 'Cesta de fruta — toca para soltar una fruta',
   },
   ca: {
@@ -54,6 +60,9 @@ const STR = {
     wow: 'Síndria! 🍉',
     combo: 'COMBO SÍNDRIA! 🍉',
     combox: 'Combo ×{n}',
+    keepCalm: 'Amb calma 😌',
+    over: 'Cistella plena! 🧺',
+    playAgain: 'Torna a jugar',
     play: 'Cistella de fruita — toca per deixar anar una fruita',
   },
   fr: {
@@ -65,6 +74,9 @@ const STR = {
     wow: 'Pastèque ! 🍉',
     combo: 'COMBO PASTÈQUE ! 🍉',
     combox: 'Combo ×{n}',
+    keepCalm: 'Doucement 😌',
+    over: 'Panier plein ! 🧺',
+    playAgain: 'Rejouer',
     play: 'Panier de fruits — touche pour lâcher un fruit',
   },
 }
@@ -79,9 +91,12 @@ const STR = {
  * legend shows the whole chain from tiny blueberry up to the giant watermelon,
  * so a child can see how much room each fruit takes.
  *
- * There is NO game over: if the pile ever climbs past the top line and settles
- * there, the basket happily "tidies up" (everything pops away) and play carries
- * on — the score keeps growing and the best is remembered.
+ * The red danger line near the top is the fill limit: if a fruit comes to rest
+ * ABOVE it, the basket is full and the game ends with a "Basket full!" card and
+ * a Play-again button. Watermelon is the final fruit and never merges — two of
+ * them just rest side by side (only a cluster of three+ still bursts as a bonus).
+ * And if a child rushes — several drops in a few seconds — a gentle "Keep calm"
+ * beat pauses play for a moment before it carries on.
  *
  * All physics live in refs and run in ONE requestAnimationFrame loop; a tick
  * state counter is bumped each frame to repaint the fruit from those refs.
@@ -123,10 +138,16 @@ const ITER = 7 // relaxation passes per frame (stacking stability)
 const MERGE_PAD = 3 // merge on contact: touching (+ a few px) is enough
 const DROP_COOLDOWN = 430 // ms before the next fruit is ready to drop
 
-// Top-fruit (watermelon) combo: two touching burst as before, but when THREE or
-// more join into one cluster it sets off a spectacular combo.
+// Pace nudge: rushing (many quick drops) pops a gentle "Keep calm" beat.
+const RUSH_COUNT = 4 // drops within the window that trigger the nudge
+const RUSH_WINDOW = 10000 // ms sliding window the drops are counted over
+const RUSH_PAUSE = 1600 // ms the "Keep calm" card shows (dropping paused)
+const RUSH_COOLDOWN = 9000 // ms before the nudge can show again (so it never nags)
+
+// Top-fruit (watermelon) is the cap: two touching do NOT merge — they just rest.
+// A cluster of THREE or more still bursts at once as a bonus combo.
 const COMBO_PAD = 12 // px slack for grouping top fruit into a cluster
-const COMBO_MIN = 3 // this many joined top fruits trigger the combo
+const COMBO_MIN = 3 // this many joined top fruits trigger the bonus combo
 const COMBO_POINTS = 120 // score for a top-fruit combo
 
 // Chain combo: merges landing within this window of one another count as a
@@ -144,16 +165,18 @@ const SQUASH_MIN_IMPACT = 260 // downward speed (px/s) killed before squash show
 
 // Resting stabilization ("sleeping"): a fruit that stays still briefly stops
 // being integrated/collided — so a settled pile is perfectly static (no
-// vibration) — and only wakes when an awake fruit pushes into it, or a nearby
-// merge removes its support.
+// vibration) — and only wakes when a fruit genuinely IMPACTS it, or a nearby
+// merge removes its support. Gentle resting overlap must NOT wake it, or a
+// settled pile jitters itself awake forever.
 const SLEEP_SPEED = 22 // px/s below which a fruit counts as "still"
 const SLEEP_TIME = 0.45 // s of stillness before it sleeps
-const WAKE_SLOP = 2 // px of overlap from an awake fruit that wakes a sleeper
+const WAKE_SLOP = 2 // px of overlap from an awake fruit that can wake a sleeper
+const WAKE_SPEED = 90 // px/s the intruding fruit must exceed — a real impact, not resting weight
+const SETTLE_DAMP = 0.6 // extra per-frame velocity damping while settling, to converge to rest fast
 const SLOP = 0.5 // px of overlap left uncorrected (kills micro-jitter)
 const REST_VN = 120 // |normal speed| below which a contact doesn't bounce
 
-const OVERFLOW_TIME = 2.5 // s a fruit may rest above the line before a tidy-up
-const OVERFLOW_SPEED = 45 // px/s — below this a fruit counts as "settled"
+const OVERFLOW_TIME = 1.5 // s a fruit may rest above the line before the basket is "full" (game over)
 const OVERFLOW_GRACE = 900 // ms after a fruit is born before it can trigger it
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
@@ -166,13 +189,13 @@ const dangerYFor = (w) => hoverCenterY(w) + maxDropR(w) + 14
 let idSeq = 1
 
 export default function Merge() {
-  const { earn, award, cheer } = useGame()
+  const { earn, award } = useGame()
   const { setGameLevel, getGameLevel } = useProgress()
   const t = useT(STR)
 
   // Latest callbacks/strings for the rAF loop (component re-renders each frame).
   const cbs = useRef({})
-  cbs.current = { earn, award, cheer, setGameLevel, t }
+  cbs.current = { earn, award, setGameLevel, t }
 
   const fieldRef = useRef(null)
   const rafRef = useRef(null)
@@ -191,10 +214,11 @@ export default function Merge() {
   const [current, setCurrent] = useState(null) // level of the waiting fruit
   const [next, setNext] = useState(null) // level of the on-deck fruit
   const [ready, setReady] = useState(false) // may the child drop right now?
-  const [toast, setToast] = useState(false) // "Tidy up!" banner
   const [comboSeq, setComboSeq] = useState(0) // bumps to fire the combo flash
   const [shaking, setShaking] = useState(false) // combo screen-shake is active
   const [comboFx, setComboFx] = useState(null) // floating "Combo ×N" chain callout
+  const [keepCalm, setKeepCalm] = useState(false) // "Keep calm" pace-nudge card
+  const [lost, setLost] = useState(false) // basket full — game over card is up
 
   // Live game state (kept out of React state so the loop stays smooth).
   const fruitsRef = useRef([]) // [{ id, lvl, x, y, vx, vy, r, born, merged }]
@@ -206,6 +230,9 @@ export default function Merge() {
   const overflowRef = useRef(0) // seconds spent above the danger line
   const milestonesRef = useRef(new Set())
   const comboRef = useRef({ n: 0, deadline: 0 }) // chain-combo run counter
+  const lostRef = useRef(false) // freeze the sim + block drops once the basket is full
+  const dropTimesRef = useRef([]) // recent drop timestamps, for the rush nudge
+  const rushCoolRef = useRef(0) // ts before which the rush nudge won't show again
 
   const later = (fn, ms) => {
     const id = setTimeout(fn, ms)
@@ -333,7 +360,7 @@ export default function Merge() {
   }
 
   function drop() {
-    if (!readyRef.current) return
+    if (!readyRef.current || lostRef.current) return
     const w = sizeRef.current.w
     if (w <= 20) return
     const lvl = currentRef.current
@@ -360,7 +387,25 @@ export default function Merge() {
     setCurrentLvl(nextRef.current)
     setNextLvl(pick(DROP_BAG))
     setReadyBoth(false)
-    later(() => setReadyBoth(true), DROP_COOLDOWN)
+    // Re-enable dropping shortly — but never while a game-over card is up.
+    const enable = () => { if (!lostRef.current) setReadyBoth(true) }
+
+    // Pace nudge: count drops in a sliding window; too many pops a "Keep calm"
+    // beat that pauses briefly, then play continues.
+    const now = nowRef.current || performance.now()
+    const arr = dropTimesRef.current
+    arr.push(now)
+    while (arr.length && now - arr[0] > RUSH_WINDOW) arr.shift()
+    if (arr.length >= RUSH_COUNT && now >= rushCoolRef.current) {
+      rushCoolRef.current = now + RUSH_COOLDOWN
+      arr.length = 0
+      setKeepCalm(true)
+      sfx.good()
+      later(() => setKeepCalm(false), RUSH_PAUSE)
+      later(enable, RUSH_PAUSE)
+    } else {
+      later(enable, DROP_COOLDOWN)
+    }
   }
 
   // ---- The single rAF physics loop -----------------------------------------
@@ -372,7 +417,7 @@ export default function Merge() {
       lastTsRef.current = ts
 
       const { w, h } = sizeRef.current
-      if (w > 20 && h > 20) simulate(dt, w, h, ts)
+      if (!lostRef.current && w > 20 && h > 20) simulate(dt, w, h, ts)
 
       setTick((n) => (n + 1) % 1e6)
       rafRef.current = requestAnimationFrame(step)
@@ -412,8 +457,9 @@ export default function Merge() {
     const merges = []
     const combos = []
 
-    // Top fruit (watermelon) can't grow, so instead group every touching cluster
-    // of them: a pair bursts (as before), but 3+ joined sets off the big combo.
+    // Watermelon is the final fruit — it never merges. Two touching just rest
+    // against each other (the cap). Only a cluster of THREE or more still bursts
+    // at once as a bonus combo; smaller groups are left alone.
     const tops = fruits.filter((f) => f.lvl === MAX_LVL)
     const seen = new Set()
     for (const m of tops) {
@@ -433,10 +479,6 @@ export default function Merge() {
       if (group.length >= COMBO_MIN) {
         group.forEach((g) => consumed.add(g.id))
         combos.push(group)
-      } else if (group.length === 2) {
-        consumed.add(group[0].id)
-        consumed.add(group[1].id)
-        merges.push([group[0], group[1]])
       }
     }
 
@@ -507,8 +549,12 @@ export default function Merge() {
         f.squash = Math.min(SQUASH_MAX, Math.max(f.squash, impact / 1800))
       }
       // Nod off once it's been essentially still for a moment AND is actually
-      // supported (on the floor or a static fruit) — never mid-air.
+      // supported (on the floor or a static fruit) — never mid-air. While
+      // settling, bleed off the residual velocity hard so it converges to a true
+      // rest (and reliably crosses the sleep threshold) instead of creeping.
       if (settling) {
+        f.vx *= SETTLE_DAMP
+        f.vy *= SETTLE_DAMP
         f.still = (f.still || 0) + dt
         if (f.still > SLEEP_TIME) {
           f.asleep = true
@@ -535,10 +581,13 @@ export default function Merge() {
     const min = a.r + b.r
     if (d >= min) return
     const overlap = min - d
-    // An awake fruit pushing meaningfully into a sleeper wakes it up.
+    // Only a genuine IMPACT wakes a sleeper — an awake fruit moving faster than
+    // WAKE_SPEED that pushes into it. The steady weight of a fruit resting on top
+    // (which moves slower than that) must NOT wake it, or the pile would jitter
+    // itself awake forever and never stabilize.
     if (overlap > WAKE_SLOP) {
-      if (a.asleep && !b.asleep) wake(a)
-      else if (b.asleep && !a.asleep) wake(b)
+      if (a.asleep && !b.asleep && Math.hypot(b.vx, b.vy) > WAKE_SPEED) wake(a)
+      else if (b.asleep && !a.asleep && Math.hypot(a.vx, a.vy) > WAKE_SPEED) wake(b)
     }
     // Resting on a static fruit below (an asleep one) counts as real support —
     // only supported fruit may sleep, so mid-air clumps can't freeze.
@@ -619,18 +668,10 @@ export default function Merge() {
     const lvl = a.lvl
     fxRef.current.push({ id: idSeq++, x: mx, y: my, r: a.r * 1.4, color: FRUITS[lvl].color, born: ts })
 
+    if (lvl >= MAX_LVL) return // watermelon is the cap — it never merges into anything
+
     wakeAbove(my, a.r) // fruit resting on these may have lost their support
     registerMerge(ts, mx, my) // count this merge toward the chain combo
-
-    if (lvl >= MAX_LVL) {
-      // Two watermelons! They burst away for a big reward and free the basket.
-      noiseBurst({ duration: 0.14, gain: 0.14, type: 'lowpass', freq: 700 })
-      sfx.win()
-      bumpScore(30, mx, my)
-      cbs.current.award(3, { praise: cbs.current.t('wow'), count: 30 })
-      cbs.current.earn(4, screenPoint(mx, my))
-      return
-    }
 
     const nl = lvl + 1
     fruitsRef.current.push({
@@ -727,8 +768,10 @@ export default function Merge() {
     const dangerY = dangerYFor(w)
     let over = false
     for (const f of fruitsRef.current) {
+      // A just-dropped fruit falls THROUGH the top zone, so ignore it briefly.
+      // After that, any fruit whose top is above the line counts — no speed gate,
+      // or a busy pile (nothing ever "settled") could grow forever without losing.
       if (ts - f.born < OVERFLOW_GRACE) continue
-      if (Math.hypot(f.vx, f.vy) > OVERFLOW_SPEED) continue
       if (f.y - f.r < dangerY) {
         over = true
         break
@@ -736,22 +779,46 @@ export default function Merge() {
     }
     if (over) {
       overflowRef.current += dt
-      if (overflowRef.current > OVERFLOW_TIME) tidyUp(ts)
+      if (overflowRef.current > OVERFLOW_TIME) gameOver()
     } else {
       overflowRef.current = Math.max(0, overflowRef.current - dt * 2)
     }
   }
 
-  function tidyUp(ts) {
-    for (const f of fruitsRef.current) {
-      fxRef.current.push({ id: idSeq++, x: f.x, y: f.y, r: f.r, color: FRUITS[f.lvl].color, born: ts })
-    }
-    fruitsRef.current = []
+  // Basket full: a fruit came to rest above the red line. Freeze the board and
+  // show the game-over card (a gentle descending tone, never harsh).
+  function gameOver() {
+    if (lostRef.current) return
+    lostRef.current = true
     overflowRef.current = 0
-    sfx.win()
-    cbs.current.cheer({ count: 16 })
-    setToast(true)
-    later(() => setToast(false), 1500)
+    setReadyBoth(false)
+    setKeepCalm(false)
+    setLost(true)
+    tone(300, { duration: 0.22, type: 'sine', gain: 0.09 })
+    tone(200, { duration: 0.3, type: 'sine', gain: 0.09, when: 0.16 })
+  }
+
+  // Play again: wipe the basket and start a fresh run (the best score stays).
+  function reset() {
+    fruitsRef.current = []
+    fxRef.current = []
+    scoreRef.current = 0
+    setScore(0)
+    overflowRef.current = 0
+    milestonesRef.current = new Set()
+    comboRef.current = { n: 0, deadline: 0 }
+    dropTimesRef.current = []
+    rushCoolRef.current = 0
+    setComboFx(null)
+    setKeepCalm(false)
+    lostRef.current = false
+    setLost(false)
+    const w = sizeRef.current.w
+    if (w > 20) aimRef.current = w / 2
+    setCurrentLvl(pick(DROP_BAG))
+    setNextLvl(pick(DROP_BAG))
+    setReadyBoth(true)
+    sfx.tap()
   }
 
   // ---- Render from refs -----------------------------------------------------
@@ -792,7 +859,7 @@ export default function Merge() {
         role="button"
         aria-label={t('play')}
       >
-        {/* Danger line — cross it for too long and the basket tidies up. */}
+        {/* Red danger line — a fruit resting above it means the basket is full. */}
         {w > 20 && (
           <span
             className={`merge__danger ${dangerHot ? 'is-hot' : ''}`}
@@ -857,7 +924,34 @@ export default function Merge() {
         )}
 
         {showHint && <div className="merge__howto" aria-hidden="true">{t('howto')}</div>}
-        {toast && <div className="merge__toast">{t('tidy')}</div>}
+
+        {/* Gentle pace nudge when the child is dropping too fast. */}
+        {keepCalm && (
+          <div className="merge__calm" aria-hidden="true">
+            <div className="merge__calm-card">{t('keepCalm')}</div>
+          </div>
+        )}
+
+        {/* Basket full — game over, with a Play-again button. */}
+        {lost && (
+          <div
+            className="merge__over"
+            role="dialog"
+            aria-label={t('over')}
+            onPointerDown={(e) => e.stopPropagation()}
+            onPointerUp={(e) => e.stopPropagation()}
+          >
+            <div className="merge__over-card">
+              <div className="merge__over-title">{t('over')}</div>
+              <div className="merge__over-score">
+                {t('score')} <b>{score}</b>
+              </div>
+              <button type="button" className="merge__over-btn" onClick={reset}>
+                {t('playAgain')}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* Legend: the whole chain, small → big, so kids see the sizes. */}

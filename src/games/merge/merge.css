@@ -252,6 +252,74 @@
   z-index: 4;
 }
 
+/* ---- "Keep calm" pace nudge -------------------------------------------- */
+.merge__calm {
+  position: absolute;
+  inset: 0;
+  z-index: 7;
+  display: grid;
+  place-items: center;
+  pointer-events: none;
+}
+.merge__calm-card {
+  padding: 12px 24px;
+  border-radius: 999px;
+  background: rgba(58, 44, 90, 0.88);
+  color: #fff;
+  font-weight: 900;
+  font-size: clamp(1.1rem, 5.5vw, 1.6rem);
+  white-space: nowrap;
+  box-shadow: 0 8px 22px rgba(0, 0, 0, 0.32);
+  animation: pop-in 0.3s ease;
+}
+
+/* ---- Game over: basket full -------------------------------------------- */
+.merge__over {
+  position: absolute;
+  inset: 0;
+  z-index: 8;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 16, 40, 0.55);
+  animation: pop-in 0.25s ease;
+}
+.merge__over-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 10px;
+  max-width: 82%;
+  padding: 22px 26px;
+  border-radius: 22px;
+  background: #fff;
+  color: var(--ink, #3a2c5a);
+  text-align: center;
+  box-shadow: 0 14px 36px rgba(0, 0, 0, 0.4);
+}
+.merge__over-title {
+  font-weight: 900;
+  font-size: clamp(1.3rem, 6.5vw, 2rem);
+}
+.merge__over-score {
+  font-weight: 800;
+  opacity: 0.8;
+}
+.merge__over-btn {
+  margin-top: 4px;
+  padding: 12px 28px;
+  border: none;
+  border-radius: 999px;
+  background: linear-gradient(180deg, #ffd15c, #ff9f43);
+  color: #6a3d00;
+  font-weight: 900;
+  font-size: clamp(1rem, 5vw, 1.25rem);
+  box-shadow: 0 6px 16px rgba(255, 150, 60, 0.5);
+  cursor: pointer;
+}
+.merge__over-btn:active {
+  transform: scale(0.95);
+}
+
 /* ---- Legend: the merge chain, small → big ------------------------------ */
 .merge__legend {
   display: flex;

@@ -191,47 +191,6 @@ export const GAME_ART = {
     )
   },
 
-  // Light It Up — glossy glowing bulb with a little switch.
-  circuit: () => (
-    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
-      <defs>
-        <radialGradient id="cirBulb" cx="38%" cy="30%" r="74%">
-          <stop offset="0" stopColor="#fff7bf" />
-          <stop offset="55%" stopColor="#ffe14d" />
-          <stop offset="100%" stopColor="#f4b200" />
-        </radialGradient>
-        <linearGradient id="cirBase" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#dfe3ee" />
-          <stop offset="1" stopColor="#aab2c6" />
-        </linearGradient>
-        <linearGradient id="cirSwitch" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#7be88f" />
-          <stop offset="1" stopColor="#3fb85c" />
-        </linearGradient>
-      </defs>
-      {/* glow */}
-      <circle cx="50" cy="40" r="31" fill="#fff3a8" opacity="0.5" />
-      {/* soft rays */}
-      <g stroke="#ffe14d" strokeWidth="4.5" strokeLinecap="round" opacity="0.85">
-        <line x1="50" y1="5" x2="50" y2="14" />
-        <line x1="18" y1="40" x2="9" y2="40" />
-        <line x1="82" y1="40" x2="91" y2="40" />
-        <line x1="26" y1="17" x2="19" y2="10" />
-        <line x1="74" y1="17" x2="81" y2="10" />
-      </g>
-      {/* bulb glass */}
-      <circle cx="50" cy="40" r="20" fill="url(#cirBulb)" />
-      <path d="M44 45c2-7 10-7 12 0" fill="none" stroke="#ff8a00" strokeWidth="3" strokeLinecap="round" />
-      <ellipse cx="42" cy="32" rx="4.2" ry="6" fill="#ffffff" opacity="0.7" />
-      {/* base */}
-      <rect x="42" y="58" width="16" height="9" rx="2.5" fill="url(#cirBase)" />
-      {/* wire + switch */}
-      <line x1="50" y1="71" x2="50" y2="80" stroke="#b7c0d0" strokeWidth="4" strokeLinecap="round" />
-      <rect x="37" y="80" width="26" height="14" rx="5" fill="url(#cirSwitch)" />
-      <circle cx="55" cy="87" r="3.6" fill="#ffffff" opacity="0.9" />
-    </svg>
-  ),
-
   // Ball Run — glossy track with a ball rolling toward a 3D star.
   coaster: () => (
     <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">

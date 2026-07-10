@@ -131,6 +131,14 @@
   color: var(--white);
 }
 
+/* Side-by-side buttons on the crash card (retry + back home). */
+.game-frame__error-actions {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+  flex-wrap: wrap;
+}
+
 /* A common surface games can drop their playfield onto. */
 .play-surface {
   background: var(--white);
@@ -140,14 +148,6 @@
   display: flex;
   flex-direction: column;
   min-height: 0;
-}
-
-/* Stars rating widget */
-.stars__on {
-  color: var(--sun);
-}
-.stars__off {
-  color: rgba(0, 0, 0, 0.12);
 }
 
 /* Landscape phones are short: reclaim the whole header row. The title, stars and

@@ -4,6 +4,7 @@ import { GameContext } from '../state/game.jsx'
 import { useProgress } from '../state/progress.jsx'
 import { useReward } from '../state/reward.jsx'
 import { useUI, useTitle } from '../lib/i18n.js'
+import GameErrorBoundary from './GameErrorBoundary.jsx'
 import './GameFrame.css'
 
 /**
@@ -23,6 +24,8 @@ export default function GameFrame({ gameId, onBack }) {
   // wandered off gently lands back on the games grid instead of a stuck screen.
   const IDLE_MS = 120000
   const [timedOut, setTimedOut] = useState(false)
+  // Bumping this remounts the boundary + game, retrying a failed chunk load.
+  const [retryKey, setRetryKey] = useState(0)
   const idleTimer = useRef(null)
   const backRef = useRef(onBack)
   backRef.current = onBack
@@ -112,9 +115,21 @@ export default function GameFrame({ gameId, onBack }) {
 
       <main className="game-frame__stage">
         <GameContext.Provider value={ctx}>
-          <Suspense fallback={<div className="game-frame__loading">{t('gettingReady')}</div>}>
-            <Game />
-          </Suspense>
+          <GameErrorBoundary
+            key={`${gameId}:${retryKey}`}
+            labels={{
+              title: t('oopsTitle'),
+              hint: t('oopsHint'),
+              retry: t('tryAgain'),
+              home: t('backHome'),
+            }}
+            onRetry={() => setRetryKey((k) => k + 1)}
+            onBack={onBack}
+          >
+            <Suspense fallback={<div className="game-frame__loading">{t('gettingReady')}</div>}>
+              <Game />
+            </Suspense>
+          </GameErrorBoundary>
         </GameContext.Provider>
       </main>
 

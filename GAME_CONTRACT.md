@@ -34,6 +34,11 @@ import { useDrag } from '../../lib/useDrag.js'
 //   const onPointerDown = useDrag({ onStart, onMove, onEnd })
 //   callbacks get { x, y, dx, dy, event }. Works for touch + mouse.
 //   Use document.elementFromPoint(x, y) in onEnd to detect drop targets.
+import { useGameLoop } from '../../lib/useGameLoop.js'
+//   useGameLoop((dt, ts) => { ... }, { maxDt: 0.05 })
+//   Shared rAF loop for physics games: dt in seconds (clamped so tab switches
+//   don't teleport things), ts on the performance.now() timeline. Simulate in
+//   refs, then bump one useState counter to repaint. Don't hand-roll rAF.
 ```
 
 ## Layout rules
@@ -64,6 +69,18 @@ import { useDrag } from '../../lib/useDrag.js'
   `src/components/`, or any other game's folder. Only create files in your own
   game folder(s).
 - Keep it self-contained; no new npm dependencies.
+
+## Registering a finished game (maintainer step)
+
+A game only appears in the catalogue once it's wired up in three places:
+
+1. `src/games/registry.js` — an entry in `GAMES` (id, title, emoji, colors,
+   tagline; add `isNew: true` so the card gets a "New!" ribbon until first
+   played), a lazy import in `GAME_COMPONENTS`, and an age band in `GAME_AGES`
+   (`'3-5' | '6-8' | 'all'` — used by Home to sort/fade, never to hide).
+2. `src/lib/i18n.js` — the display title in all four `TITLES` locales.
+3. Cover art: drop a `<id>.webp` in `src/assets/art/` (256×256), or add inline
+   SVG to `src/games/artwork.jsx`; otherwise the card falls back to the emoji.
 
 ## Minimal example
 

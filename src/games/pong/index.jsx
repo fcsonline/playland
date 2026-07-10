@@ -1,5 +1,6 @@
-import { useCallback, useEffect, useRef, useState } from 'react'
+import { useCallback, useRef, useState } from 'react'
 import { useDrag } from '../../lib/useDrag.js'
+import { useGameLoop } from '../../lib/useGameLoop.js'
 import { useGame } from '../../state/game.jsx'
 import { sfx } from '../../lib/audio.js'
 import { useT } from '../../lib/i18n.js'
@@ -79,8 +80,6 @@ export default function Pong() {
   const [, forceRender] = useState(0) // bump to repaint positions from refs
 
   const fieldRef = useRef(null)
-  const rafRef = useRef(null)
-  const lastTsRef = useRef(0)
   const pauseUntilRef = useRef(0) // timestamp (ms) to hold the ball before a serve
 
   const ballRef = useRef(serve(Math.random() < 0.5))
@@ -150,87 +149,74 @@ export default function Pong() {
     setDone(null)
   }, [])
 
-  // The rAF physics loop. One effect, set up once, cleaned up on unmount.
-  useEffect(() => {
-    const step = (ts) => {
-      if (!lastTsRef.current) lastTsRef.current = ts
-      // Clamp dt so a backgrounded tab doesn't teleport the ball.
-      const dt = Math.min(0.05, (ts - lastTsRef.current) / 1000)
-      lastTsRef.current = ts
+  // The shared rAF physics loop (dt pre-clamped so tab switches don't teleport
+  // the ball).
+  useGameLoop((dt, ts) => {
+    const paused = ts < pauseUntilRef.current
+    const finished = doneRef.current != null
 
-      const paused = ts < pauseUntilRef.current
-      const finished = doneRef.current != null
+    if (!paused && !finished) {
+      const b = ballRef.current
 
-      if (!paused && !finished) {
-        const b = ballRef.current
+      // CPU is slow AND sloppy: it eases toward a point that only partly
+      // follows the ball, and only bothers tracking when the ball is heading
+      // its way. With a low capped speed it simply can't keep up — the ball
+      // slips past most of the time.
+      const aimsForBall = b.vy < 0
+      const target = aimsForBall
+        ? cpuXRef.current + (b.x - cpuXRef.current) * CPU_LAG
+        : 0.5 // drifts lazily back to center while the ball is away
+      const cd = target - cpuXRef.current
+      const maxMove = CPU_SPEED * dt
+      cpuXRef.current = clampCpu(
+        cpuXRef.current + Math.max(-maxMove, Math.min(maxMove, cd)),
+      )
 
-        // CPU is slow AND sloppy: it eases toward a point that only partly
-        // follows the ball, and only bothers tracking when the ball is heading
-        // its way. With a low capped speed it simply can't keep up — the ball
-        // slips past most of the time.
-        const aimsForBall = b.vy < 0
-        const target = aimsForBall
-          ? cpuXRef.current + (b.x - cpuXRef.current) * CPU_LAG
-          : 0.5 // drifts lazily back to center while the ball is away
-        const cd = target - cpuXRef.current
-        const maxMove = CPU_SPEED * dt
-        cpuXRef.current = clampCpu(
-          cpuXRef.current + Math.max(-maxMove, Math.min(maxMove, cd)),
-        )
+      // Advance the ball.
+      b.x += b.vx * dt
+      b.y += b.vy * dt
 
-        // Advance the ball.
-        b.x += b.vx * dt
-        b.y += b.vy * dt
+      // Side walls.
+      if (b.x < BALL_R) {
+        b.x = BALL_R
+        b.vx = Math.abs(b.vx)
+        sfx.tap()
+      } else if (b.x > 1 - BALL_R) {
+        b.x = 1 - BALL_R
+        b.vx = -Math.abs(b.vx)
+        sfx.tap()
+      }
 
-        // Side walls.
-        if (b.x < BALL_R) {
-          b.x = BALL_R
-          b.vx = Math.abs(b.vx)
-          sfx.tap()
-        } else if (b.x > 1 - BALL_R) {
-          b.x = 1 - BALL_R
-          b.vx = -Math.abs(b.vx)
-          sfx.tap()
-        }
-
-        // Top paddle (CPU). Narrow, so the ball often sails past it.
-        const topY = PADDLE_INSET + PADDLE_H
-        if (b.vy < 0 && b.y - BALL_R <= topY && b.y - BALL_R > topY - 0.06) {
-          if (Math.abs(b.x - cpuXRef.current) <= HALF_CW + BALL_R) {
-            bounce(b, cpuXRef.current, 1, HALF_CW) // send downward
-            b.y = topY + BALL_R
-            sfx.pop()
-          }
-        }
-
-        // Bottom paddle (player). Wide, so it's easy to bounce the ball back.
-        const botY = 1 - PADDLE_INSET - PADDLE_H
-        if (b.vy > 0 && b.y + BALL_R >= botY && b.y + BALL_R < botY + 0.06) {
-          if (Math.abs(b.x - playerXRef.current) <= HALF_PW + BALL_R) {
-            bounce(b, playerXRef.current, -1, HALF_PW) // send upward
-            b.y = botY - BALL_R
-            sfx.pop()
-          }
-        }
-
-        // Past a paddle → a point.
-        if (b.y < -BALL_R) {
-          scorePoint('you') // got past the CPU at the top
-        } else if (b.y > 1 + BALL_R) {
-          scorePoint('cpu') // got past the player at the bottom
+      // Top paddle (CPU). Narrow, so the ball often sails past it.
+      const topY = PADDLE_INSET + PADDLE_H
+      if (b.vy < 0 && b.y - BALL_R <= topY && b.y - BALL_R > topY - 0.06) {
+        if (Math.abs(b.x - cpuXRef.current) <= HALF_CW + BALL_R) {
+          bounce(b, cpuXRef.current, 1, HALF_CW) // send downward
+          b.y = topY + BALL_R
+          sfx.pop()
         }
       }
 
-      forceRender((n) => (n + 1) % 1000000)
-      rafRef.current = requestAnimationFrame(step)
+      // Bottom paddle (player). Wide, so it's easy to bounce the ball back.
+      const botY = 1 - PADDLE_INSET - PADDLE_H
+      if (b.vy > 0 && b.y + BALL_R >= botY && b.y + BALL_R < botY + 0.06) {
+        if (Math.abs(b.x - playerXRef.current) <= HALF_PW + BALL_R) {
+          bounce(b, playerXRef.current, -1, HALF_PW) // send upward
+          b.y = botY - BALL_R
+          sfx.pop()
+        }
+      }
+
+      // Past a paddle → a point.
+      if (b.y < -BALL_R) {
+        scorePoint('you') // got past the CPU at the top
+      } else if (b.y > 1 + BALL_R) {
+        scorePoint('cpu') // got past the player at the bottom
+      }
     }
 
-    rafRef.current = requestAnimationFrame(step)
-    return () => {
-      cancelAnimationFrame(rafRef.current)
-      lastTsRef.current = 0
-    }
-  }, [scorePoint])
+    forceRender((n) => (n + 1) % 1000000)
+  })
 
   // Reflect the ball off a paddle. The horizontal angle depends on where it hit
   // (offset from the paddle center), keeping a constant overall speed.

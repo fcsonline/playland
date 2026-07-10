@@ -1,5 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useGameLoop } from '../../lib/useGameLoop.js'
 import { useT } from '../../lib/i18n.js'
 import { sfx } from '../../lib/audio.js'
 import './dino.css'
@@ -53,7 +54,6 @@ function freshGame() {
     untilSpawn: 70,
     untilCoin: 320,
     idc: 1,
-    last: 0,
   }
 }
 
@@ -86,15 +86,13 @@ export default function DinoRun() {
       }
     }
     window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, [])
 
-    let raf = 0
-    const tick = (now) => {
+  // Shared rAF loop (dt pre-clamped after tab switches).
+  useGameLoop(
+    (dt) => {
       const s = g.current
-      if (!s.last) s.last = now
-      let dt = (now - s.last) / 1000
-      s.last = now
-      dt = Math.min(0.04, dt) // clamp after tab switches
-
       const field = fieldRef.current
       const W = field ? field.clientWidth : 360
 
@@ -174,15 +172,9 @@ export default function DinoRun() {
       }
 
       setTick((t) => (t + 1) % 1000000)
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-
-    return () => {
-      cancelAnimationFrame(raf)
-      window.removeEventListener('keydown', onKey)
-    }
-  }, [])
+    },
+    { maxDt: 0.04 },
+  )
 
   const s = g.current
   const stumbling = s.stumble > 0

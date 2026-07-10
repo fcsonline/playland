@@ -112,6 +112,56 @@ svg.card__art {
   animation: wiggle 0.3s ease;
 }
 
+/* The sticker-shop doorway: first card in the grid, dressed in gold. */
+.card--shop .card__thumb {
+  background: linear-gradient(150deg, #ffd76e, #ff9ecb);
+}
+.card__wallet {
+  font-size: 0.78rem;
+  font-weight: 900;
+  color: var(--ink);
+}
+
+/* Games outside the chosen age band: still playable, just quieter. */
+.card--soft {
+  opacity: 0.82;
+  filter: saturate(0.72);
+}
+
+/* Earned mastery stars: a small white pill hugging the bottom of the cover. */
+.card__stars {
+  position: absolute;
+  bottom: 5px;
+  left: 50%;
+  transform: translateX(-50%);
+  display: inline-flex;
+  padding: 2px 7px 3px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.92);
+  box-shadow: 0 1px 3px rgba(58, 44, 90, 0.18);
+  line-height: 1;
+  pointer-events: none;
+}
+
+/* "New!" ribbon for games the child hasn't played yet. */
+.card__badge {
+  position: absolute;
+  top: 7px;
+  right: -26px;
+  transform: rotate(35deg);
+  width: 90px;
+  padding: 2px 0 3px;
+  background: var(--accent);
+  color: var(--white);
+  font-size: 0.66rem;
+  font-weight: 900;
+  letter-spacing: 0.02em;
+  text-align: center;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+  box-shadow: 0 1px 4px rgba(58, 44, 90, 0.25);
+  pointer-events: none;
+}
+
 /* Portrait keeps the default grid: rows of cards that page DOWN (vertical
    scroll). Landscape flips it: rows fill the (short) height and the list flows
    into columns that scroll left↔right (swipe), instead of a tall page.

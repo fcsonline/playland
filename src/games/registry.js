@@ -206,6 +206,22 @@ export const GAMES = [
     tagline: 'Pump it big — but not too big!',
   },
   {
+    id: 'circuit',
+    title: 'Light It Up',
+    emoji: '💡',
+    colors: ['#2b2d64', '#7873f5'],
+    tagline: 'Tap the bulbs to light them all!',
+    isNew: true,
+  },
+  {
+    id: 'shapes',
+    title: 'Shape Sorter',
+    emoji: '🔷',
+    colors: ['#ffd76e', '#ff8a3d'],
+    tagline: 'Drag each shape into its hole!',
+    isNew: true,
+  },
+  {
     id: 'flight',
     title: 'Flight Path',
     emoji: '✈️',
@@ -305,6 +321,57 @@ export const GAMES = [
   },
 ]
 
+/**
+ * Age fit per game, matching the settings age bands ('3-5' | '6-8' | 'all').
+ * When a family picks an age range, Home sorts matching games first and gently
+ * fades the rest — nothing is ever hidden or locked (see GAME_CONTRACT.md).
+ */
+export const GAME_AGES = {
+  coloring: 'all',
+  train: '6-8',
+  merge: 'all',
+  pipes: '6-8',
+  math: '6-8',
+  memory: 'all',
+  racing: 'all',
+  mathquiz: '6-8',
+  frog: 'all',
+  bubbles: '6-8',
+  slice: 'all',
+  mathtiles: '6-8',
+  dino: 'all',
+  simon: 'all',
+  pong: 'all',
+  puzzle: '3-5',
+  maze: 'all',
+  butterfly: '3-5',
+  aquarium: '3-5',
+  music: 'all',
+  mosaic: 'all',
+  candy: 'all',
+  connect4: '6-8',
+  count: '6-8',
+  whack: '3-5',
+  tictactoe: '6-8',
+  balloon: '3-5',
+  circuit: '3-5',
+  shapes: '3-5',
+  flight: '6-8',
+  doctor: '3-5',
+  cannon: 'all',
+  trace: 'all',
+  cups: 'all',
+  popit: '3-5',
+  coaster: 'all',
+  compare: '6-8',
+  wordsearch: '6-8',
+  golf: 'all',
+  bricks: 'all',
+  worm: 'all',
+  domino: '6-8',
+  blocks: '6-8',
+}
+
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
 export const GAME_COMPONENTS = {
   coloring: lazy(() => import('./coloring/index.jsx')),
@@ -328,6 +395,8 @@ export const GAME_COMPONENTS = {
   whack: lazy(() => import('./whack/index.jsx')),
   simon: lazy(() => import('./simon/index.jsx')),
   balloon: lazy(() => import('./balloon/index.jsx')),
+  circuit: lazy(() => import('./circuit/index.jsx')),
+  shapes: lazy(() => import('./shapes/index.jsx')),
   tictactoe: lazy(() => import('./tictactoe/index.jsx')),
   flight: lazy(() => import('./flight/index.jsx')),
   mathquiz: lazy(() => import('./mathquiz/index.jsx')),

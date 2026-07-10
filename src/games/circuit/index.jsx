@@ -1,7 +1,43 @@
 import { useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useT } from '../../lib/i18n.js'
 import { sfx, tone } from '../../lib/audio.js'
 import './circuit.css'
+
+const STR = {
+  en: {
+    hint: 'Tap the bulbs to light them all! 💡',
+    next: 'Next ▶',
+    praise: 'All lit!',
+    board: 'Light up the bulbs',
+    bulbLit: 'bulb {n} lit',
+    bulbTap: 'bulb {n} — tap to light',
+  },
+  es: {
+    hint: '¡Toca las bombillas para encenderlas todas! 💡',
+    next: 'Siguiente ▶',
+    praise: '¡Todo encendido!',
+    board: 'Enciende las bombillas',
+    bulbLit: 'bombilla {n} encendida',
+    bulbTap: 'bombilla {n} — toca para encender',
+  },
+  ca: {
+    hint: 'Toca les bombetes per encendre-les totes! 💡',
+    next: 'Següent ▶',
+    praise: 'Tot encès!',
+    board: 'Encén les bombetes',
+    bulbLit: 'bombeta {n} encesa',
+    bulbTap: 'bombeta {n} — toca per encendre',
+  },
+  fr: {
+    hint: 'Touche les ampoules pour toutes les allumer ! 💡',
+    next: 'Suivant ▶',
+    praise: 'Tout allumé !',
+    board: 'Allume les ampoules',
+    bulbLit: 'ampoule {n} allumée',
+    bulbTap: 'ampoule {n} — touche pour allumer',
+  },
+}
 
 /**
  * Light It Up — a tap-to-light fairy-lights toy (no-fail, no logic puzzle).
@@ -37,6 +73,7 @@ function makeBulbs(n) {
 
 export default function LightItUp() {
   const { earn, award } = useGame()
+  const t = useT(STR)
   const [level, setLevel] = useState(0)
   const n = bulbCount(level)
   const [bulbs, setBulbs] = useState(() => makeBulbs(bulbCount(0)))
@@ -77,7 +114,7 @@ export default function LightItUp() {
         later(() => {
           sfx.win()
           earn(2)
-          award(Math.min(3, 1 + level), { praise: 'All lit!', count: 22 })
+          award(Math.min(3, 1 + level), { praise: t('praise'), count: 22 })
         }, 320)
       }
       return next
@@ -103,7 +140,7 @@ export default function LightItUp() {
           viewBox="0 0 100 100"
           preserveAspectRatio="xMidYMid meet"
           role="img"
-          aria-label="Light up the bulbs"
+          aria-label={t('board')}
         >
           {/* Wires from the battery out to each bulb. */}
           {bulbs.map((b, i) => (
@@ -129,7 +166,7 @@ export default function LightItUp() {
               y={b.y}
               color={COLORS[i % COLORS.length]}
               on={on[i]}
-              index={i}
+              label={t(on[i] ? 'bulbLit' : 'bulbTap', { n: i + 1 })}
               onTap={() => tap(i)}
             />
           ))}
@@ -139,11 +176,11 @@ export default function LightItUp() {
       {done ? (
         <div className="circuit__footer">
           <button className="btn btn--good" onClick={nextLevel}>
-            Next ▶
+            {t('next')}
           </button>
         </div>
       ) : (
-        <p className="circuit__hint">Tap the bulbs to light them all! 💡</p>
+        <p className="circuit__hint">{t('hint')}</p>
       )}
     </div>
   )
@@ -173,14 +210,14 @@ function Battery({ lit, total }) {
 }
 
 // A tappable bulb: grey glass when off; saturated, glowing, with rays when on.
-function Bulb({ x, y, color, on, index, onTap }) {
+function Bulb({ x, y, color, on, label, onTap }) {
   return (
     <g
       className={`circuit__bulb ${on ? 'is-on' : ''}`}
       style={{ '--c': color }}
       role="button"
       tabIndex={0}
-      aria-label={on ? `bulb ${index + 1} lit` : `bulb ${index + 1} — tap to light`}
+      aria-label={label}
       onClick={onTap}
       onKeyDown={(e) => {
         if (e.key === 'Enter' || e.key === ' ') {

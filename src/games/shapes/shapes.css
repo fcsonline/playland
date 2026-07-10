@@ -1,0 +1,111 @@
+.shapes {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* Board centers the grid of holes. */
+.shapes__board {
+  flex: 1;
+  display: grid;
+  place-items: center;
+  padding: 12px;
+  min-height: 0;
+}
+
+.shapes__holes {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(84px, 1fr));
+  gap: 14px;
+  width: min(100%, 480px);
+}
+.shapes__holes.is-done {
+  animation: pop-in 0.4s ease;
+}
+
+.shapes__hole {
+  aspect-ratio: 1 / 1;
+  display: grid;
+  place-items: center;
+  padding: 8px;
+  border-radius: var(--radius-sm);
+  background: rgba(58, 44, 90, 0.05);
+}
+.shapes__hole.is-filled {
+  background: rgba(58, 44, 90, 0.02);
+}
+.shapes__hole.is-filled .shapes__art {
+  animation: shapes-snap 0.3s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+
+.shapes__art {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+
+/* Tray of loose shapes. */
+.shapes__tray {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius-sm);
+}
+.shapes__piece {
+  width: clamp(56px, 17vw, 84px);
+  aspect-ratio: 1 / 1;
+  padding: 6px;
+  background: var(--white);
+  border-radius: 16px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+  touch-action: none;
+  transition: transform 0.1s ease;
+}
+.shapes__piece:active {
+  transform: scale(0.94);
+}
+.shapes__piece.is-dragging {
+  opacity: 0.25;
+}
+.shapes__piece.is-wrong {
+  animation: wiggle 0.4s ease;
+}
+
+.shapes__hint {
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  color: var(--white);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.shapes__footer {
+  display: flex;
+  justify-content: center;
+}
+
+/* Floating shape that follows the pointer. */
+.shapes__floater {
+  position: fixed;
+  z-index: 5000;
+  width: clamp(64px, 22vw, 96px);
+  transform: translate(-50%, -50%) scale(1.08);
+  pointer-events: none;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.25));
+}
+
+@keyframes shapes-snap {
+  0% {
+    transform: scale(1.3);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

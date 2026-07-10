@@ -1,0 +1,150 @@
+.shop {
+  position: relative;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  width: 100%;
+  max-width: 720px;
+  margin: 0 auto;
+  padding: 14px;
+  padding-top: max(14px, env(safe-area-inset-top));
+  padding-left: max(14px, env(safe-area-inset-left));
+  padding-right: max(14px, env(safe-area-inset-right));
+}
+
+/* Same soft backdrop family as Home, warmed up like a candy stand. */
+.shop::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  background:
+    radial-gradient(130% 90% at 0% -8%, rgba(255, 206, 79, 0.28), transparent 44%),
+    radial-gradient(130% 90% at 100% 2%, rgba(255, 126, 179, 0.24), transparent 44%),
+    radial-gradient(rgba(108, 92, 231, 0.06) 2px, transparent 2.6px);
+  background-size: auto, auto, 26px 26px;
+}
+
+.shop > * {
+  position: relative;
+  z-index: 1;
+}
+
+.shop__bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.shop__title {
+  flex: 1;
+  margin: 0;
+  font-size: clamp(1.2rem, 5vw, 1.7rem);
+  color: var(--ink);
+}
+
+.shop__wallet {
+  font-size: 1rem;
+}
+
+.shop__close {
+  display: grid;
+  place-items: center;
+  width: 46px;
+  height: 46px;
+  border-radius: 16px;
+  background: var(--white);
+  color: var(--ink);
+  box-shadow: var(--shadow);
+  transition: transform 0.1s ease;
+}
+.shop__close:active {
+  transform: scale(0.92);
+}
+.shop__close-icon {
+  width: 20px;
+  height: 20px;
+}
+
+.shop__hint {
+  margin: 10px 2px 0;
+  font-weight: 700;
+  color: var(--ink);
+  opacity: 0.85;
+}
+.shop__count {
+  margin: 2px 2px 10px;
+  font-size: 0.85rem;
+  font-weight: 800;
+  color: var(--primary);
+}
+
+.shop__grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+  gap: 12px;
+  align-content: start;
+  padding-bottom: max(14px, env(safe-area-inset-bottom));
+}
+
+.shop__item {
+  position: relative;
+  display: grid;
+  place-items: center;
+  gap: 4px;
+  aspect-ratio: 1 / 1;
+  padding: 8px;
+  border-radius: 20px;
+  background: var(--white);
+  border: 3px solid #ffffff;
+  box-shadow: 0 0 0 2px rgba(58, 44, 90, 0.08), var(--shadow);
+  animation: pop-in 0.3s ease both;
+  transition: transform 0.1s ease;
+}
+.shop__item:active {
+  transform: scale(0.92);
+}
+
+.shop__sticker {
+  font-size: clamp(2rem, 8vw, 2.8rem);
+  filter: drop-shadow(0 3px 5px rgba(0, 0, 0, 0.15));
+}
+
+/* Not affordable yet: shown in silhouette, like an empty sticker-book slot. */
+.shop__item.is-locked .shop__sticker {
+  filter: grayscale(1) opacity(0.45);
+}
+
+.shop__item.is-owned {
+  background: linear-gradient(150deg, #fff8dd, #ffeef8);
+}
+
+/* Wiggle "not yet!" when the wallet is short. */
+.shop__item.is-nope {
+  animation: wiggle 0.3s ease;
+}
+
+/* Fresh purchase: a joyful bounce. */
+.shop__item.is-new .shop__sticker {
+  animation: pop-in 0.5s ease;
+}
+
+.shop__tag {
+  position: absolute;
+  bottom: 6px;
+  left: 50%;
+  transform: translateX(-50%);
+  padding: 1px 8px 2px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.94);
+  box-shadow: 0 1px 3px rgba(58, 44, 90, 0.18);
+  font-size: 0.72rem;
+  font-weight: 900;
+  color: var(--ink);
+  white-space: nowrap;
+}
+.shop__tag--owned {
+  background: var(--good, #43e97b);
+  color: var(--white);
+}

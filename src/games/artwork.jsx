@@ -191,6 +191,100 @@ export const GAME_ART = {
     )
   },
 
+  // Stack Tower — glossy slabs piling up, the next one gliding in.
+  stack: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <linearGradient id="stkA" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#7ef3ea" />
+          <stop offset="1" stopColor="#3ecfc4" />
+        </linearGradient>
+        <linearGradient id="stkB" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#8fc5ff" />
+          <stop offset="1" stopColor="#5b8ff2" />
+        </linearGradient>
+        <linearGradient id="stkC" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#c3a4ff" />
+          <stop offset="1" stopColor="#9268f0" />
+        </linearGradient>
+        <linearGradient id="stkD" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffb3d1" />
+          <stop offset="1" stopColor="#ff7fb0" />
+        </linearGradient>
+      </defs>
+      {/* tower, widest at the base */}
+      <rect x="16" y="78" width="68" height="15" rx="5" fill="url(#stkA)" />
+      <rect x="20" y="62" width="60" height="15" rx="5" fill="url(#stkB)" />
+      <rect x="26" y="46" width="50" height="15" rx="5" fill="url(#stkC)" />
+      {/* gliding slab, offset mid-air with motion streaks */}
+      <rect x="38" y="22" width="44" height="15" rx="5" fill="url(#stkD)" />
+      <g stroke="#ffffff" strokeWidth="4" strokeLinecap="round" opacity="0.75">
+        <line x1="14" y1="26" x2="28" y2="26" />
+        <line x1="20" y1="33" x2="30" y2="33" />
+      </g>
+      {/* glossy highlights */}
+      <rect x="20" y="80" width="26" height="4.5" rx="2.2" fill="#ffffff" opacity="0.5" />
+      <rect x="24" y="64" width="22" height="4.5" rx="2.2" fill="#ffffff" opacity="0.5" />
+      <rect x="30" y="48" width="18" height="4.5" rx="2.2" fill="#ffffff" opacity="0.5" />
+      <rect x="42" y="24" width="16" height="4.5" rx="2.2" fill="#ffffff" opacity="0.55" />
+      {/* little star cheering the height */}
+      <path d="M85 8l3 6.6 7 .9-5.2 4.9 1.4 7-6.2-3.6-6.2 3.6 1.4-7L75 15.5l7-.9z" fill="#ffd34d" />
+    </svg>
+  ),
+
+  // Crossy Hop — chick hopping over a road with a friendly car.
+  crossy: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <linearGradient id="crsGrass" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#b9ea8e" />
+          <stop offset="1" stopColor="#8fd45f" />
+        </linearGradient>
+        <linearGradient id="crsRoad" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#667082" />
+          <stop offset="1" stopColor="#4d5464" />
+        </linearGradient>
+        <radialGradient id="crsCar" cx="38%" cy="30%" r="80%">
+          <stop offset="0" stopColor="#ff8f8f" />
+          <stop offset="60%" stopColor="#ff5d5d" />
+          <stop offset="100%" stopColor="#d83a3a" />
+        </radialGradient>
+        <radialGradient id="crsChick" cx="40%" cy="32%" r="75%">
+          <stop offset="0" stopColor="#fff3b8" />
+          <stop offset="60%" stopColor="#ffd34d" />
+          <stop offset="100%" stopColor="#f4b200" />
+        </radialGradient>
+      </defs>
+      {/* grass shores + road */}
+      <rect x="0" y="0" width="100" height="30" fill="url(#crsGrass)" />
+      <rect x="0" y="30" width="100" height="42" fill="url(#crsRoad)" />
+      <rect x="0" y="72" width="100" height="28" fill="url(#crsGrass)" />
+      <g fill="#ffffff" opacity="0.7">
+        <rect x="6" y="49" width="14" height="4" rx="2" />
+        <rect x="32" y="49" width="14" height="4" rx="2" />
+        <rect x="58" y="49" width="14" height="4" rx="2" />
+        <rect x="84" y="49" width="14" height="4" rx="2" />
+      </g>
+      {/* car */}
+      <rect x="12" y="55" width="34" height="14" rx="6" fill="url(#crsCar)" />
+      <rect x="18" y="49" width="20" height="11" rx="5" fill="url(#crsCar)" />
+      <rect x="20" y="51" width="7" height="6" rx="2.5" fill="#dff2ff" opacity="0.9" />
+      <circle cx="20" cy="70" r="4.4" fill="#33313d" />
+      <circle cx="38" cy="70" r="4.4" fill="#33313d" />
+      {/* flag goal */}
+      <path d="M88 8v18" stroke="#8a5a2b" strokeWidth="3.4" strokeLinecap="round" />
+      <path d="M88 8l-13 4.5 13 4.5z" fill="#ff5d5d" />
+      {/* chick mid-hop over the road */}
+      <circle cx="63" cy="30" r="13" fill="url(#crsChick)" />
+      <circle cx="59" cy="26" r="2.4" fill="#33313d" />
+      <circle cx="68" cy="26" r="2.4" fill="#33313d" />
+      <path d="M63 31l-3.6 3.4h7.2z" fill="#ff8a3d" />
+      <ellipse cx="57" cy="23" rx="3" ry="3.8" fill="#ffffff" opacity="0.6" />
+      {/* hop shadow */}
+      <ellipse cx="63" cy="47" rx="9" ry="2.6" fill="#000000" opacity="0.18" />
+    </svg>
+  ),
+
   // Ball Run — glossy track with a ball rolling toward a 3D star.
   coaster: () => (
     <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">

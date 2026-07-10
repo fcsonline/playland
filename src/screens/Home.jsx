@@ -38,9 +38,13 @@ export default function Home({ onOpen, onShop }) {
           aria-label={t('shopTitle')}
         >
           <div className="card__thumb">
-            <span className="card__emoji" aria-hidden="true">
-              🛍️
-            </span>
+            {ART.shop ? (
+              <img className="card__art" src={ART.shop} alt="" loading="lazy" draggable="false" />
+            ) : (
+              <span className="card__emoji" aria-hidden="true">
+                🛍️
+              </span>
+            )}
             <span className="card__stars card__wallet" aria-label={t('stars', { n: wallet })}>
               ⭐ {wallet}
             </span>

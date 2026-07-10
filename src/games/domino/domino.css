@@ -178,6 +178,22 @@
 .domino__seg.is-new {
   animation: domino-land 0.32s cubic-bezier(0.34, 1.4, 0.5, 1);
 }
+
+/* Winning chain does a happy little wave under the "You win!" overlay. */
+.domino__chain.is-win .domino__seg {
+  animation: domino-cheer 0.6s ease-in-out infinite alternate;
+}
+.domino__chain.is-win .domino__seg:nth-child(2n) {
+  animation-delay: 0.3s;
+}
+@keyframes domino-cheer {
+  from {
+    transform: translateY(0) rotate(-2deg);
+  }
+  to {
+    transform: translateY(-6px) rotate(2deg);
+  }
+}
 @keyframes domino-land {
   0% {
     transform: scale(0.62);

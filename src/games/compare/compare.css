@@ -62,6 +62,17 @@
   75% { transform: translateX(5px); }
 }
 
+/* Every 5th correct answer both piles hop along with the confetti cheer. */
+.compare__arena.is-party .compare__group {
+  animation: compare-party 0.7s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+@keyframes compare-party {
+  0% { transform: translateY(0) scale(1); }
+  35% { transform: translateY(-10px) scale(1.05); }
+  70% { transform: translateY(0) scale(0.98); }
+  100% { transform: translateY(0) scale(1); }
+}
+
 .compare__pile {
   flex: 1;
   min-height: 0;

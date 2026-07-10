@@ -17,6 +17,7 @@ const STR = {
     cpuWin: 'Good game! Play again 🙂',
     playAgain: 'Play again',
     pile: 'Pile: {n}',
+    praise: 'Domino star!',
   },
   es: {
     you: 'Tú',
@@ -29,6 +30,7 @@ const STR = {
     cpuWin: '¡Buena partida! Juega otra vez 🙂',
     playAgain: 'Juega otra vez',
     pile: 'Montón: {n}',
+    praise: '¡Estrella del dominó!',
   },
   ca: {
     you: 'Tu',
@@ -41,6 +43,7 @@ const STR = {
     cpuWin: 'Bona partida! Torna a jugar 🙂',
     playAgain: 'Torna a jugar',
     pile: 'Pila: {n}',
+    praise: 'Estrella del dòmino!',
   },
   fr: {
     you: 'Toi',
@@ -53,6 +56,7 @@ const STR = {
     cpuWin: 'Belle partie ! Rejoue 🙂',
     playAgain: 'Rejoue',
     pile: 'Pioche : {n}',
+    praise: 'Star du domino !',
   },
 }
 
@@ -171,22 +175,24 @@ export default function Domino() {
       setResult(winner)
       if (winner === 'you') {
         sfx.win()
-        award(3, { count: 24 })
+        award(3, { count: 24, praise: t('praise') })
       } else {
         tone(240, { duration: 0.18, type: 'sine', gain: 0.1 })
       }
     },
-    [award],
+    [award, t],
   )
 
   // Land the flying tile: reveal it on the board, pop it in, then hand over.
   const finalize = useCallback(() => {
-    const tileId = flyRef.current?.tile?.id ?? null
+    const info = flyRef.current
+    const tileId = info?.tile?.id ?? null
+    const to = info?.to // landing rect — pop the stars right where the tile lands
     setFly(null)
     setFlyingId(null)
     setNewSegId(tileId)
     sfx.pop()
-    earn(1)
+    earn(1, to ? { x: to.left + to.width / 2, y: to.top + to.height / 2 } : undefined)
     if (handRef.current.length === 0) endGame('you')
     else setTurn('cpu')
   }, [earn, endGame])
@@ -224,6 +230,7 @@ export default function Domino() {
       return
     }
     const to = seg.getBoundingClientRect()
+    info.to = to
     const from = info.from
     setFly({
       l: landed.l,
@@ -321,7 +328,7 @@ export default function Domino() {
 
       {/* The line of play */}
       <div className="domino__board play-surface" ref={scrollRef}>
-        <div className="domino__chain" ref={boardRef}>
+        <div className={`domino__chain${result === 'you' ? ' is-win' : ''}`} ref={boardRef}>
           {board.map((seg) => {
             const flying = seg.id === flyingId
             const fresh = seg.id === newSegId && !flying

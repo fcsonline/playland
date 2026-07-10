@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useProgress } from '../../state/progress.jsx'
 import { sfx } from '../../lib/audio.js'
 import { useT } from '../../lib/i18n.js'
 import {
@@ -25,6 +26,8 @@ const STR = {
     yourTurn: 'Your turn! Tap a column 🔴',
     newGame: '🔄 New game',
     dropInColumn: 'drop in column {n}',
+    praise: 'Four in a row!',
+    wins: 'Wins: {n}',
   },
   es: {
     tryAgain: '¡Inténtalo!',
@@ -35,6 +38,8 @@ const STR = {
     yourTurn: '¡Tu turno! Toca una columna 🔴',
     newGame: '🔄 Juego nuevo',
     dropInColumn: 'soltar en la columna {n}',
+    praise: '¡Cuatro en raya!',
+    wins: 'Victorias: {n}',
   },
   ca: {
     tryAgain: 'Torna-hi!',
@@ -45,6 +50,8 @@ const STR = {
     yourTurn: 'El teu torn! Toca una columna 🔴',
     newGame: '🔄 Joc nou',
     dropInColumn: 'deixa caure a la columna {n}',
+    praise: 'Quatre en ratlla!',
+    wins: 'Victòries: {n}',
   },
   fr: {
     tryAgain: 'Réessaie !',
@@ -55,17 +62,22 @@ const STR = {
     yourTurn: 'À toi ! Touche une colonne 🔴',
     newGame: '🔄 Nouvelle partie',
     dropInColumn: 'déposer dans la colonne {n}',
+    praise: 'Quatre alignés !',
+    wins: 'Victoires : {n}',
   },
 }
 
 // turn: 'player' (waiting for a tap), 'cpu' (CPU thinking), 'over' (round done)
 export default function FourInARow() {
   const { earn, award, oops } = useGame()
+  const { setGameLevel, getGameLevel } = useProgress()
   const t = useT(STR)
   const [cells, setCells] = useState(() => makeBoard())
   const [turn, setTurn] = useState('player')
   const [winLine, setWinLine] = useState(null) // Set of winning indices
   const [result, setResult] = useState(null) // 'player' | 'cpu' | 'draw' | null
+  // Lifetime wins, persisted via the per-game level store (it only ever grows).
+  const [wins, setWins] = useState(() => getGameLevel('connect4'))
   const timer = useRef(null)
 
   useEffect(() => () => clearTimeout(timer.current), [])
@@ -76,9 +88,12 @@ export default function FourInARow() {
       setResult(who)
       setTurn('over')
       if (who === 'player') {
+        const next = getGameLevel('connect4') + 1
+        setGameLevel('connect4', next)
+        setWins(next)
         setTimeout(() => {
           sfx.win()
-          award(3, { count: 22 })
+          award(3, { count: 22, praise: t('praise') })
         }, 250)
       } else if (who === 'cpu') {
         sfx.tap() // gentle, never harsh
@@ -87,7 +102,7 @@ export default function FourInARow() {
         sfx.good() // a draw is friendly, not a loss
       }
     },
-    [award, oops, t],
+    [award, oops, t, setGameLevel, getGameLevel],
   )
 
   // CPU takes its turn after the player drops.
@@ -113,14 +128,15 @@ export default function FourInARow() {
     [finish],
   )
 
-  function dropDisc(col) {
+  function dropDisc(col, e) {
     if (turn !== 'player') return
     const res = drop(cells, col, PLAYER)
     if (!res) return // column full, do nothing
 
     setCells(res.cells)
     sfx.good()
-    earn(1)
+    // Stars burst from the column the child tapped.
+    earn(1, { x: e?.clientX, y: e?.clientY })
 
     const line = winningLineAt(res.cells, res.row, col, PLAYER)
     if (line) {
@@ -161,17 +177,21 @@ export default function FourInARow() {
     <div className="connect4">
       <div className="connect4__controls">
         <span className={`chip connect4__status ${result ? `is-${result}` : ''}`}>{banner}</span>
+        {wins > 0 && <span className="chip connect4__wins">🏆 {t('wins', { n: wins })}</span>}
         <button className="connect4__pill connect4__pill--go" onClick={newGame}>
           {t('newGame')}
         </button>
       </div>
 
-      <div className="connect4__board play-surface" style={{ '--cols': COLS, '--rows': ROWS }}>
+      <div
+        className={`connect4__board play-surface ${result === 'player' ? 'is-celebrating' : ''}`}
+        style={{ '--cols': COLS, '--rows': ROWS }}
+      >
         {Array.from({ length: COLS }, (_, c) => (
           <button
             key={c}
             className={`connect4__col ${turn === 'player' ? 'is-active' : ''}`}
-            onClick={() => dropDisc(c)}
+            onClick={(e) => dropDisc(c, e)}
             disabled={turn !== 'player'}
             aria-label={t('dropInColumn', { n: c + 1 })}
           >

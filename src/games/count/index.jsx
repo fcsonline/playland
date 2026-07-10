@@ -1,7 +1,8 @@
 import { useEffect, useLayoutEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useProgress } from '../../state/progress.jsx'
 import { pick, shuffle, randInt } from '../../lib/random.js'
-import { sfx } from '../../lib/audio.js'
+import { sfx, tone } from '../../lib/audio.js'
 import { useT } from '../../lib/i18n.js'
 import Countdown from '../../components/Countdown.jsx'
 import CalmDown, { useCalmBreak } from '../../components/CalmDown.jsx'
@@ -16,6 +17,8 @@ const STR = {
     correct: 'Yes! {n} {e} 🎉',
     wrong: 'It was {n}! {e}',
     next: 'Next ▶',
+    praise: 'Counting star!',
+    best: 'Best: {n}',
   },
   es: {
     getReady: '👀 Prepárate para contar…',
@@ -25,6 +28,8 @@ const STR = {
     correct: '¡Sí! {n} {e} 🎉',
     wrong: '¡Eran {n}! {e}',
     next: 'Siguiente ▶',
+    praise: '¡Estrella de contar!',
+    best: 'Récord: {n}',
   },
   ca: {
     getReady: '👀 Prepara\'t per comptar…',
@@ -34,6 +39,8 @@ const STR = {
     correct: 'Sí! {n} {e} 🎉',
     wrong: 'N\'hi havia {n}! {e}',
     next: 'Següent ▶',
+    praise: 'Estrella de comptar!',
+    best: 'Rècord: {n}',
   },
   fr: {
     getReady: '👀 Prépare-toi à compter…',
@@ -43,6 +50,8 @@ const STR = {
     correct: 'Oui ! {n} {e} 🎉',
     wrong: 'Il y en avait {n} ! {e}',
     next: 'Suivant ▶',
+    praise: 'Étoile des nombres !',
+    best: 'Record : {n}',
   },
 }
 
@@ -110,10 +119,13 @@ function makeChoices(n) {
 
 export default function CountEm() {
   const { earn, award, oops } = useGame()
+  const { setGameLevel, getGameLevel } = useProgress()
   const t = useT(STR)
   const calm = useCalmBreak()
 
   const [round, setRound] = useState(0)
+  // Highest round ever reached, persisted via the per-game level store.
+  const [best, setBest] = useState(() => getGameLevel('count'))
   const [phase, setPhase] = useState('ready') // 'ready' | 'show' | 'quiz' | 'reveal'
   const [emoji, setEmoji] = useState(() => pick(EMOJIS))
   // All three must agree on the SAME count for round 0 — deriving movers/choices
@@ -142,6 +154,10 @@ export default function CountEm() {
 
   // Kick off a fresh round at the given difficulty.
   function startRound(nextRound) {
+    sfx.tap()
+    // Reaching a new round is the personal best (rounds only ever go up).
+    setGameLevel('count', nextRound)
+    setBest((b) => Math.max(b, nextRound))
     const n = countForRound(nextRound)
     const em = pick(EMOJIS)
     setRound(nextRound)
@@ -202,11 +218,12 @@ export default function CountEm() {
       sfx.win()
       // Bigger counts → a slightly bigger celebration.
       const stars = count >= 7 ? 3 : 2
-      award(stars, { count: 20 })
+      award(stars, { praise: t('praise'), count: 20 })
       earn(2)
     } else {
       // Gentle "not quite" — the same soft red feedback the other games use. No
       // penalty; the reveal still shows the right number.
+      tone(220, { duration: 0.14, type: 'sine', gain: 0.07 })
       oops()
       calm.note()
     }
@@ -216,6 +233,7 @@ export default function CountEm() {
     <div className="count">
       {calm.calming && <CalmDown onDone={calm.dismiss} />}
       <div className="count__hud">
+        {best > 0 && <span className="chip count__best">🏆 {t('best', { n: best })}</span>}
         {phase === 'ready' && (
           <span className="count__hint chip">{t('getReady')}</span>
         )}

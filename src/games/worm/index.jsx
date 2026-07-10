@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useDrag } from '../../lib/useDrag.js'
 import { useGame } from '../../state/game.jsx'
+import { useProgress } from '../../state/progress.jsx'
 import { pick } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import { useT } from '../../lib/i18n.js'
@@ -16,6 +17,8 @@ const STR = {
     down: 'Down',
     left: 'Left',
     right: 'Right',
+    praise: 'Super worm!',
+    best: 'Best: {n}',
   },
   es: {
     hint: 'Desliza o toca las flechas',
@@ -26,6 +29,8 @@ const STR = {
     down: 'Abajo',
     left: 'Izquierda',
     right: 'Derecha',
+    praise: '¡Súper gusano!',
+    best: 'Récord: {n}',
   },
   ca: {
     hint: 'Llisca o toca les fletxes',
@@ -36,6 +41,8 @@ const STR = {
     down: 'Avall',
     left: 'Esquerra',
     right: 'Dreta',
+    praise: 'Súper cuc!',
+    best: 'Rècord: {n}',
   },
   fr: {
     hint: 'Glisse ou touche les flèches',
@@ -46,6 +53,8 @@ const STR = {
     down: 'Bas',
     left: 'Gauche',
     right: 'Droite',
+    praise: 'Super ver !',
+    best: 'Record : {n}',
   },
 }
 
@@ -76,12 +85,15 @@ function initialSnake() {
 
 export default function Worm() {
   const { earn, award } = useGame()
+  const { setGameLevel, getGameLevel } = useProgress()
   const t = useT(STR)
 
   const [snake, setSnake] = useState(initialSnake)
   const [fruit, setFruit] = useState(() => spawnFruit(initialSnake()))
   const [eaten, setEaten] = useState(0)
   const [done, setDone] = useState(false)
+  // Longest worm ever grown, persisted via the per-game level store.
+  const [best, setBest] = useState(() => getGameLevel('worm'))
 
   const dirRef = useRef({ dr: 0, dc: 1 }) // moving right
   const nextDirRef = useRef({ dr: 0, dc: 1 })
@@ -137,22 +149,36 @@ export default function Worm() {
 
       if (ate) {
         sfx.good()
-        earn(1)
+        // Stars pop right where the fruit was gobbled.
+        const rect = fieldRef.current?.getBoundingClientRect()
+        earn(
+          1,
+          rect
+            ? {
+                x: rect.left + ((f.c + 0.5) / GRID) * rect.width,
+                y: rect.top + ((f.r + 0.5) / GRID) * rect.height,
+              }
+            : undefined,
+        )
+        // The worm just grew — remember the longest it has ever been.
+        setGameLevel('worm', next.length)
+        setBest((b) => Math.max(b, next.length))
         const n = eaten + 1
         setEaten(n)
         if (n >= GOAL) {
           setDone(true)
           sfx.win()
-          award(3, { count: 26 })
+          award(3, { count: 26, praise: t('praise') })
         } else {
           setFruit(spawnFruit(next))
         }
       }
     }, speed)
     return () => clearInterval(id)
-  }, [done, eaten, earn, award])
+  }, [done, eaten, earn, award, setGameLevel, t])
 
   const restart = useCallback(() => {
+    sfx.pop()
     const s = initialSnake()
     dirRef.current = { dr: 0, dc: 1 }
     nextDirRef.current = { dr: 0, dc: 1 }
@@ -170,8 +196,13 @@ export default function Worm() {
 
   return (
     <div className="worm">
-      <div ref={fieldRef} className="worm__board play-surface" onPointerDown={onPointerDown}>
+      <div
+        ref={fieldRef}
+        className={`worm__board play-surface${done ? ' is-win' : ''}`}
+        onPointerDown={onPointerDown}
+      >
         <div className="worm__hud">{t('eaten', { n: eaten, goal: GOAL })}</div>
+        {best > 0 && <div className="worm__hud worm__hud--best">🏆 {t('best', { n: best })}</div>}
 
         {/* Fruit */}
         <div
@@ -226,18 +257,18 @@ export default function Worm() {
 
       {/* D-pad for little fingers */}
       <div className="worm__pad">
-        <button className="worm__arrow worm__arrow--up" onClick={() => steer(-1, 0)} aria-label={t('up')}>
+        <button className="worm__arrow worm__arrow--up" onClick={() => { sfx.tap(); steer(-1, 0) }} aria-label={t('up')}>
           ▲
         </button>
         <div className="worm__pad-mid">
-          <button className="worm__arrow" onClick={() => steer(0, -1)} aria-label={t('left')}>
+          <button className="worm__arrow" onClick={() => { sfx.tap(); steer(0, -1) }} aria-label={t('left')}>
             ◀
           </button>
-          <button className="worm__arrow" onClick={() => steer(0, 1)} aria-label={t('right')}>
+          <button className="worm__arrow" onClick={() => { sfx.tap(); steer(0, 1) }} aria-label={t('right')}>
             ▶
           </button>
         </div>
-        <button className="worm__arrow worm__arrow--down" onClick={() => steer(1, 0)} aria-label={t('down')}>
+        <button className="worm__arrow worm__arrow--down" onClick={() => { sfx.tap(); steer(1, 0) }} aria-label={t('down')}>
           ▼
         </button>
       </div>

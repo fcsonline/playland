@@ -10,7 +10,13 @@
   display: flex;
   align-items: center;
   justify-content: center;
+  gap: 8px;
+  flex-wrap: wrap;
   min-height: 40px;
+}
+.count__best {
+  font-size: 0.8rem;
+  font-weight: 800;
 }
 .count__hint {
   font-weight: 800;
@@ -109,6 +115,7 @@
   background: #fff4f0;
   outline-color: var(--sun);
   opacity: 0.92;
+  animation: count-wobble 0.4s ease;
 }
 .count__choice.is-dim {
   opacity: 0.5;
@@ -117,6 +124,11 @@
   0%, 100% { transform: rotate(0deg) scale(1.06); }
   25% { transform: rotate(-7deg) scale(1.06); }
   75% { transform: rotate(7deg) scale(1.06); }
+}
+@keyframes count-wobble {
+  0%, 100% { transform: translateX(0); }
+  25% { transform: translateX(-5px); }
+  75% { transform: translateX(5px); }
 }
 
 .count__next {

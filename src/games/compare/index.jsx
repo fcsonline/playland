@@ -101,6 +101,7 @@ export default function Compare() {
   const [picked, setPicked] = useState(null) // the correct sign, once solved
   const [wrong, setWrong] = useState(null) // a sign that just wobbled
   const [flash, setFlash] = useState(null) // 'right' | 'wrong' — a quick arena wash
+  const [party, setParty] = useState(false) // both groups bounce on a 5-streak award
   const [streak, setStreak] = useState(0)
   const timers = useRef([])
 
@@ -128,6 +129,8 @@ export default function Compare() {
       if (ns % 5 === 0) {
         sfx.win()
         award(Math.min(3, 1 + Math.floor(ns / 5)), { praise: t('praise'), count: 18 })
+        setParty(true)
+        later(() => setParty(false), 900)
       }
       later(() => setFlash((f) => (f === 'right' ? null : f)), 720)
       later(() => {
@@ -159,7 +162,7 @@ export default function Compare() {
       {calm.calming && <CalmDown onDone={calm.dismiss} />}
       <p className="compare__hint">{solved ? t('yes') : t('whichMore')}</p>
 
-      <div className={`compare__arena ${flash ? `is-${flash}` : ''}`}>
+      <div className={`compare__arena ${flash ? `is-${flash}` : ''} ${party ? 'is-party' : ''}`}>
         <div className={`compare__group play-surface ${moreLeft ? 'is-more' : ''} ${equal ? 'is-equal' : ''}`}>
           <Pile emoji={left.emoji} n={left.n} />
           <span className="compare__num">{left.n}</span>

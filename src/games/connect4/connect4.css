@@ -26,6 +26,10 @@
   background: var(--sun, #ffd166);
   color: var(--ink);
 }
+.connect4__wins {
+  font-size: 0.8rem;
+  font-weight: 800;
+}
 
 .connect4__pill {
   padding: 8px 14px;
@@ -119,6 +123,25 @@
   }
   100% {
     transform: scale(1.12);
+  }
+}
+
+/* The whole board does one happy hop when the child gets four. */
+.connect4__board.is-celebrating {
+  animation: connect4-hop 0.55s cubic-bezier(0.34, 1.4, 0.5, 1);
+}
+@keyframes connect4-hop {
+  0% {
+    transform: translateY(0);
+  }
+  35% {
+    transform: translateY(-10px) scale(1.02);
+  }
+  70% {
+    transform: translateY(0) scale(0.99);
+  }
+  100% {
+    transform: translateY(0) scale(1);
   }
 }
 

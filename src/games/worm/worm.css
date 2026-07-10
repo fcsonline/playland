@@ -38,6 +38,12 @@
   padding: 2px 12px;
   pointer-events: none;
 }
+.worm__hud--best {
+  left: auto;
+  right: 6px;
+  transform: none;
+  font-size: 0.78rem;
+}
 
 .worm__fruit {
   position: absolute;
@@ -170,6 +176,22 @@
   }
   50% {
     transform: scale(1.15);
+  }
+}
+
+/* Happy dance when the worm is all full — segments wiggle under the overlay. */
+.worm__board.is-win .worm__seg::before {
+  animation: worm-party 0.5s ease-in-out infinite alternate;
+}
+.worm__board.is-win .worm__seg:nth-child(2n)::before {
+  animation-delay: 0.25s;
+}
+@keyframes worm-party {
+  from {
+    transform: scale(1) rotate(-6deg);
+  }
+  to {
+    transform: scale(1.12) rotate(6deg);
   }
 }
 

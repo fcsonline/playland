@@ -45,6 +45,9 @@ export default function Home({ onOpen, onShop }) {
                 🛍️
               </span>
             )}
+            <span className="card__badge card__badge--shop" aria-hidden="true">
+              {t('shopRibbon')}
+            </span>
             <span className="card__stars card__wallet" aria-label={t('stars', { n: wallet })}>
               ⭐ {wallet}
             </span>

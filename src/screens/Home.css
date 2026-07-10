@@ -162,6 +162,13 @@ svg.card__art {
   pointer-events: none;
 }
 
+/* The shop's ribbon goes gold (its star currency) so it never reads as a game. */
+.card__badge--shop {
+  background: linear-gradient(180deg, #ffd76e, #f6b93d);
+  color: var(--ink);
+  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
+}
+
 /* Portrait keeps the default grid: rows of cards that page DOWN (vertical
    scroll). Landscape flips it: rows fill the (short) height and the list flows
    into columns that scroll left↔right (swipe), instead of a tall page.

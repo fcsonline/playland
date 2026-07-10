@@ -266,6 +266,7 @@ export const UI = {
     oopsHint: 'This game had a little hiccup.',
     tryAgain: 'Try again',
     shopTitle: 'Sticker Shop',
+    shopRibbon: 'Shop',
   },
   es: {
     start: 'Empezar',
@@ -299,6 +300,7 @@ export const UI = {
     oopsHint: 'Este juego ha tenido un tropiezo.',
     tryAgain: 'Reintentar',
     shopTitle: 'Tienda de Pegatinas',
+    shopRibbon: 'Tienda',
   },
   ca: {
     start: 'Comença',
@@ -332,6 +334,7 @@ export const UI = {
     oopsHint: 'Aquest joc ha tingut un ensopec.',
     tryAgain: 'Torna-ho a provar',
     shopTitle: "Botiga d'Adhesius",
+    shopRibbon: 'Botiga',
   },
   fr: {
     start: 'Commencer',
@@ -365,6 +368,7 @@ export const UI = {
     oopsHint: 'Ce jeu a eu un petit souci.',
     tryAgain: 'Réessayer',
     shopTitle: 'Boutique de Stickers',
+    shopRibbon: 'Boutique',
   },
 }
 

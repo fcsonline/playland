@@ -1,10 +1,11 @@
 /**
  * Game-card artwork: Microsoft Fluent Emoji 3D (MIT licensed, bundled offline).
- * Vite hashes & bundles every PNG in ../assets/art and gives us its final URL,
+ * Served as WebP (~12KB each vs ~150KB PNG) so the offline precache stays lean.
+ * Vite hashes & bundles every image in ../assets/art and gives us its final URL,
  * so this works in dev, in the production build, and offline. Keyed by game id
  * (the filename), so a card falls back to its emoji if art is ever missing.
  */
-const modules = import.meta.glob('../assets/art/*.png', {
+const modules = import.meta.glob('../assets/art/*.webp', {
   eager: true,
   query: '?url',
   import: 'default',
@@ -12,7 +13,7 @@ const modules = import.meta.glob('../assets/art/*.png', {
 
 const ART = {}
 for (const path in modules) {
-  const id = path.split('/').pop().replace('.png', '')
+  const id = path.split('/').pop().replace('.webp', '')
   ART[id] = modules[path]
 }
 

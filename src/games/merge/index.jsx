@@ -6,18 +6,18 @@ import { pick } from '../../lib/random.js'
 import { sfx, tone, noiseBurst } from '../../lib/audio.js'
 import './merge.css'
 
-// Fruit artwork — one sticker PNG per chain level, split from the sprite sheet
+// Fruit artwork — one sticker WebP per chain level, split from the sprite sheet
 // (src/assets/fruits/sprite.png). Vite bundles + hashes each file; we key them
 // by the number in the filename so ART[level] is that fruit's image URL.
 const ART = []
 {
-  const mods = import.meta.glob('../../assets/fruits/fruit-*.png', {
+  const mods = import.meta.glob('../../assets/fruits/fruit-*.webp', {
     eager: true,
     query: '?url',
     import: 'default',
   })
   for (const path in mods) {
-    const m = path.match(/fruit-(\d+)\.png$/)
+    const m = path.match(/fruit-(\d+)\.webp$/)
     if (m) ART[Number(m[1])] = mods[path]
   }
 }

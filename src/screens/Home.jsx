@@ -61,28 +61,6 @@ export default function Home({ onOpen, onShop }) {
         </div>
       )}
       <div className="home__grid" role="list">
-        <button
-          role="listitem"
-          className="card card--shop"
-          onClick={onShop}
-          aria-label={t('shopTitle')}
-        >
-          <div className="card__thumb">
-            {ART.shop ? (
-              <img className="card__art" src={ART.shop} alt="" loading="lazy" draggable="false" />
-            ) : (
-              <span className="card__emoji" aria-hidden="true">
-                🛍️
-              </span>
-            )}
-            <span className="card__badge card__badge--shop" aria-hidden="true">
-              {t('shopRibbon')}
-            </span>
-            <span className="card__stars card__wallet" aria-label={t('stars', { n: wallet })}>
-              ⭐ {wallet}
-            </span>
-          </div>
-        </button>
         {ordered.map((g, i) => (
           <button
             key={g.id}
@@ -106,7 +84,7 @@ export default function Home({ onOpen, onShop }) {
                   {g.emoji}
                 </span>
               )}
-              {g.isNew && !mastery[g.id] && <span className="card__badge">{t('newBadge')}</span>}
+              {g.isNew && !(mastery[g.id] >= 1) && <span className="card__badge">{t('newBadge')}</span>}
               {(mastery[g.id] || 0) > 0 && (
                 <span className="card__stars">
                   <Stars count={mastery[g.id]} size="0.8rem" />
@@ -115,6 +93,28 @@ export default function Home({ onOpen, onShop }) {
             </div>
           </button>
         ))}
+        <button
+          role="listitem"
+          className="card card--shop"
+          onClick={onShop}
+          aria-label={t('shopTitle')}
+        >
+          <div className="card__thumb">
+            {ART.shop ? (
+              <img className="card__art" src={ART.shop} alt="" loading="lazy" draggable="false" />
+            ) : (
+              <span className="card__emoji" aria-hidden="true">
+                🛍️
+              </span>
+            )}
+            <span className="card__badge card__badge--shop" aria-hidden="true">
+              {t('shopRibbon')}
+            </span>
+            <span className="card__stars card__wallet" aria-label={t('stars', { n: wallet })}>
+              ⭐ {wallet}
+            </span>
+          </div>
+        </button>
       </div>
     </div>
   )

@@ -85,6 +85,7 @@ export const GAMES = [
     emoji: '🫧',
     colors: ['#0d1b2a', '#3a86ff'],
     tagline: 'Shoot and match 3 bubbles!',
+    isNew: true,
   },
   {
     id: 'slice',

@@ -2,6 +2,7 @@ import { useRef, useState } from 'react'
 import { enterFullscreen, fullscreenSupported } from '../lib/fullscreen.js'
 import { useSettings, setSettings, AGE_OPTIONS, LOCALE_OPTIONS } from '../lib/settings.js'
 import { useUI } from '../lib/i18n.js'
+import { useProgress } from '../state/progress.jsx'
 import { forceUpdate } from '../lib/update.js'
 import { startMusic } from '../lib/audio.js'
 import './Splash.css'
@@ -20,8 +21,10 @@ export default function Splash({ onDone }) {
   cb.current = onDone
   const settings = useSettings()
   const t = useUI()
+  const { resetAll } = useProgress()
   const [showSettings, setShowSettings] = useState(false)
   const [updating, setUpdating] = useState(false)
+  const [confirmReset, setConfirmReset] = useState(false)
 
   function update() {
     setUpdating(true)
@@ -141,6 +144,29 @@ export default function Splash({ onDone }) {
                 <span aria-hidden="true">↻</span> {updating ? t('updating') : t('update')}
               </button>
               <span className="splash__update-hint">{t('updateHint')}</span>
+            </div>
+
+            <div className="splash__group splash__reset-row">
+              {confirmReset ? (
+                <div className="splash__chips">
+                  <button
+                    className="splash__chip splash__chip--danger"
+                    onClick={() => { resetAll(); setConfirmReset(false) }}
+                  >
+                    {t('resetConfirm')}
+                  </button>
+                  <button
+                    className="splash__chip"
+                    onClick={() => setConfirmReset(false)}
+                  >
+                    {t('resetCancel')}
+                  </button>
+                </div>
+              ) : (
+                <button className="splash__reset" onClick={() => setConfirmReset(true)}>
+                  {t('resetProgress')}
+                </button>
+              )}
             </div>
 
             <button className="splash__done" onClick={() => setShowSettings(false)}>

@@ -27,6 +27,7 @@ export default function GameFrame({ gameId, onBack }) {
   // Bumping this remounts the boundary + game, retrying a failed chunk load.
   const [retryKey, setRetryKey] = useState(0)
   const idleTimer = useRef(null)
+  const armRef = useRef(null)
   const backRef = useRef(onBack)
   backRef.current = onBack
 
@@ -36,6 +37,7 @@ export default function GameFrame({ gameId, onBack }) {
       clearTimeout(idleTimer.current)
       idleTimer.current = setTimeout(() => setTimedOut(true), IDLE_MS)
     }
+    armRef.current = arm
     arm()
     window.addEventListener('pointerdown', arm, { passive: true })
     window.addEventListener('keydown', arm)
@@ -45,6 +47,11 @@ export default function GameFrame({ gameId, onBack }) {
       window.removeEventListener('keydown', arm)
     }
   }, [gameId])
+
+  const keepPlaying = () => {
+    setTimedOut(false)
+    armRef.current?.()
+  }
 
   // Once timed out, show the prompt briefly, then head back home.
   useEffect(() => {
@@ -139,9 +146,10 @@ export default function GameFrame({ gameId, onBack }) {
             <span className="game-frame__timeout-emoji" aria-hidden="true">💤</span>
             <p className="game-frame__timeout-title">{t('idleTitle')}</p>
             <p className="game-frame__timeout-hint">{t('idleHint')}</p>
-            <button className="btn" onClick={onBack}>
-              {t('backHome')}
-            </button>
+            <div className="game-frame__error-actions">
+              <button className="btn" onClick={keepPlaying}>{t('keepPlaying')}</button>
+              <button className="btn" style={{ opacity: 0.7 }} onClick={onBack}>{t('backHome')}</button>
+            </div>
           </div>
         </div>
       )}

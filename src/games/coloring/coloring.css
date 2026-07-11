@@ -41,6 +41,14 @@
   max-height: 100%;
   touch-action: none;
 }
+.coloring__canvas-el {
+  display: block;
+  max-width: 100%;
+  max-height: 100%;
+  aspect-ratio: 1;
+  touch-action: none;
+  cursor: crosshair;
+}
 .coloring__region {
   cursor: pointer;
   transition: filter 0.1s ease;

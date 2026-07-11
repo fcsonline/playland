@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { GAMES, GAME_AGES } from '../games/registry.js'
 import ART from '../games/thumbnails.js'
 import { GAME_ART } from '../games/artwork.jsx'
@@ -7,6 +7,27 @@ import { useProgress } from '../state/progress.jsx'
 import { useSettings } from '../lib/settings.js'
 import Stars from '../components/Stars.jsx'
 import './Home.css'
+
+function useInstallPrompt() {
+  const [prompt, setPrompt] = useState(null)
+  useEffect(() => {
+    const onPrompt = (e) => { e.preventDefault(); setPrompt(e) }
+    const onInstalled = () => setPrompt(null)
+    window.addEventListener('beforeinstallprompt', onPrompt)
+    window.addEventListener('appinstalled', onInstalled)
+    return () => {
+      window.removeEventListener('beforeinstallprompt', onPrompt)
+      window.removeEventListener('appinstalled', onInstalled)
+    }
+  }, [])
+  const install = async () => {
+    if (!prompt) return
+    prompt.prompt()
+    const { outcome } = await prompt.userChoice
+    if (outcome === 'accepted') setPrompt(null)
+  }
+  return { canInstall: !!prompt, install, dismiss: () => setPrompt(null) }
+}
 
 // Does a game suit the family's chosen age band? ('all' band shows everything.)
 function fitsAge(gameId, ageRange) {
@@ -20,6 +41,7 @@ export default function Home({ onOpen, onShop }) {
   const t = useUI()
   const { mastery, wallet } = useProgress()
   const { ageRange } = useSettings()
+  const { canInstall, install, dismiss } = useInstallPrompt()
 
   // Age-fitting games first (original order preserved); the rest trail behind,
   // gently faded — still there, never locked away.
@@ -30,6 +52,14 @@ export default function Home({ onOpen, onShop }) {
 
   return (
     <div className="home">
+      {canInstall && (
+        <div className="home__install-banner">
+          <span className="home__install-icon">📲</span>
+          <span className="home__install-text">Install Playland — play offline!</span>
+          <button className="home__install-btn" onClick={install}>Install</button>
+          <button className="home__install-dismiss" onClick={dismiss} aria-label="Dismiss">✕</button>
+        </div>
+      )}
       <div className="home__grid" role="list">
         <button
           role="listitem"

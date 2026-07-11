@@ -12,6 +12,60 @@
   padding-right: max(14px, env(safe-area-inset-right));
 }
 
+/* ---- Install banner ---- */
+.home__install-banner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  border-radius: 16px;
+  background: linear-gradient(135deg, #6c5ce7, #ff7eb3);
+  color: #fff;
+  box-shadow: 0 4px 14px rgba(108, 92, 231, 0.35);
+  animation: pop-in 0.3s ease;
+}
+
+.home__install-icon {
+  font-size: 1.25rem;
+  flex-shrink: 0;
+}
+
+.home__install-text {
+  flex: 1;
+  font-size: 0.85rem;
+  font-weight: 600;
+  line-height: 1.3;
+}
+
+.home__install-btn {
+  flex-shrink: 0;
+  padding: 5px 14px;
+  border-radius: 20px;
+  background: #fff;
+  color: #6c5ce7;
+  font-weight: 800;
+  font-size: 0.8rem;
+  border: none;
+  cursor: pointer;
+  transition: opacity 0.15s;
+}
+.home__install-btn:active { opacity: 0.75; }
+
+.home__install-dismiss {
+  flex-shrink: 0;
+  background: none;
+  border: none;
+  color: rgba(255, 255, 255, 0.7);
+  font-size: 0.9rem;
+  cursor: pointer;
+  padding: 2px 4px;
+  line-height: 1;
+}
+.home__install-dismiss:active { opacity: 0.6; }
+
 /* A subtle, playful full-bleed backdrop behind the catalogue: soft pastel corner
    glows + a faint polka-dot grid. Fixed so it covers the whole dashboard, and
    only present on the home screen (games render their own frame). */

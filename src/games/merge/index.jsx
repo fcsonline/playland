@@ -1053,9 +1053,9 @@ export default function Merge() {
   )
 }
 
-// The rock: same body physics as a fruit, plus the life bar floating above it.
-// The bar lives OUTSIDE the spin layer so it stays level while the rock rolls,
-// and its color slides from green to red as the life drains.
+// The rock: same body physics as a fruit, plus the life bar at its base.
+// The bar rides INSIDE the spin layer so it rolls along with the rock, and its
+// color slides from green to red as the life drains.
 function Rock({ x, y, r, angle = 0, squash = 0, hp }) {
   const sx = (1 + squash * 0.4).toFixed(3)
   const sy = (1 - squash * 0.4).toFixed(3)
@@ -1074,12 +1074,12 @@ function Rock({ x, y, r, angle = 0, squash = 0, hp }) {
     >
       <span className="merge__fruit-spin" style={{ transform: `rotate(${angle}rad)` }}>
         <img className="merge__img" src={rockArt} alt="" draggable="false" />
-      </span>
-      <span className="merge__rock-bar">
-        <span
-          className="merge__rock-fill"
-          style={{ width: `${pct * 100}%`, background: `hsl(${Math.round(pct * 110)} 70% 48%)` }}
-        />
+        <span className="merge__rock-bar">
+          <span
+            className="merge__rock-fill"
+            style={{ width: `${pct * 100}%`, background: `hsl(${Math.round(pct * 110)} 70% 48%)` }}
+          />
+        </span>
       </span>
     </span>
   )

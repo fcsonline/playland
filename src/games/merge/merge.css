@@ -183,7 +183,7 @@
   position: absolute;
   left: 28%;
   right: 28%;
-  bottom: 5%;
+  bottom: 10px;
   height: 4px;
   border-radius: 999px;
   background: rgba(60, 45, 30, 0.25);

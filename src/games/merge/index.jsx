@@ -21,6 +21,7 @@ const ART = []
     if (m) ART[Number(m[1])] = mods[path]
   }
 }
+import rockArt from '../../assets/fruits/rock.webp'
 
 const STR = {
   en: {
@@ -98,6 +99,11 @@ const STR = {
  * And if a child rushes — several drops in a few seconds — a gentle "Keep calm"
  * beat pauses play for a moment before it carries on.
  *
+ * From time to time a ROCK drops in (never more than one at once, and only
+ * after plenty of fruit drops). It merges with nothing — it just sits in the
+ * pile, in the way. The life bar above it drains a little with every fruit
+ * dropped; at zero the rock crumbles away and the pile falls into the gap.
+ *
  * All physics live in refs and run in ONE requestAnimationFrame loop; a tick
  * state counter is bumped each frame to repaint the fruit from those refs.
  */
@@ -125,6 +131,15 @@ const MAX_LVL = FRUITS.length - 1
 // Only sizes 1–5 (the five smallest) are ever thrown — bigger fruit can ONLY be
 // made by merging. Weighted heavier toward the tiniest, like the classic.
 const DROP_BAG = [0, 0, 0, 1, 1, 1, 2, 2, 3, 4]
+
+// The rock — an uninvited guest that merges with NOTHING. At most one is on the
+// board at a time; it drops in at a random spot once enough fruit has been
+// dropped, and its life bar drains a little on EVERY drop until it crumbles.
+const ROCK = { color: '#9aa0a8', rf: 0.12 } // fx tint + radius (fraction of basket width)
+const ROCK_HP = 100 // the rock's full life bar
+const ROCK_HIT = 5 // life lost each time a fruit is dropped (20 drops to crumble)
+const ROCK_MIN_DROPS = 50 // rock-free drops before the next rock may appear
+const ROCK_CHANCE = 0.12 // per-drop chance to appear once it's eligible
 
 // Physics (pixels / seconds). Gentle and forgiving for little ones.
 const GRAVITY = 2200 // downward acceleration (px/s²) — a weighty, natural fall
@@ -181,6 +196,8 @@ const OVERFLOW_GRACE = 900 // ms after a fruit is born before it can trigger it
 
 const clamp = (v, lo, hi) => Math.max(lo, Math.min(hi, v))
 const radiusFor = (lvl, w) => FRUITS[lvl].rf * w
+// A body's collision radius — the rock isn't in FRUITS, so it sizes itself.
+const bodyRadius = (f, w) => (f.rock ? ROCK.rf * w : radiusFor(f.lvl, w))
 // The largest a droppable fruit can be — used to place the top "hover" zone.
 const maxDropR = (w) => radiusFor(Math.max(...DROP_BAG), w)
 const hoverCenterY = (w) => maxDropR(w) + 10
@@ -233,6 +250,7 @@ export default function Merge() {
   const lostRef = useRef(false) // freeze the sim + block drops once the basket is full
   const dropTimesRef = useRef([]) // recent drop timestamps, for the rush nudge
   const rushCoolRef = useRef(0) // ts before which the rush nudge won't show again
+  const rockDropsRef = useRef(0) // rock-free drops counted toward the next rock
 
   const later = (fn, ms) => {
     const id = setTimeout(fn, ms)
@@ -310,7 +328,7 @@ export default function Merge() {
           f.y *= ry
           f.vx *= rx
           f.vy *= ry
-          f.r = radiusFor(f.lvl, w)
+          f.r = bodyRadius(f, w)
           f.asleep = false // re-settle after a resize
           f.still = 0
         }
@@ -390,6 +408,20 @@ export default function Merge() {
     // Re-enable dropping shortly — but never while a game-over card is up.
     const enable = () => { if (!lostRef.current) setReadyBoth(true) }
 
+    // The rock: every drop chips away at the one on the board; while there is
+    // none, count rock-free drops toward (and maybe trigger) the next one.
+    const rock = fruitsRef.current.find((f) => f.rock)
+    if (rock) {
+      rock.hp -= ROCK_HIT
+      if (rock.hp <= 0) destroyRock(rock)
+    } else {
+      rockDropsRef.current += 1
+      if (rockDropsRef.current >= ROCK_MIN_DROPS && Math.random() < ROCK_CHANCE) {
+        rockDropsRef.current = 0
+        spawnRock(w)
+      }
+    }
+
     // Pace nudge: count drops in a sliding window; too many pops a "Keep calm"
     // beat that pauses briefly, then play continues.
     const now = nowRef.current || performance.now()
@@ -434,7 +466,7 @@ export default function Merge() {
 
     // 1) Integrate gravity → velocity → position.
     for (const f of fruits) {
-      f.r = radiusFor(f.lvl, w)
+      f.r = bodyRadius(f, w)
       if (f.asleep) continue // a sleeping fruit stays put — no integration, no jitter
       f.supported = false // re-proven each frame by the floor or a static fruit below
       f.squash *= SQUASH_DECAY // spring an earlier impact back toward round
@@ -482,13 +514,14 @@ export default function Merge() {
       }
     }
 
-    // Same-kind touching pairs for the growing fruit (every level below the top).
+    // Same-kind touching pairs for the growing fruit (every level below the
+    // top). The rock merges with NOTHING — it never pairs with anything.
     for (let i = 0; i < fruits.length; i++) {
       const a = fruits[i]
-      if (consumed.has(a.id) || a.lvl === MAX_LVL) continue
+      if (consumed.has(a.id) || a.lvl === MAX_LVL || a.rock) continue
       for (let j = i + 1; j < fruits.length; j++) {
         const b = fruits[j]
-        if (consumed.has(b.id) || a.lvl !== b.lvl) continue
+        if (consumed.has(b.id) || b.rock || a.lvl !== b.lvl) continue
         const d = Math.hypot(b.x - a.x, b.y - a.y)
         if (d < a.r + b.r + MERGE_PAD) {
           consumed.add(a.id)
@@ -641,6 +674,51 @@ export default function Merge() {
     for (const f of fruitsRef.current) {
       if (f.asleep && f.y < y + margin) wake(f)
     }
+  }
+
+  // ---- The rock ------------------------------------------------------------
+  // Drops in from the top at a random spot, exactly like a fruit — but it is
+  // not in the merge chain, so it only ever sits in the pile, in the way.
+  function spawnRock(w) {
+    const r = ROCK.rf * w
+    fruitsRef.current.push({
+      id: idSeq++,
+      rock: true,
+      lvl: -1, // matches no fruit level, so nothing can ever pair with it
+      hp: ROCK_HP,
+      x: r + Math.random() * (w - r * 2),
+      y: hoverCenterY(w),
+      vx: 0,
+      vy: 40,
+      r,
+      angle: 0,
+      spin: 0,
+      squash: 0,
+      asleep: false,
+      still: 0,
+      born: nowRef.current || performance.now(),
+      merged: false,
+    })
+    // A low double thud — something heavy just arrived.
+    tone(150, { duration: 0.2, type: 'sine', gain: 0.1 })
+    tone(110, { duration: 0.24, type: 'sine', gain: 0.09, when: 0.1 })
+  }
+
+  // The life bar hit zero — the rock crumbles: a gray burst, a crunchy noise,
+  // and everything resting on it wakes so the pile falls into the gap it leaves.
+  function destroyRock(rock) {
+    fruitsRef.current = fruitsRef.current.filter((f) => f.id !== rock.id)
+    fxRef.current.push({
+      id: idSeq++,
+      x: rock.x,
+      y: rock.y,
+      r: rock.r * 1.5,
+      color: ROCK.color,
+      born: nowRef.current || performance.now(),
+    })
+    wakeAbove(rock.y, rock.r)
+    sfx.pop()
+    noiseBurst({ duration: 0.22, gain: 0.15, type: 'lowpass', freq: 650 })
   }
 
   function resolveWalls(f, w, h) {
@@ -809,6 +887,7 @@ export default function Merge() {
     comboRef.current = { n: 0, deadline: 0 }
     dropTimesRef.current = []
     rushCoolRef.current = 0
+    rockDropsRef.current = 0
     setComboFx(null)
     setKeepCalm(false)
     lostRef.current = false
@@ -880,8 +959,11 @@ export default function Merge() {
           </>
         )}
 
-        {/* The fruit in the basket. */}
+        {/* The fruit in the basket (plus the rock, when one is visiting). */}
         {fruits.map((f) => {
+          if (f.rock) {
+            return <Rock key={f.id} x={f.x} y={f.y} r={f.r} angle={f.angle} squash={f.squash} hp={f.hp} />
+          }
           // Merged fruit pops into existence, growing from small to full size.
           const grow = f.merged ? Math.min(1, 0.55 + (nowRef.current - f.born) / 400) : 1
           return (
@@ -968,6 +1050,38 @@ export default function Merge() {
         ))}
       </div>
     </div>
+  )
+}
+
+// The rock: same body physics as a fruit, plus the life bar floating above it.
+// The bar lives OUTSIDE the spin layer so it stays level while the rock rolls,
+// and its color slides from green to red as the life drains.
+function Rock({ x, y, r, angle = 0, squash = 0, hp }) {
+  const sx = (1 + squash * 0.4).toFixed(3)
+  const sy = (1 - squash * 0.4).toFixed(3)
+  const pct = clamp(hp / ROCK_HP, 0, 1)
+  return (
+    <span
+      className="merge__fruit merge__rock"
+      style={{
+        left: x,
+        top: y,
+        width: r * 2,
+        height: r * 2,
+        transform: `translate(-50%, -50%) scale(${sx}, ${sy})`,
+      }}
+      aria-hidden="true"
+    >
+      <span className="merge__fruit-spin" style={{ transform: `rotate(${angle}rad)` }}>
+        <img className="merge__img" src={rockArt} alt="" draggable="false" />
+      </span>
+      <span className="merge__rock-bar">
+        <span
+          className="merge__rock-fill"
+          style={{ width: `${pct * 100}%`, background: `hsl(${Math.round(pct * 110)} 70% 48%)` }}
+        />
+      </span>
+    </span>
   )
 }
 

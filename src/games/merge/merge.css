@@ -178,6 +178,24 @@
   user-select: none;
 }
 
+/* ---- The rock: merges with nothing; its life bar drains with every drop -- */
+.merge__rock-bar {
+  position: absolute;
+  left: 12%;
+  right: 12%;
+  top: -12px;
+  height: 6px;
+  border-radius: 999px;
+  background: rgba(60, 45, 30, 0.25);
+  overflow: hidden;
+}
+.merge__rock-fill {
+  display: block;
+  height: 100%;
+  border-radius: 999px;
+  transition: width 0.25s ease;
+}
+
 /* Waiting fruit: sits above the basket with a gentle breathing bob. */
 .merge__fruit.is-hover {
   z-index: 3;

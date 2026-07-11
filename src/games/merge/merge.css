@@ -181,10 +181,10 @@
 /* ---- The rock: merges with nothing; its life bar drains with every drop -- */
 .merge__rock-bar {
   position: absolute;
-  left: 12%;
-  right: 12%;
-  top: -12px;
-  height: 6px;
+  left: 28%;
+  right: 28%;
+  bottom: 5%;
+  height: 4px;
   border-radius: 999px;
   background: rgba(60, 45, 30, 0.25);
   overflow: hidden;

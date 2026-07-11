@@ -137,7 +137,7 @@ const DROP_BAG = [0, 0, 0, 1, 1, 1, 2, 2, 3, 4]
 // dropped, and its life bar drains a little on EVERY drop until it crumbles.
 const ROCK = { color: '#9aa0a8', rf: 0.12 } // fx tint + radius (fraction of basket width)
 const ROCK_HP = 100 // the rock's full life bar
-const ROCK_HIT = 5 // life lost each time a fruit is dropped (20 drops to crumble)
+const ROCK_HIT = 2 // life lost each time a fruit is dropped (50 drops to crumble)
 const ROCK_MIN_DROPS = 50 // rock-free drops before the next rock may appear
 const ROCK_CHANCE = 0.12 // per-drop chance to appear once it's eligible
 

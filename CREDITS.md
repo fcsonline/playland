@@ -6,13 +6,12 @@ The home-screen game thumbnails (`src/assets/art/*.png`) are from
 **[Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji)**,
 used under the **MIT License**.
 
-## Color Studio coloring pages — Microsoft Fluent Emoji (Flat)
+## Color Studio coloring pages — project-supplied line art
 
-The animal coloring pages (`src/games/coloring/art/*.svg`) are derived from
-the **Flat** variants of the same
-**[Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji)** set
-(MIT License): the original flat-color shapes were converted to monochrome
-line art (white fillable regions + dark details) for tap-to-color play.
+The animal coloring pages (`src/games/coloring/art/*.png`) are kawaii-style
+line drawings supplied by the project owner (cropped and cleaned from a
+larger coloring sheet of unstated authorship; recognizable trademarked
+characters were excluded). The game flood-fills the raster art directly.
 
 > Copyright (c) Microsoft Corporation.
 >

@@ -1,160 +1,79 @@
-export const DRAWINGS = [
-  {
-    id: 'butterfly',
-    tkey: 'butterfly',
-    viewBox: '0 0 200 200',
-    regions: [
-      { id: 'bg',     el: 'rect',    attrs: { x:0, y:0, width:200, height:200 } },
-      { id: 'wingTL', el: 'path',    attrs: { d: 'M 100 92 C 84 68 38 40 16 70 C 2 94 28 140 92 126 Z' } },
-      { id: 'wingTR', el: 'path',    attrs: { d: 'M 100 92 C 116 68 162 40 184 70 C 198 94 172 140 108 126 Z' } },
-      { id: 'wingBL', el: 'path',    attrs: { d: 'M 100 128 C 84 136 50 152 44 170 C 40 182 58 190 78 176 C 92 166 98 148 100 134 Z' } },
-      { id: 'wingBR', el: 'path',    attrs: { d: 'M 100 128 C 116 136 150 152 156 170 C 160 182 142 190 122 176 C 108 166 102 148 100 134 Z' } },
-      { id: 'spotTL', el: 'circle',  attrs: { cx:56, cy:92, r:14 } },
-      { id: 'spotTR', el: 'circle',  attrs: { cx:144, cy:92, r:14 } },
-      { id: 'spotBL', el: 'circle',  attrs: { cx:64, cy:158, r:9 } },
-      { id: 'spotBR', el: 'circle',  attrs: { cx:136, cy:158, r:9 } },
-      { id: 'body',   el: 'ellipse', attrs: { cx:100, cy:110, rx:7, ry:36 } },
-      { id: 'head',   el: 'circle',  attrs: { cx:100, cy:68, r:11 } },
-      { id: 'antL',   el: 'circle',  attrs: { cx:85, cy:33, r:6 } },
-      { id: 'antR',   el: 'circle',  attrs: { cx:115, cy:33, r:6 } },
-    ],
-  },
-  {
-    id: 'cat',
-    tkey: 'cat',
-    viewBox: '0 0 200 200',
-    regions: [
-      { id: 'bg',     el: 'rect',    attrs: { x:0, y:0, width:200, height:200 } },
-      { id: 'tail',   el: 'path',    attrs: { d: 'M 136 172 C 164 160 178 136 166 116 C 160 106 150 110 154 120 C 158 130 150 148 136 160 Z' } },
-      { id: 'body',   el: 'path',    attrs: { d: 'M 66 128 C 60 158 68 192 100 192 C 132 192 140 158 134 128 C 128 105 118 96 100 96 C 82 96 72 105 66 128 Z' } },
-      { id: 'earL',   el: 'path',    attrs: { d: 'M 66 40 L 56 10 L 92 36 Z' } },
-      { id: 'earR',   el: 'path',    attrs: { d: 'M 134 40 L 144 10 L 108 36 Z' } },
-      { id: 'head',   el: 'circle',  attrs: { cx:100, cy:72, r:44 } },
-      { id: 'eyeL',   el: 'ellipse', attrs: { cx:83, cy:64, rx:10, ry:13 } },
-      { id: 'eyeR',   el: 'ellipse', attrs: { cx:117, cy:64, rx:10, ry:13 } },
-      { id: 'cheekL', el: 'ellipse', attrs: { cx:72, cy:84, rx:13, ry:7 } },
-      { id: 'cheekR', el: 'ellipse', attrs: { cx:128, cy:84, rx:13, ry:7 } },
-      { id: 'nose',   el: 'path',    attrs: { d: 'M 100 78 L 94 86 L 106 86 Z' } },
-    ],
-  },
-  {
-    id: 'elephant',
-    tkey: 'elephant',
-    viewBox: '0 0 200 200',
-    regions: [
-      { id: 'bg',    el: 'rect',    attrs: { x:0, y:0, width:200, height:200 } },
-      { id: 'legBL', el: 'path',    attrs: { d: 'M 122 168 C 118 180 120 194 130 194 C 140 194 140 180 138 168 Z' } },
-      { id: 'legBR', el: 'path',    attrs: { d: 'M 148 168 C 144 180 146 192 156 192 C 166 192 166 180 162 168 Z' } },
-      { id: 'tail',  el: 'path',    attrs: { d: 'M 170 122 C 182 114 186 128 178 132 C 173 134 168 126 170 122 Z' } },
-      { id: 'body',  el: 'ellipse', attrs: { cx:118, cy:136, rx:62, ry:46 } },
-      { id: 'legFL', el: 'path',    attrs: { d: 'M 72 166 C 68 178 70 194 80 194 C 90 194 90 178 88 166 Z' } },
-      { id: 'legFR', el: 'path',    attrs: { d: 'M 96 166 C 92 178 94 194 104 194 C 114 194 114 178 110 166 Z' } },
-      { id: 'ear',   el: 'ellipse', attrs: { cx:52, cy:88, rx:28, ry:36 } },
-      { id: 'head',  el: 'circle',  attrs: { cx:82, cy:84, r:40 } },
-      { id: 'trunk', el: 'path',    attrs: { d: 'M 62 108 C 46 124 40 150 56 162 C 60 166 68 166 70 160 C 72 154 62 138 74 126 Z' } },
-      { id: 'eye',   el: 'circle',  attrs: { cx:92, cy:74, r:8 } },
-    ],
-  },
-  {
-    id: 'dinosaur',
-    tkey: 'dinosaur',
-    viewBox: '0 0 200 200',
-    regions: [
-      { id: 'bg',     el: 'rect',    attrs: { x:0, y:0, width:200, height:200 } },
-      { id: 'tail',   el: 'path',    attrs: { d: 'M 162 138 C 188 126 196 102 184 88 C 178 80 168 86 172 96 C 176 108 170 124 162 138 Z' } },
-      { id: 'legL',   el: 'path',    attrs: { d: 'M 80 170 C 76 182 78 196 88 196 C 98 196 98 182 94 170 Z' } },
-      { id: 'legR',   el: 'path',    attrs: { d: 'M 108 170 C 104 182 106 196 116 196 C 126 196 126 182 122 170 Z' } },
-      { id: 'body',   el: 'ellipse', attrs: { cx:112, cy:136, rx:54, ry:44 } },
-      { id: 'belly',  el: 'ellipse', attrs: { cx:100, cy:148, rx:30, ry:22 } },
-      { id: 'arm',    el: 'path',    attrs: { d: 'M 66 116 C 54 120 48 132 58 136 C 65 138 72 128 70 120 Z' } },
-      { id: 'spike3', el: 'path',    attrs: { d: 'M 158 108 L 160 88 L 170 108 Z' } },
-      { id: 'spike2', el: 'path',    attrs: { d: 'M 138 98 L 142 76 L 152 96 Z' } },
-      { id: 'spike1', el: 'path',    attrs: { d: 'M 118 92 L 124 70 L 134 90 Z' } },
-      { id: 'head',   el: 'ellipse', attrs: { cx:68, cy:80, rx:42, ry:34 } },
-      { id: 'snout',  el: 'path',    attrs: { d: 'M 32 88 C 24 96 26 110 38 112 C 50 114 58 104 60 94 Z' } },
-      { id: 'eye',    el: 'circle',  attrs: { cx:74, cy:66, r:10 } },
-    ],
-  },
-  {
-    id: 'rainbow',
-    tkey: 'rainbow',
-    viewBox: '0 0 200 200',
-    regions: [
-      { id: 'sky',    el: 'rect',    attrs: { x:0, y:0, width:200, height:200 } },
-      { id: 'sun',    el: 'circle',  attrs: { cx:168, cy:32, r:20 } },
-      // Five donut-band arcs; centre at (100, 165), radii 90→76→62→48→34→20
-      { id: 'arc1',   el: 'path',    attrs: { d: 'M 10,165 A 90,90 0 0 1 190,165 L 176,165 A 76,76 0 0 0 24,165 Z' } },
-      { id: 'arc2',   el: 'path',    attrs: { d: 'M 24,165 A 76,76 0 0 1 176,165 L 162,165 A 62,62 0 0 0 38,165 Z' } },
-      { id: 'arc3',   el: 'path',    attrs: { d: 'M 38,165 A 62,62 0 0 1 162,165 L 148,165 A 48,48 0 0 0 52,165 Z' } },
-      { id: 'arc4',   el: 'path',    attrs: { d: 'M 52,165 A 48,48 0 0 1 148,165 L 134,165 A 34,34 0 0 0 66,165 Z' } },
-      { id: 'arc5',   el: 'path',    attrs: { d: 'M 66,165 A 34,34 0 0 1 134,165 L 120,165 A 20,20 0 0 0 80,165 Z' } },
-      { id: 'cloudL', el: 'ellipse', attrs: { cx:30, cy:167, rx:30, ry:16 } },
-      { id: 'cloudR', el: 'ellipse', attrs: { cx:170, cy:167, rx:30, ry:16 } },
-      { id: 'ground', el: 'rect',    attrs: { x:0, y:175, width:200, height:25 } },
-    ],
-  },
-  {
-    id: 'unicorn',
-    tkey: 'unicorn',
-    viewBox: '0 0 200 200',
-    regions: [
-      { id: 'bg',    el: 'rect',    attrs: { x:0, y:0, width:200, height:200 } },
-      { id: 'tail',  el: 'path',    attrs: { d: 'M 174 130 C 190 112 194 88 184 74 C 180 68 173 70 174 80 C 178 92 176 114 168 130 Z' } },
-      { id: 'legBL', el: 'path',    attrs: { d: 'M 126 164 C 122 176 124 192 133 192 C 142 192 142 176 140 164 Z' } },
-      { id: 'legBR', el: 'path',    attrs: { d: 'M 150 162 C 146 174 148 190 157 190 C 166 190 166 174 162 162 Z' } },
-      { id: 'body',  el: 'ellipse', attrs: { cx:120, cy:134, rx:58, ry:42 } },
-      { id: 'legFL', el: 'path',    attrs: { d: 'M 80 164 C 76 176 78 192 87 192 C 96 192 96 176 94 164 Z' } },
-      { id: 'legFR', el: 'path',    attrs: { d: 'M 102 164 C 98 176 100 192 109 192 C 118 192 118 176 116 164 Z' } },
-      { id: 'neck',  el: 'path',    attrs: { d: 'M 56 100 C 54 112 68 122 84 118 C 94 115 100 106 96 98 C 88 88 64 90 56 100 Z' } },
-      { id: 'mane',  el: 'path',    attrs: { d: 'M 90 50 C 106 44 116 58 106 68 C 120 64 128 78 116 86 C 128 82 130 96 118 102 C 110 106 98 104 90 96 Z' } },
-      { id: 'head',  el: 'circle',  attrs: { cx:68, cy:74, r:36 } },
-      { id: 'ear',   el: 'path',    attrs: { d: 'M 88 44 L 84 24 L 98 42 Z' } },
-      { id: 'horn',  el: 'path',    attrs: { d: 'M 60 40 L 52 12 L 72 36 Z' } },
-      { id: 'eye',   el: 'ellipse', attrs: { cx:58, cy:70, rx:9, ry:11 } },
-    ],
-  },
-  {
-    id: 'rocket',
-    tkey: 'rocket',
-    viewBox: '0 0 200 200',
-    regions: [
-      { id: 'sky',    el: 'rect',    attrs: { x:0, y:0, width:200, height:200 } },
-      { id: 'finL',   el: 'path',    attrs: { d: 'M 74 118 L 48 158 L 74 144 Z' } },
-      { id: 'finR',   el: 'path',    attrs: { d: 'M 126 118 L 152 158 L 126 144 Z' } },
-      { id: 'flame',  el: 'path',    attrs: { d: 'M 84 140 Q 100 184 116 140 Z' } },
-      { id: 'body',   el: 'path',    attrs: { d: 'M 100 22 C 128 68 126 136 122 148 L 78 148 C 74 136 72 68 100 22 Z' } },
-      { id: 'window', el: 'circle',  attrs: { cx:100, cy:86, r:18 } },
-      { id: 'stripe', el: 'rect',    attrs: { x:78, y:116, width:44, height:12, rx:4 } },
-      { id: 'star1',  el: 'circle',  attrs: { cx:40, cy:38, r:5 } },
-      { id: 'star2',  el: 'circle',  attrs: { cx:162, cy:56, r:6 } },
-      { id: 'star3',  el: 'circle',  attrs: { cx:30, cy:92, r:4 } },
-      { id: 'star4',  el: 'circle',  attrs: { cx:172, cy:110, r:5 } },
-    ],
-  },
-  {
-    id: 'house',
-    tkey: 'house',
-    viewBox: '0 0 200 200',
-    regions: [
-      { id: 'sky',      el: 'rect',  attrs: { x:0, y:0, width:200, height:150 } },
-      { id: 'ground',   el: 'rect',  attrs: { x:0, y:150, width:200, height:50 } },
-      { id: 'treeTrunk',el: 'rect',  attrs: { x:22, y:118, width:12, height:32, rx:3 } },
-      { id: 'treeTop',  el: 'circle',attrs: { cx:28, cy:108, r:22 } },
-      { id: 'wall',     el: 'rect',  attrs: { x:54, y:88, width:104, height:62, rx:4 } },
-      { id: 'chimney',  el: 'rect',  attrs: { x:122, y:52, width:16, height:30, rx:3 } },
-      { id: 'roof',     el: 'path',  attrs: { d: 'M 42 90 L 100 42 L 158 90 Z' } },
-      { id: 'door',     el: 'path',  attrs: { d: 'M 88 150 L 88 116 C 88 110 112 110 112 116 L 112 150 Z' } },
-      { id: 'winL',     el: 'rect',  attrs: { x:62, y:100, width:24, height:24, rx:3 } },
-      { id: 'winR',     el: 'rect',  attrs: { x:126, y:100, width:24, height:24, rx:3 } },
-      { id: 'sun',      el: 'circle',attrs: { cx:170, cy:36, r:20 } },
-    ],
-  },
-]
+/**
+ * Coloring pages are standalone SVG files in ./art — monochrome animal
+ * line art derived from Microsoft Fluent Emoji "Flat" (MIT, see CREDITS.md).
+ * Inside each file, class="r" elements are tap-fillable regions and
+ * class="d" elements are fixed line-art details (eyes, mouths, whiskers).
+ * Document order is preserved so details layer exactly as drawn.
+ */
+
+import bear from './art/bear.svg?raw'
+import butterfly from './art/butterfly.svg?raw'
+import cat from './art/cat.svg?raw'
+import dog from './art/dog.svg?raw'
+import fish from './art/fish.svg?raw'
+import fox from './art/fox.svg?raw'
+import frog from './art/frog.svg?raw'
+import ladybug from './art/ladybug.svg?raw'
+import mouse from './art/mouse.svg?raw'
+import owl from './art/owl.svg?raw'
+import panda from './art/panda.svg?raw'
+import penguin from './art/penguin.svg?raw'
+import pig from './art/pig.svg?raw'
+import rabbit from './art/rabbit.svg?raw'
+import snail from './art/snail.svg?raw'
+import turtle from './art/turtle.svg?raw'
+import whale from './art/whale.svg?raw'
+
+const PAGES = {
+  bear,
+  butterfly,
+  cat,
+  dog,
+  fish,
+  fox,
+  frog,
+  ladybug,
+  mouse,
+  owl,
+  panda,
+  penguin,
+  pig,
+  rabbit,
+  snail,
+  turtle,
+  whale,
+}
+
+const ATTR_NAMES = { 'fill-rule': 'fillRule', 'clip-rule': 'clipRule' }
+
+function parsePage(id, raw) {
+  const svg = new DOMParser().parseFromString(raw, 'image/svg+xml').documentElement
+  const items = [...svg.querySelectorAll('.r, .d')].map((node, i) => {
+    const attrs = {}
+    for (const { name, value } of node.attributes) {
+      if (name === 'class' || name === 'style' || name === 'fill' || name.startsWith('data-')) continue
+      attrs[ATTR_NAMES[name] || name] = value
+    }
+    return {
+      key: `${id}-${i}`,
+      el: node.tagName,
+      attrs,
+      fillable: node.classList.contains('r'),
+      base: node.getAttribute('data-base') || (node.classList.contains('r') ? '#fff' : node.getAttribute('fill')),
+    }
+  })
+  return {
+    id,
+    viewBox: svg.getAttribute('viewBox'),
+    items,
+    regionKeys: items.filter((it) => it.fillable).map((it) => it.key),
+  }
+}
+
+export const DRAWINGS = Object.entries(PAGES).map(([id, raw]) => parsePage(id, raw))
 
 export const PALETTE = [
   '#ff5b6e', '#ff8c42', '#ffd23f', '#7bd651', '#2ec4b6',
   '#4cc9f0', '#5a7bff', '#9b5de5', '#ff70c0', '#8d5524',
   '#ffffff', '#2b2d42',
 ]
-
-export const STICKERS = ['⭐', '❤️', '🌸', '🦋', '🌈', '😊', '🍀', '💎', '🐝', '☀️']

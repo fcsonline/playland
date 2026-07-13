@@ -6,6 +6,14 @@ The home-screen game thumbnails (`src/assets/art/*.png`) are from
 **[Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji)**,
 used under the **MIT License**.
 
+## Color Studio coloring pages — Microsoft Fluent Emoji (Flat)
+
+The animal coloring pages (`src/games/coloring/art/*.svg`) are derived from
+the **Flat** variants of the same
+**[Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji)** set
+(MIT License): the original flat-color shapes were converted to monochrome
+line art (white fillable regions + dark details) for tap-to-color play.
+
 > Copyright (c) Microsoft Corporation.
 >
 > Permission is hereby granted, free of charge, to any person obtaining a copy
@@ -21,4 +29,5 @@ used under the **MIT License**.
 > THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND.
 
 Everything else in the app (in-game graphics, sounds) is generated from emoji,
-CSS, and inline SVG with no external assets.
+CSS, and inline SVG with no external assets. All bundled artwork above ships
+with the app — nothing is fetched at runtime.

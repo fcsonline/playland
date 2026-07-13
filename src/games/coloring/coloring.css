@@ -6,27 +6,6 @@
   flex: 1;
 }
 
-.coloring__drawings {
-  display: flex;
-  gap: 6px;
-  overflow-x: auto;
-  padding-bottom: 2px;
-}
-.coloring__thumb {
-  flex: none;
-  padding: 8px 12px;
-  border-radius: 999px;
-  background: rgba(255, 255, 255, 0.7);
-  font-weight: 800;
-  font-size: 0.85rem;
-  color: var(--ink);
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.08);
-}
-.coloring__thumb.is-on {
-  background: #fff;
-  outline: 3px solid var(--primary);
-}
-
 .coloring__canvas {
   flex: 1;
   position: relative;
@@ -41,14 +20,6 @@
   max-height: 100%;
   touch-action: none;
 }
-.coloring__canvas-el {
-  display: block;
-  max-width: 100%;
-  max-height: 100%;
-  aspect-ratio: 1;
-  touch-action: none;
-  cursor: crosshair;
-}
 .coloring__region {
   cursor: pointer;
   transition: filter 0.1s ease;
@@ -56,14 +27,6 @@
 .coloring__region:active {
   filter: brightness(0.95);
 }
-.coloring__sticker {
-  position: absolute;
-  transform: translate(-50%, -50%);
-  font-size: 2rem;
-  pointer-events: none;
-  animation: pop-in 0.25s ease;
-}
-
 .coloring__tools {
   display: flex;
   flex-direction: column;
@@ -89,22 +52,4 @@
 .coloring__swatch.is-on {
   outline: 3px solid var(--primary);
   transform: scale(1.12);
-}
-.coloring__stickers {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 6px;
-  justify-content: center;
-}
-.coloring__stickerbtn {
-  width: 40px;
-  height: 40px;
-  border-radius: 12px;
-  background: rgba(255, 255, 255, 0.75);
-  font-size: 1.3rem;
-  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.1);
-}
-.coloring__stickerbtn.is-on {
-  background: #fff;
-  outline: 3px solid var(--accent);
 }

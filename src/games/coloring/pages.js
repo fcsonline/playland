@@ -10,7 +10,6 @@ import bowcat from './art/bowcat.png'
 import bunny from './art/bunny.png'
 import elephant from './art/elephant.png'
 import kitten from './art/kitten.png'
-import mushroom from './art/mushroom.png'
 import parrot from './art/parrot.png'
 import penguin from './art/penguin.png'
 
@@ -20,7 +19,6 @@ export const PAGES = [
   { id: 'bunny', src: bunny },
   { id: 'elephant', src: elephant },
   { id: 'kitten', src: kitten },
-  { id: 'mushroom', src: mushroom },
   { id: 'parrot', src: parrot },
   { id: 'penguin', src: penguin },
 ]

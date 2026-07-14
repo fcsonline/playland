@@ -13,9 +13,9 @@ const STR = {
   fr: { color: 'couleur {c}' },
 }
 
-// Internal canvas resolution — matches the 600×600 page art.
-const CW = 600
-const CH = 600
+// Internal canvas resolution — matches the 1200×1200 page art.
+const CW = 1200
+const CH = 1200
 
 // The picture counts as finished when almost no white is left to color.
 const DONE_WHITE_FRACTION = 0.04

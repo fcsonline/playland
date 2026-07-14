@@ -1,5 +1,5 @@
 /**
- * Coloring pages are raster line-art originals in ./art (600×600 PNG,
+ * Coloring pages are raster line-art originals in ./art (1200×1200 PNG,
  * black outlines on white). Tapping the canvas flood-fills the enclosed
  * white region, so any clean line drawing dropped in here just works —
  * no vector tracing needed. See CREDITS.md for artwork provenance.

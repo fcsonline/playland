@@ -123,7 +123,11 @@ const FRUITS = [
   { emoji: '🍑', color: '#ff9db0', rf: 0.134 }, // peach
   { emoji: '🥥', color: '#a9743f', rf: 0.158 }, // coconut
   { emoji: '🐉', color: '#e34a8c', rf: 0.186 }, // dragonfruit
-  { emoji: '🍍', color: '#f4c430', rf: 0.218 }, // pineapple
+  // The pineapple sticker is tall and narrow (its crown eats a third of the
+  // image height), so at the same scale as the rounder fruits its body reads
+  // much thinner than its collision circle — imgScale enlarges the sticker so
+  // its body actually fills the hitbox other fruits touch against.
+  { emoji: '🍍', color: '#f4c430', rf: 0.218, imgScale: 1.45 }, // pineapple
   { emoji: '🍉', color: '#5fbf6b', rf: 0.255 }, // watermelon (biggest)
 ]
 const MAX_LVL = FRUITS.length - 1
@@ -154,10 +158,10 @@ const MERGE_PAD = 3 // merge on contact: touching (+ a few px) is enough
 const DROP_COOLDOWN = 430 // ms before the next fruit is ready to drop
 
 // Pace nudge: rushing (many quick drops) pops a gentle "Keep calm" beat.
-const RUSH_COUNT = 4 // drops within the window that trigger the nudge
-const RUSH_WINDOW = 10000 // ms sliding window the drops are counted over
+const RUSH_COUNT = 6 // drops within the window that trigger the nudge
+const RUSH_WINDOW = 8000 // ms sliding window the drops are counted over
 const RUSH_PAUSE = 1600 // ms the "Keep calm" card shows (dropping paused)
-const RUSH_COOLDOWN = 9000 // ms before the nudge can show again (so it never nags)
+const RUSH_COOLDOWN = 25000 // ms before the nudge can show again (so it never nags)
 
 // Top-fruit (watermelon) is the cap: two touching do NOT merge — they just rest.
 // A cluster of THREE or more still bursts at once as a bonus combo.
@@ -1090,6 +1094,7 @@ function Fruit({ lvl, x, y, r, hover, angle = 0, squash = 0, grow = 1 }) {
   // layer spins so a rolling fruit turns without skewing the squash.
   const sx = (grow * (1 + squash * 0.4)).toFixed(3)
   const sy = (grow * (1 - squash * 0.4)).toFixed(3)
+  const imgScale = FRUITS[lvl].imgScale
   return (
     <span
       className={`merge__fruit${hover ? ' is-hover' : ''}`}
@@ -1104,7 +1109,13 @@ function Fruit({ lvl, x, y, r, hover, angle = 0, squash = 0, grow = 1 }) {
       aria-hidden="true"
     >
       <span className="merge__fruit-spin" style={{ transform: `rotate(${angle}rad)` }}>
-        <img className="merge__img" src={ART[lvl]} alt="" draggable="false" />
+        <img
+          className="merge__img"
+          src={ART[lvl]}
+          alt=""
+          draggable="false"
+          style={imgScale ? { transform: `scale(${imgScale})` } : undefined}
+        />
       </span>
     </span>
   )

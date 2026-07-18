@@ -38,14 +38,6 @@ export const GAMES = [
     tagline: 'Drop fruit — match pairs to grow a watermelon!',
   },
   {
-    id: 'darts',
-    title: 'Dart Champs',
-    emoji: '🎯',
-    colors: ['#2b2140', '#ff6a88'],
-    tagline: 'Aim, throw, score big points!',
-    isNew: true,
-  },
-  {
     id: 'pipes',
     title: 'Pipe Connect',
     emoji: '🚰',
@@ -388,7 +380,6 @@ export const GAME_AGES = {
   worm: 'all',
   domino: '6-8',
   blocks: '6-8',
-  darts: 'all',
 }
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -437,7 +428,6 @@ export const GAME_COMPONENTS = {
   blocks: lazy(() => import('./blocks/index.jsx')),
   bubbles: lazy(() => import('./bubbles/index.jsx')),
   merge: lazy(() => import('./merge/index.jsx')),
-  darts: lazy(() => import('./darts/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

@@ -92,7 +92,6 @@ export const TITLES = {
     blocks: 'Block Drop',
     bubbles: 'Bubble Pop',
     merge: 'Fruit Merge',
-    darts: 'Dart Champs',
   },
   es: {
     coloring: 'Estudio de Color',
@@ -139,7 +138,6 @@ export const TITLES = {
     blocks: 'Caída de Bloques',
     bubbles: 'Revienta Burbujas',
     merge: 'Une Frutas',
-    darts: 'Campeones de Dardos',
   },
   ca: {
     coloring: 'Estudi de Color',
@@ -186,7 +184,6 @@ export const TITLES = {
     blocks: 'Caiguda de Blocs',
     bubbles: 'Rebenta Bombolles',
     merge: 'Uneix Fruites',
-    darts: 'Campions dels Dards',
   },
   fr: {
     coloring: 'Atelier de Coloriage',
@@ -233,7 +230,6 @@ export const TITLES = {
     blocks: 'Chute de Blocs',
     bubbles: 'Bulles à Éclater',
     merge: 'Fusion de Fruits',
-    darts: 'Champions de Fléchettes',
   },
 }
 

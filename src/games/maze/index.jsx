@@ -120,6 +120,7 @@ export default function FindTheWay() {
   const [boardW, setBoardW] = useState(0)
 
   // Refs mirror state for use inside pointer handlers (avoid stale/batched reads).
+  const wrapRef = useRef(null)
   const boardRef = useRef(null)
   const posRef = useRef(maze.start)
   const trailRef = useRef({ [key(maze.start)]: true })
@@ -152,11 +153,13 @@ export default function FindTheWay() {
     setGrabbed(false)
   }
 
-  // Measure the board so the avatar / treat can be sized in pixels.
+  // Measure the wrap and size the board as the biggest SQUARE that fits: the
+  // tile math (pointer→tile, emoji sizing) assumes square tiles, so the board
+  // must never stretch to the panel's rectangle.
   useLayoutEffect(() => {
-    const el = boardRef.current
+    const el = wrapRef.current
     if (!el) return
-    const measure = () => setBoardW(el.clientWidth)
+    const measure = () => setBoardW(Math.floor(Math.min(el.clientWidth, el.clientHeight)))
     measure()
     const ro = new ResizeObserver(measure)
     ro.observe(el)
@@ -295,11 +298,11 @@ export default function FindTheWay() {
 
   return (
     <div className="maze" style={maze.theme.vars}>
-      <div className="maze__wrap">
+      <div className="maze__wrap" ref={wrapRef}>
         <div
           ref={boardRef}
           className={`maze__board play-surface ${won ? 'is-won' : ''}`}
-          style={{ '--n': maze.size }}
+          style={{ '--n': maze.size, ...(boardW ? { width: boardW, height: boardW } : {}) }}
           onPointerDown={onPointerDown}
           onPointerMove={onPointerMove}
           onPointerUp={onPointerUp}

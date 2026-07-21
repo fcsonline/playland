@@ -158,10 +158,12 @@ const MERGE_PAD = 3 // merge on contact: touching (+ a few px) is enough
 const DROP_COOLDOWN = 430 // ms before the next fruit is ready to drop
 
 // Pace nudge: rushing (many quick drops) pops a gentle "Keep calm" beat.
+// Only near-constant tapping should trigger it — a brisk but normal rhythm
+// (a drop every second or two) must never see the card.
 const RUSH_COUNT = 6 // drops within the window that trigger the nudge
-const RUSH_WINDOW = 8000 // ms sliding window the drops are counted over
+const RUSH_WINDOW = 4000 // ms sliding window the drops are counted over
 const RUSH_PAUSE = 1600 // ms the "Keep calm" card shows (dropping paused)
-const RUSH_COOLDOWN = 25000 // ms before the nudge can show again (so it never nags)
+const RUSH_COOLDOWN = 20000 // ms before the nudge can show again (so it never nags)
 
 // Top-fruit (watermelon) is the cap: two touching do NOT merge — they just rest.
 // A cluster of THREE or more still bursts at once as a bonus combo.

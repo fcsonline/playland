@@ -53,6 +53,7 @@ const STR = {
 const SLAB_H = 34 // px per tower layer
 const BASE_W = 62 // starting width, in % of the board
 const PERFECT = 2.6 // % tolerance that still counts as a perfect drop
+const MIN_W = 10 // % — a slab this thin finishes the tower (celebrate + fresh start)
 const MILESTONES = { 6: 1, 12: 2, 18: 3 } // height -> mastery stars
 
 const slabColor = (hue) => `linear-gradient(180deg, hsl(${hue} 82% 68%), hsl(${hue} 74% 56%))`
@@ -80,6 +81,7 @@ export default function StackTower() {
   const slider = useRef({ phase: 0, x: 50, w: BASE_W })
   const towerRef = useRef(tower)
   towerRef.current = tower
+  const finishingRef = useRef(false) // brief input pause while a finished tower celebrates
   const timeouts = useRef([])
   const later = (fn, ms) => timeouts.current.push(setTimeout(fn, ms))
   useEffect(() => () => timeouts.current.forEach(clearTimeout), [])
@@ -98,6 +100,7 @@ export default function StackTower() {
   })
 
   function drop() {
+    if (finishingRef.current) return
     const { slabs, hue } = towerRef.current
     const top = slabs[slabs.length - 1]
     const s = slider.current
@@ -132,8 +135,23 @@ export default function StackTower() {
       later(() => setFlash(null), 650)
     }
 
+    // A slab too thin to keep building on finishes the tower: celebrate the
+    // height reached and start a fresh one (no-fail — always a happy ending).
+    const finished = placed.w < MIN_W
     const stars = MILESTONES[h]
-    if (stars) {
+    if (finished) {
+      finishingRef.current = true
+      later(() => {
+        sfx.win()
+        award(Math.min(3, Math.max(1, Math.floor(h / 6))), { praise: t('praise'), count: 14 + h })
+      }, 300)
+      later(() => {
+        finishingRef.current = false
+        slider.current.phase = 0
+        setTower(freshTower())
+        setChips([])
+      }, 1800)
+    } else if (stars) {
       later(() => {
         sfx.win()
         award(stars, { praise: t('praise'), count: 14 + h })
@@ -156,6 +174,7 @@ export default function StackTower() {
 
   function reset() {
     sfx.tap()
+    finishingRef.current = false
     slider.current.phase = 0
     setTower(freshTower())
     setChips([])

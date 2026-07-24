@@ -1,8 +1,10 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
+import { useProgress } from '../../state/progress.jsx'
 import { shuffle } from '../../lib/random.js'
 import { sfx, tone } from '../../lib/audio.js'
 import { useT } from '../../lib/i18n.js'
+import { generatePuzzle } from './puzzles.js'
 import './mathtiles.css'
 
 const STR = {
@@ -35,86 +37,9 @@ const STR = {
  * right answer locks in; a wrong one just gives the slot a gentle wobble — no
  * fail state. Filling every blank solves the board and rolls a new puzzle.
  *
- * Puzzles are hand-authored so they're always valid and solvable. `n` = number
- * tile, `o` = operator tile, `b: true` marks a blank (its `v` is the answer).
- * `extra` adds distractor number tiles to the tray on the harder boards.
+ * Boards come from ./puzzles.js: randomly generated every time, growing gently
+ * with the number of boards the child has solved (persisted via useProgress).
  */
-const PUZZLES = [
-  // 1 + 2 = [3]
-  {
-    cells: [
-      { r: 0, c: 0, t: 'n', v: 1 },
-      { r: 0, c: 1, t: 'o', v: '+' },
-      { r: 0, c: 2, t: 'n', v: 2 },
-      { r: 0, c: 3, t: 'o', v: '=' },
-      { r: 0, c: 4, t: 'n', v: 3, b: true },
-    ],
-    extra: [],
-  },
-  // 4 + [1] = 5
-  {
-    cells: [
-      { r: 0, c: 0, t: 'n', v: 4 },
-      { r: 0, c: 1, t: 'o', v: '+' },
-      { r: 0, c: 2, t: 'n', v: 1, b: true },
-      { r: 0, c: 3, t: 'o', v: '=' },
-      { r: 0, c: 4, t: 'n', v: 5 },
-    ],
-    extra: [2],
-  },
-  // 2 + 3 = [5]   /   6 - 2 = [4]
-  {
-    cells: [
-      { r: 0, c: 0, t: 'n', v: 2 },
-      { r: 0, c: 1, t: 'o', v: '+' },
-      { r: 0, c: 2, t: 'n', v: 3 },
-      { r: 0, c: 3, t: 'o', v: '=' },
-      { r: 0, c: 4, t: 'n', v: 5, b: true },
-      { r: 2, c: 0, t: 'n', v: 6 },
-      { r: 2, c: 1, t: 'o', v: '-' },
-      { r: 2, c: 2, t: 'n', v: 2 },
-      { r: 2, c: 3, t: 'o', v: '=' },
-      { r: 2, c: 4, t: 'n', v: 4, b: true },
-    ],
-    extra: [7],
-  },
-  // Crossword: 5 + 3 = [8] across, and 3 + 1 = [4] down (sharing the 3).
-  {
-    cells: [
-      { r: 0, c: 0, t: 'n', v: 5 },
-      { r: 0, c: 1, t: 'o', v: '+' },
-      { r: 0, c: 2, t: 'n', v: 3 },
-      { r: 0, c: 3, t: 'o', v: '=' },
-      { r: 0, c: 4, t: 'n', v: 8, b: true },
-      { r: 1, c: 2, t: 'o', v: '+' },
-      { r: 2, c: 2, t: 'n', v: 1 },
-      { r: 3, c: 2, t: 'o', v: '=' },
-      { r: 4, c: 2, t: 'n', v: 4, b: true },
-    ],
-    extra: [6, 2],
-  },
-  // 3 × 2 = [6]  /  1 + 4 = [5]  /  8 - 5 = [3]
-  {
-    cells: [
-      { r: 0, c: 0, t: 'n', v: 3 },
-      { r: 0, c: 1, t: 'o', v: '×' },
-      { r: 0, c: 2, t: 'n', v: 2 },
-      { r: 0, c: 3, t: 'o', v: '=' },
-      { r: 0, c: 4, t: 'n', v: 6, b: true },
-      { r: 2, c: 0, t: 'n', v: 1 },
-      { r: 2, c: 1, t: 'o', v: '+' },
-      { r: 2, c: 2, t: 'n', v: 4 },
-      { r: 2, c: 3, t: 'o', v: '=' },
-      { r: 2, c: 4, t: 'n', v: 5, b: true },
-      { r: 4, c: 0, t: 'n', v: 8 },
-      { r: 4, c: 1, t: 'o', v: '-' },
-      { r: 4, c: 2, t: 'n', v: 5 },
-      { r: 4, c: 3, t: 'o', v: '=' },
-      { r: 4, c: 4, t: 'n', v: 3, b: true },
-    ],
-    extra: [7, 9],
-  },
-]
 
 const keyOf = (r, c) => `${r}-${c}`
 
@@ -126,14 +51,16 @@ function buildTray(puzzle) {
 
 export default function MathTiles() {
   const { earn, award } = useGame()
+  const { getGameLevel, setGameLevel } = useProgress()
   const t = useT(STR)
 
-  const [idx, setIdx] = useState(0)
-  const puzzle = PUZZLES[idx]
+  // Boards solved so far (persisted) — drives the generator's difficulty tier.
+  const [solvedBoards, setSolvedBoards] = useState(() => getGameLevel('mathtiles'))
+  const [puzzle, setPuzzle] = useState(() => generatePuzzle(getGameLevel('mathtiles')))
   const w = Math.max(...puzzle.cells.map((c) => c.c)) + 1
   const blanks = puzzle.cells.filter((c) => c.b)
 
-  const [tray, setTray] = useState(() => buildTray(PUZZLES[0]))
+  const [tray, setTray] = useState(() => buildTray(puzzle))
   const [used, setUsed] = useState({}) // tray id -> true once placed
   const [solved, setSolved] = useState({}) // slot key -> placed value
   const [selId, setSelId] = useState(null) // selected tray tile id
@@ -143,9 +70,10 @@ export default function MathTiles() {
 
   useEffect(() => () => timers.current.forEach(clearTimeout), [])
 
-  const startPuzzle = useCallback((i) => {
-    setIdx(i)
-    setTray(buildTray(PUZZLES[i]))
+  const startPuzzle = useCallback((boards, prevSig) => {
+    const next = generatePuzzle(boards, prevSig)
+    setPuzzle(next)
+    setTray(buildTray(next))
     setUsed({})
     setSolved({})
     setSelId(null)
@@ -178,10 +106,13 @@ export default function MathTiles() {
       earn(1)
       if (blanks.every((b) => nextSolved[keyOf(b.r, b.c)] != null)) {
         setWon(true)
+        const boards = solvedBoards + 1
+        setSolvedBoards(boards)
+        setGameLevel('mathtiles', boards)
         const id = setTimeout(() => {
           sfx.win()
           award(blanks.length >= 3 ? 3 : 2, { count: 22 })
-          const id2 = setTimeout(() => startPuzzle((idx + 1) % PUZZLES.length), 1500)
+          const id2 = setTimeout(() => startPuzzle(boards, puzzle.sig), 1500)
           timers.current.push(id2)
         }, 260)
         timers.current.push(id)
@@ -245,7 +176,7 @@ export default function MathTiles() {
         ))}
         <button
           className="btn btn--ghost mathtiles__new"
-          onClick={() => startPuzzle((idx + 1) % PUZZLES.length)}
+          onClick={() => startPuzzle(solvedBoards, puzzle.sig)}
         >
           {t('next')}
         </button>

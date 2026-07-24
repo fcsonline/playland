@@ -266,6 +266,23 @@ export default function StarRacing() {
     changeLane(e.clientX < half ? -1 : +1)
   }
 
+  // Desktop friendliness: arrow keys (or A/D) hop lanes too.
+  useEffect(() => {
+    const onKey = (e) => {
+      if (e.repeat) return
+      const k = e.key.toLowerCase()
+      if (e.key === 'ArrowLeft' || k === 'a') {
+        e.preventDefault()
+        changeLane(-1)
+      } else if (e.key === 'ArrowRight' || k === 'd') {
+        e.preventDefault()
+        changeLane(+1)
+      }
+    }
+    window.addEventListener('keydown', onKey)
+    return () => window.removeEventListener('keydown', onKey)
+  }, []) // changeLane only touches state setters
+
   return (
     <div className="racing">
       <div

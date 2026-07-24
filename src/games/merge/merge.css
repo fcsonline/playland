@@ -38,8 +38,13 @@
 .merge__field {
   flex: 1;
   position: relative;
-  width: 100%;
-  max-width: min(100%, 92vh);
+  /* Keep the basket jar-shaped everywhere: the flex column sets the height and
+     the aspect ratio derives the width, so a wide desktop window doesn't blow
+     the fruits up (their radius scales with field WIDTH). Narrow/portrait
+     screens hit the max-width cap instead and behave as before. */
+  width: auto;
+  aspect-ratio: 7 / 10;
+  max-width: 100%;
   margin: 0 auto;
   align-self: center;
   padding: 0;

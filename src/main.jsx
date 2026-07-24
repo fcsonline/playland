@@ -9,6 +9,10 @@ import './index.css'
 // Apply saved settings (html lang / data-age) before the first paint.
 applySettings(getSettings())
 
+// Kids app: no context menu anywhere — a right-click (or long-press on some
+// devices) mid-game only ever gets in the way of little hands.
+document.addEventListener('contextmenu', (e) => e.preventDefault())
+
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ProgressProvider>

@@ -13,6 +13,16 @@ applySettings(getSettings())
 // devices) mid-game only ever gets in the way of little hands.
 document.addEventListener('contextmenu', (e) => e.preventDefault())
 
+// Keep gameplay from rotating with the phone. The installed app is locked by
+// the manifest (orientation: portrait); this runtime lock covers the contexts
+// that allow it (e.g. Android fullscreen/standalone) and silently no-ops where
+// it isn't supported, like iOS Safari.
+try {
+  screen.orientation?.lock?.('portrait').catch(() => {})
+} catch {
+  /* unsupported — fine */
+}
+
 createRoot(document.getElementById('root')).render(
   <React.StrictMode>
     <ProgressProvider>

@@ -188,7 +188,7 @@
   position: absolute;
   left: 28%;
   right: 28%;
-  bottom: 10px;
+  bottom: 20px;
   height: 4px;
   border-radius: 999px;
   background: rgba(60, 45, 30, 0.25);
@@ -298,6 +298,18 @@
   white-space: nowrap;
   box-shadow: 0 8px 22px rgba(0, 0, 0, 0.32);
   animation: pop-in 0.3s ease;
+}
+.merge__calm-desc {
+  padding: 6px 16px;
+  border-radius: 999px;
+  background: rgba(58, 44, 90, 0.72);
+  color: #fff;
+  font-weight: 700;
+  font-size: clamp(0.85rem, 3.6vw, 1rem);
+  text-align: center;
+  max-width: min(86%, 380px);
+  box-shadow: 0 6px 16px rgba(0, 0, 0, 0.22);
+  animation: pop-in 0.3s ease 0.05s backwards;
 }
 .merge__calm-count {
   width: 64px;

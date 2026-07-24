@@ -34,6 +34,7 @@ const STR = {
     combo: 'MELON COMBO! 🍉',
     combox: 'Combo ×{n}',
     keepCalm: 'Keep calm 😌',
+    keepCalmDesc: 'Slow down — drop one fruit at a time 🙇\u200d♂️',
     over: 'Basket full! 🧺',
     playAgain: 'Play again',
     play: 'Fruit basket — tap to drop a fruit',
@@ -48,6 +49,7 @@ const STR = {
     combo: '¡COMBO SANDÍA! 🍉',
     combox: 'Combo ×{n}',
     keepCalm: 'Con calma 😌',
+    keepCalmDesc: 'Más despacio: una fruta cada vez 🙇\u200d♂️',
     over: '¡Cesta llena! 🧺',
     playAgain: 'Jugar otra vez',
     play: 'Cesta de fruta — toca para soltar una fruta',
@@ -62,6 +64,7 @@ const STR = {
     combo: 'COMBO SÍNDRIA! 🍉',
     combox: 'Combo ×{n}',
     keepCalm: 'Amb calma 😌',
+    keepCalmDesc: 'Més a poc a poc: una fruita cada vegada 🙇\u200d♂️',
     over: 'Cistella plena! 🧺',
     playAgain: 'Torna a jugar',
     play: 'Cistella de fruita — toca per deixar anar una fruita',
@@ -76,6 +79,7 @@ const STR = {
     combo: 'COMBO PASTÈQUE ! 🍉',
     combox: 'Combo ×{n}',
     keepCalm: 'Doucement 😌',
+    keepCalmDesc: 'Tout doux — un fruit à la fois 🙇\u200d♂️',
     over: 'Panier plein ! 🧺',
     playAgain: 'Rejouer',
     play: 'Panier de fruits — touche pour lâcher un fruit',
@@ -161,7 +165,7 @@ const DROP_COOLDOWN = 430 // ms before the next fruit is ready to drop
 // see it — a brisk but normal rhythm (a drop every second or two) never can.
 const RUSH_MAX = 15 // MORE than this many drops inside the window trigger it
 const RUSH_WINDOW = 10000 // ms sliding window the drops are counted over
-const RUSH_PAUSE = 5000 // ms the break blocks play, counted down on screen
+const RUSH_PAUSE = 10000 // ms the break blocks play, counted down on screen
 
 // Top-fruit (watermelon) is the cap: two touching do NOT merge — they just rest.
 // A cluster of THREE or more still bursts at once as a bonus combo.
@@ -1016,6 +1020,7 @@ export default function Merge() {
         {keepCalm && (
           <div className="merge__calm" aria-hidden="true">
             <div className="merge__calm-card">{t('keepCalm')}</div>
+            <div className="merge__calm-desc">{t('keepCalmDesc')}</div>
             <div key={calmLeft} className="merge__calm-count">{calmLeft}</div>
           </div>
         )}

@@ -157,13 +157,11 @@ const ITER = 7 // relaxation passes per frame (stacking stability)
 const MERGE_PAD = 3 // merge on contact: touching (+ a few px) is enough
 const DROP_COOLDOWN = 430 // ms before the next fruit is ready to drop
 
-// Pace nudge: rushing (many quick drops) pops a gentle "Keep calm" beat.
-// Only near-constant tapping should trigger it — a brisk but normal rhythm
-// (a drop every second or two) must never see the card.
-const RUSH_COUNT = 6 // drops within the window that trigger the nudge
-const RUSH_WINDOW = 4000 // ms sliding window the drops are counted over
-const RUSH_PAUSE = 1600 // ms the "Keep calm" card shows (dropping paused)
-const RUSH_COOLDOWN = 20000 // ms before the nudge can show again (so it never nags)
+// Pace nudge: rushing pops a "Keep calm" break. Only real fruit-spam should
+// see it — a brisk but normal rhythm (a drop every second or two) never can.
+const RUSH_MAX = 15 // MORE than this many drops inside the window trigger it
+const RUSH_WINDOW = 10000 // ms sliding window the drops are counted over
+const RUSH_PAUSE = 5000 // ms the break blocks play, counted down on screen
 
 // Top-fruit (watermelon) is the cap: two touching do NOT merge — they just rest.
 // A cluster of THREE or more still bursts at once as a bonus combo.
@@ -241,6 +239,7 @@ export default function Merge() {
   const [shaking, setShaking] = useState(false) // combo screen-shake is active
   const [comboFx, setComboFx] = useState(null) // floating "Combo ×N" chain callout
   const [keepCalm, setKeepCalm] = useState(false) // "Keep calm" pace-nudge card
+  const [calmLeft, setCalmLeft] = useState(0) // seconds left on the calm countdown
   const [lost, setLost] = useState(false) // basket full — game over card is up
 
   // Live game state (kept out of React state so the loop stays smooth).
@@ -255,7 +254,6 @@ export default function Merge() {
   const comboRef = useRef({ n: 0, deadline: 0 }) // chain-combo run counter
   const lostRef = useRef(false) // freeze the sim + block drops once the basket is full
   const dropTimesRef = useRef([]) // recent drop timestamps, for the rush nudge
-  const rushCoolRef = useRef(0) // ts before which the rush nudge won't show again
   const rockDropsRef = useRef(0) // rock-free drops counted toward the next rock
 
   const later = (fn, ms) => {
@@ -434,11 +432,13 @@ export default function Merge() {
     const arr = dropTimesRef.current
     arr.push(now)
     while (arr.length && now - arr[0] > RUSH_WINDOW) arr.shift()
-    if (arr.length >= RUSH_COUNT && now >= rushCoolRef.current) {
-      rushCoolRef.current = now + RUSH_COOLDOWN
+    if (arr.length > RUSH_MAX) {
       arr.length = 0
+      const secs = RUSH_PAUSE / 1000
       setKeepCalm(true)
+      setCalmLeft(secs)
       sfx.good()
+      for (let i = 1; i < secs; i++) later(() => setCalmLeft(secs - i), i * 1000)
       later(() => setKeepCalm(false), RUSH_PAUSE)
       later(enable, RUSH_PAUSE)
     } else {
@@ -892,7 +892,6 @@ export default function Merge() {
     milestonesRef.current = new Set()
     comboRef.current = { n: 0, deadline: 0 }
     dropTimesRef.current = []
-    rushCoolRef.current = 0
     rockDropsRef.current = 0
     setComboFx(null)
     setKeepCalm(false)
@@ -1017,6 +1016,7 @@ export default function Merge() {
         {keepCalm && (
           <div className="merge__calm" aria-hidden="true">
             <div className="merge__calm-card">{t('keepCalm')}</div>
+            <div key={calmLeft} className="merge__calm-count">{calmLeft}</div>
           </div>
         )}
 

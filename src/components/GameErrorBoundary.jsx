@@ -1,4 +1,5 @@
 import { Component } from 'react'
+import { crashUpdate } from '../lib/update.js'
 
 /**
  * Catches a crash inside a single game (including a lazy chunk that failed to
@@ -18,6 +19,9 @@ export default class GameErrorBoundary extends Component {
 
   componentDidCatch(error, info) {
     console.error('Game crashed:', error, info)
+    // Self-heal: a crash often means a stale cached build, so fetch the newest
+    // one in the background (guarded + offline-safe) and reload back into place.
+    crashUpdate()
   }
 
   render() {

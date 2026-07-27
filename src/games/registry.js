@@ -107,6 +107,7 @@ export const GAMES = [
     emoji: '🦖',
     colors: ['#f7971e', '#ffd200'],
     tagline: 'Jump over the cactus!',
+    landscape: true, // the runner scrolls sideways — played phone-on-its-side
   },
   {
     id: 'simon',
@@ -236,6 +237,7 @@ export const GAMES = [
     emoji: '✈️',
     colors: ['#56ccf2', '#2f80ed'],
     tagline: 'Trace the route — stay on the line!',
+    landscape: true, // the route stretches sideways — played phone-on-its-side
   },
   {
     id: 'doctor',

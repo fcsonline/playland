@@ -53,6 +53,22 @@ export default function GameFrame({ gameId, onBack }) {
     armRef.current?.()
   }
 
+  // The app is locked portrait (manifest + startup lock), but a couple of games
+  // are sideways by nature (registry `landscape: true`): re-lock for the game,
+  // restore portrait on the way out. Best effort — lock() only works in
+  // installed/fullscreen contexts and never on iOS; failures stay silent.
+  useEffect(() => {
+    const lock = (o) => {
+      try {
+        screen.orientation?.lock?.(o).catch(() => {})
+      } catch {
+        /* unsupported — fine */
+      }
+    }
+    lock(meta?.landscape ? 'landscape' : 'portrait')
+    return () => lock('portrait')
+  }, [gameId, meta])
+
   // Once timed out, show the prompt briefly, then head back home.
   useEffect(() => {
     if (!timedOut) return

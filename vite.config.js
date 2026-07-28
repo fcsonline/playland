@@ -23,9 +23,9 @@ export default defineConfig({
         scope: './',
         id: 'kids-playland',
         display: 'standalone',
-        // Kids hold the device every which way mid-game: the installed app
-        // stays portrait no matter how the phone rotates.
-        orientation: 'portrait',
+        // The catalogue rotates freely; each game locks its own orientation
+        // while it's open (see GameFrame), so gameplay never rotates mid-game.
+        orientation: 'any',
         background_color: '#fff7ed',
         theme_color: '#6c5ce7',
         categories: ['games', 'education', 'kids'],

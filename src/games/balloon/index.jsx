@@ -7,7 +7,6 @@ import './balloon.css'
 
 const STR = {
   en: {
-    pop: 'Pop!',
     champion: 'Balloon champion! 🌟',
     nicePumping: 'Nice pumping! 🎈',
     greatFills: 'Great fills! 🎉',
@@ -25,7 +24,6 @@ const STR = {
     holdToPump: 'Hold to Pump 💨',
   },
   es: {
-    pop: '¡Pop!',
     champion: '¡Campeón de globos! 🌟',
     nicePumping: '¡Bien inflado! 🎈',
     greatFills: '¡Buenos inflados! 🎉',
@@ -43,7 +41,6 @@ const STR = {
     holdToPump: 'Mantén para inflar 💨',
   },
   ca: {
-    pop: 'Pop!',
     champion: 'Campió de globus! 🌟',
     nicePumping: 'Ben inflat! 🎈',
     greatFills: 'Bons inflats! 🎉',
@@ -61,7 +58,6 @@ const STR = {
     holdToPump: 'Mantén per inflar 💨',
   },
   fr: {
-    pop: 'Pop !',
     champion: 'Champion des ballons ! 🌟',
     nicePumping: 'Bien gonflé ! 🎈',
     greatFills: 'Beaux gonflages ! 🎉',
@@ -206,8 +202,8 @@ export default function BalloonPump() {
   function popBalloon() {
     noiseBurst({ duration: 0.28, gain: 0.32, type: 'lowpass', freq: 820 })
     tone(150, { duration: 0.18, type: 'sawtooth', gain: 0.18 })
-    // Gentle, no-penalty fail: strong RED reaction (vignette + big ✕), not a
-    // celebration. A small scatter of balloon scraps, no festive confetti.
+    // Gentle, no-penalty fail: the bang + a scatter of balloon scraps say it
+    // all — no red-cross overlay on top of the explosion.
     const pieces = Array.from({ length: 5 }, (_, i) => ({
       id: `${balloonNo}-${i}-${randInt(0, 99999)}`,
       dx: (randInt(0, 160) - 80) * 1.1,
@@ -217,7 +213,6 @@ export default function BalloonPump() {
     setConfetti(pieces)
     setTimeout(() => setConfetti([]), 800)
     setOutcome('popped')
-    cbs.current.oops({ word: t('pop') })
     scheduleNext()
     tick()
   }

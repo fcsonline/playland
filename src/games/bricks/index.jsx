@@ -43,22 +43,26 @@ const PADDLE_Y = 0.92 // center y of paddle
 const BALL_R = 0.022
 const HALF_PW = PADDLE_W / 2
 
-const COLS = 6
+const COLS = 8
 const TOP = 0.08 // first brick row offset
-const BRICK_H = 0.05
+const BRICK_H = 0.036
 const GAP = 0.012
 const BALL_SPEED = 0.42 // per second — gentle
+
+// Missing the paddle re-serves the ball from up top: it waits there for a
+// beat (the "cost" of the miss), then falls back into play.
+const MISS_FREEZE = 0.9 // s the re-served ball hangs before falling
 
 const COLORS = ['#ff6b81', '#ffa94d', '#ffd43b', '#69db7c', '#4dabf7', '#b197fc']
 
 // A handful of friendly wall patterns (rows of how many bricks-per-row, by id).
 // `1` = brick present, `0` = gap. Each new wall rotates to the next pattern.
 const PATTERNS = [
-  ['111111', '111111', '111111'],
-  ['011110', '111111', '011110'],
-  ['101101', '111111', '101101', '010010'],
-  ['111111', '100001', '100001', '111111'],
-  ['010010', '111111', '111111', '010010'],
+  ['11111111', '11111111', '11111111', '11111111', '11111111'],
+  ['01111110', '11111111', '11111111', '11111111', '01111110'],
+  ['10111101', '11111111', '01111110', '11111111', '10111101', '01000010'],
+  ['11111111', '10000001', '10111101', '10111101', '10000001', '11111111'],
+  ['00111100', '01111110', '11111111', '11111111', '01111110', '00111100'],
 ]
 
 function buildBricks(patternIdx) {
@@ -87,6 +91,14 @@ function serve() {
   return { x: 0.5, y: 0.78, vx: vx * BALL_SPEED, vy: vy * BALL_SPEED }
 }
 
+// The penalty serve after a bottom miss: from up top (just below the wall),
+// falling gently toward the paddle so the child gets a clean catch.
+function reServe() {
+  const vx = (Math.random() * 2 - 1) * 0.35
+  const vy = Math.sqrt(Math.max(0.0001, 1 - vx * vx)) // downward
+  return { x: 0.3 + Math.random() * 0.4, y: 0.55, vx: vx * BALL_SPEED, vy: vy * BALL_SPEED }
+}
+
 export default function Bricks() {
   const { earn, award, oops } = useGame()
   const t = useT(STR)
@@ -104,6 +116,7 @@ export default function Bricks() {
   const paddleXRef = useRef(0.5)
   const bricksRef = useRef(bricks)
   const doneRef = useRef(false)
+  const freezeUntilRef = useRef(0) // ts until which the re-served ball waits
 
   const clampPaddle = (cx) => Math.max(HALF_PW, Math.min(1 - HALF_PW, cx))
 
@@ -125,6 +138,7 @@ export default function Bricks() {
     ballRef.current = serve()
     paddleXRef.current = 0.5
     doneRef.current = false
+    freezeUntilRef.current = 0
     setBricks(next)
     setDone(false)
   }, [])
@@ -135,7 +149,7 @@ export default function Bricks() {
       const dt = Math.min(0.05, (ts - lastTsRef.current) / 1000)
       lastTsRef.current = ts
 
-      if (!doneRef.current) {
+      if (!doneRef.current && ts >= freezeUntilRef.current) {
         const b = ballRef.current
         b.x += b.vx * dt
         b.y += b.vy * dt
@@ -158,16 +172,14 @@ export default function Bricks() {
           sfx.tap()
         }
 
-        // Bottom: the ball still bounces back (no fail state, no game over), but
-        // missing the paddle is a little "oops" — a soft buzzer + red flash so
-        // the child learns to catch it with the paddle. Add a tiny sideways
-        // nudge so the ball can't get stuck in a vertical loop.
+        // Bottom: missing the paddle costs the ball — a soft buzzer + red flash,
+        // then the ball re-serves from up top, waits a beat, and falls back into
+        // play (still no game over, just a moment lost).
         if (b.y > 1 - BALL_R) {
-          b.y = 1 - BALL_R
-          b.vy = -Math.abs(b.vy)
-          b.vx += (Math.random() * 2 - 1) * 0.04
           tone(150, { duration: 0.2, type: 'sawtooth', gain: 0.1 })
           oops()
+          ballRef.current = reServe()
+          freezeUntilRef.current = ts + MISS_FREEZE * 1000
         }
 
         // Paddle — controllable bounce, angle from where it hit.

@@ -4,6 +4,9 @@
   gap: 12px;
   min-height: 0;
   flex: 1;
+  /* Sentence, blanks, bank and hint all inherit this — every word on screen
+     reads in caps, matching the puzzle text (which ships punctuation-free). */
+  text-transform: uppercase;
 }
 
 /* The sentence itself: text and blanks flow together and wrap naturally. */
@@ -76,6 +79,9 @@
   box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
   touch-action: none;
   transition: transform 0.1s ease;
+  /* Buttons don't reliably inherit text-transform from ancestors — set it
+     explicitly so bank words stay in caps like the rest of the sentence. */
+  text-transform: uppercase;
 }
 .sentence__chip:active {
   transform: scale(0.94);
@@ -99,6 +105,9 @@
   display: flex;
   justify-content: center;
 }
+.sentence__footer .btn {
+  text-transform: uppercase;
+}
 
 /* Floating chip that follows the pointer while dragging. */
 .sentence__floater {
@@ -113,6 +122,7 @@
   transform: translate(-50%, -50%) scale(1.08);
   pointer-events: none;
   filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.25));
+  text-transform: uppercase;
 }
 
 @keyframes sentence-snap {

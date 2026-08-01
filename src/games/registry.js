@@ -39,13 +39,6 @@ export const GAMES = [
     portraitLock: true, // fruit drops down a tall jar — landscape breaks it
   },
   {
-    id: 'pipes',
-    title: 'Pipe Connect',
-    emoji: '🚰',
-    colors: ['#4facfe', '#00f2fe'],
-    tagline: 'Make the water flow',
-  },
-  {
     id: 'math',
     title: 'Add It Up!',
     emoji: '➕',
@@ -351,7 +344,6 @@ export const GAME_AGES = {
   coloring: 'all',
   train: '6-8',
   merge: 'all',
-  pipes: '6-8',
   math: '6-8',
   memory: 'all',
   racing: 'all',
@@ -400,7 +392,6 @@ export const GAME_COMPONENTS = {
   coloring: lazy(() => import('./coloring/index.jsx')),
   puzzle: lazy(() => import('./puzzle/index.jsx')),
   train: lazy(() => import('./train/index.jsx')),
-  pipes: lazy(() => import('./pipes/index.jsx')),
   memory: lazy(() => import('./memory/index.jsx')),
   maze: lazy(() => import('./maze/index.jsx')),
   butterfly: lazy(() => import('./butterfly/index.jsx')),

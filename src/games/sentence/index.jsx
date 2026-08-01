@@ -3,7 +3,7 @@ import { useGame } from '../../state/game.jsx'
 import { useProgress } from '../../state/progress.jsx'
 import { useSettings } from '../../lib/settings.js'
 import { useT } from '../../lib/i18n.js'
-import { pick, shuffle } from '../../lib/random.js'
+import { shuffle } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import { useDrag } from '../../lib/useDrag.js'
 import './sentence.css'
@@ -19,10 +19,12 @@ import './sentence.css'
  * text), so the source strings below stay lower case for readability.
  *
  * Ten difficulty tiers (1 → 5 gaps, richer vocabulary and clause structure
- * each step) map onto 30 levels, three rounds per tier, each with its own
- * small pool of hand-written, grammatically correct templates per language —
- * re-dealt automatically if the locale changes. Level 30 onward replays the
- * hardest tier forever (nothing is ever permanently missed).
+ * each step) map onto 30 levels, three rounds per tier. Each tier ships
+ * exactly three hand-written, grammatically correct templates per language,
+ * picked by level (not at random), so no sentence ever repeats across the
+ * 30-level run — re-dealt automatically if the locale changes. Level 30
+ * onward cycles the hardest tier's three templates forever (nothing is ever
+ * permanently missed).
  */
 
 const B = (w) => ({ w })
@@ -33,21 +35,25 @@ const PUZZLES = {
     [
       { parts: ['I have ', B('a'), ' dog'], extra: ['an', 'the'] },
       { parts: ['The sky ', B('is'), ' blue'], extra: ['are', 'am'] },
+      { parts: ['We have ', B('a'), ' cat'], extra: ['an', 'the'] },
     ],
     // Tier 1 — 1 gap: prepositions / articles
     [
       { parts: ['She has ', B('an'), ' apple'], extra: ['a', 'the'] },
       { parts: ['The cat is ', B('in'), ' the box'], extra: ['on', 'under'] },
+      { parts: ['The ball is ', B('on'), ' the table'], extra: ['in', 'under'] },
     ],
     // Tier 2 — 2 gaps
     [
       { parts: ['The birds ', B('are'), ' flying ', B('over'), ' the trees'], extra: ['is', 'under'] },
       { parts: ['We saw ', B('a'), ' rainbow after ', B('the'), ' rain'], extra: ['an', 'some'] },
+      { parts: ['The stars are ', B('shining'), ' high in the sky ', B('tonight')], extra: ['hiding', 'today'] },
     ],
     // Tier 3 — 2 gaps
     [
       { parts: ['The fish swims ', B('under'), ' the boat and ', B('near'), ' the rocks'], extra: ['over', 'far'] },
       { parts: ['The dog runs ', B('fast'), ' and jumps ', B('high')], extra: ['slow', 'low'] },
+      { parts: ['The boy rides ', B('fast'), ' and waves ', B('proudly')], extra: ['slow', 'quietly'] },
     ],
     // Tier 4 — 3 gaps
     [
@@ -59,6 +65,10 @@ const PUZZLES = {
         parts: ['Yesterday ', B('we'), ' went to the park and played ', B('during'), ' the whole ', B('afternoon')],
         extra: ['they', 'since'],
       },
+      {
+        parts: ['After school ', B('we'), ' walk home and eat ', B('a'), ' ', B('snack')],
+        extra: ['they', 'two'],
+      },
     ],
     // Tier 5 — 3 gaps
     [
@@ -66,6 +76,10 @@ const PUZZLES = {
       {
         parts: ['The little puppy ', B('ran'), ' across the yard and ', B('barked'), ' very ', B('happily')],
         extra: ['run', 'barks'],
+      },
+      {
+        parts: ['When it snows ', B('we'), ' build a ', B('snowman'), ' and throw ', B('snowballs')],
+        extra: ['they', 'house'],
       },
     ],
     // Tier 6 — 4 gaps
@@ -78,6 +92,19 @@ const PUZZLES = {
         parts: ['Because it was ', B('cold'), ' the children wore ', B('warm'), ' coats and ', B('thick'), ' ', B('hats')],
         extra: ['hot', 'thin'],
       },
+      {
+        parts: [
+          'As the train ',
+          B('arrives'),
+          ' the passengers ',
+          B('quickly'),
+          ' ',
+          B('leave'),
+          ' their seats and walk toward the ',
+          B('door'),
+        ],
+        extra: ['departs', 'slowly'],
+      },
     ],
     // Tier 7 — 4 gaps
     [
@@ -88,6 +115,10 @@ const PUZZLES = {
       {
         parts: ['The ', B('old'), ' library was full of ', B('dusty'), ' books and very ', B('quiet'), ' ', B('corners')],
         extra: ['new', 'shiny'],
+      },
+      {
+        parts: ['The ', B('talented'), ' painter mixed ', B('bright'), ' colors and ', B('created'), ' a ', B('beautiful'), ' picture'],
+        extra: ['clumsy', 'dull'],
       },
     ],
     // Tier 8 — 5 gaps
@@ -122,6 +153,21 @@ const PUZZLES = {
         ],
         extra: ['shy', 'lost'],
       },
+      {
+        parts: [
+          'During the summer ',
+          B('our'),
+          ' family ',
+          B('planned'),
+          ' a long trip and ',
+          B('visited'),
+          ' many ',
+          B('distant'),
+          ' ',
+          B('cities'),
+        ],
+        extra: ['their', 'canceled'],
+      },
     ],
     // Tier 9 — 5 gaps
     [
@@ -155,24 +201,43 @@ const PUZZLES = {
         ],
         extra: ['days', 'singer'],
       },
+      {
+        parts: [
+          'After the storm ',
+          B('passed'),
+          ' the ',
+          B('farmers'),
+          ' carefully ',
+          B('checked'),
+          ' their fields and repaired the ',
+          B('broken'),
+          ' ',
+          B('fences'),
+        ],
+        extra: ['started', 'gardeners'],
+      },
     ],
   ],
   es: [
     [
       { parts: ['Tengo ', B('un'), ' perro'], extra: ['una', 'el'] },
       { parts: ['El cielo ', B('es'), ' azul'], extra: ['son', 'está'] },
+      { parts: ['Tenemos ', B('un'), ' gato'], extra: ['una', 'el'] },
     ],
     [
       { parts: ['Ella tiene ', B('una'), ' manzana'], extra: ['un', 'la'] },
       { parts: ['El gato está ', B('en'), ' la caja'], extra: ['sobre', 'bajo'] },
+      { parts: ['La pelota está ', B('sobre'), ' la mesa'], extra: ['en', 'bajo'] },
     ],
     [
       { parts: ['Los pájaros ', B('están'), ' volando ', B('sobre'), ' los árboles'], extra: ['es', 'bajo'] },
       { parts: ['Vimos ', B('un'), ' arcoíris después de ', B('la'), ' lluvia'], extra: ['una', 'el'] },
+      { parts: ['Las estrellas ', B('brillan'), ' mucho en el cielo ', B('oscuro')], extra: ['duermen', 'claro'] },
     ],
     [
       { parts: ['El pez nada bajo ', B('la'), ' barca y cerca de ', B('las'), ' rocas'], extra: ['el', 'los'] },
       { parts: ['El perro corre ', B('rápido'), ' y salta ', B('alto')], extra: ['lento', 'bajo'] },
+      { parts: ['El niño monta ', B('rápido'), ' y saluda ', B('orgulloso')], extra: ['lento', 'callado'] },
     ],
     [
       {
@@ -183,12 +248,20 @@ const PUZZLES = {
         parts: ['Ayer ', B('nosotros'), ' fuimos al parque y jugamos durante ', B('toda'), ' la ', B('tarde')],
         extra: ['ellos', 'poca'],
       },
+      {
+        parts: ['Después de clase ', B('nosotros'), ' caminamos a casa y comemos ', B('un'), ' ', B('bocadillo')],
+        extra: ['ellos', 'dos'],
+      },
     ],
     [
       { parts: ['Si llueve ', B('nos'), ' quedaremos en ', B('casa'), ' y leeremos ', B('libros')], extra: ['te', 'escuela'] },
       {
         parts: ['El cachorro ', B('corrió'), ' por el jardín y ', B('ladró'), ' muy ', B('feliz')],
         extra: ['saltó', 'triste'],
+      },
+      {
+        parts: ['Cuando nieva ', B('nosotros'), ' hacemos un ', B('muñeco'), ' y lanzamos ', B('bolas')],
+        extra: ['ellos', 'casa'],
       },
     ],
     [
@@ -199,6 +272,19 @@ const PUZZLES = {
       {
         parts: ['Como hacía ', B('frío'), ' los niños llevaban ', B('abrigos'), ' ', B('gruesos'), ' y gorros ', B('calentitos')],
         extra: ['calor', 'finos'],
+      },
+      {
+        parts: [
+          'Cuando ',
+          B('llega'),
+          ' el tren los pasajeros ',
+          B('rápidamente'),
+          ' ',
+          B('dejan'),
+          ' sus asientos y caminan hacia la ',
+          B('puerta'),
+        ],
+        extra: ['sale', 'lentamente'],
       },
     ],
     [
@@ -218,6 +304,10 @@ const PUZZLES = {
       {
         parts: ['La biblioteca ', B('vieja'), ' estaba llena de libros ', B('polvorientos'), ' y ', B('rincones'), ' muy ', B('tranquilos')],
         extra: ['nueva', 'limpios'],
+      },
+      {
+        parts: ['El pintor ', B('talentoso'), ' mezcló colores ', B('brillantes'), ' y ', B('creó'), ' un cuadro ', B('hermoso')],
+        extra: ['torpe', 'opacos'],
       },
     ],
     [
@@ -251,6 +341,21 @@ const PUZZLES = {
         ],
         extra: ['tímidos', 'perdieron'],
       },
+      {
+        parts: [
+          'Durante el verano ',
+          B('nuestra'),
+          ' familia ',
+          B('planeó'),
+          ' un viaje largo y ',
+          B('visitó'),
+          ' muchas ',
+          B('ciudades'),
+          ' ',
+          B('lejanas'),
+        ],
+        extra: ['su', 'canceló'],
+      },
     ],
     [
       {
@@ -283,24 +388,43 @@ const PUZZLES = {
         ],
         extra: ['días', 'cantante'],
       },
+      {
+        parts: [
+          'Después de la ',
+          B('tormenta'),
+          ' los ',
+          B('granjeros'),
+          ' ',
+          B('revisaron'),
+          ' con cuidado sus campos y repararon las ',
+          B('cercas'),
+          ' ',
+          B('rotas'),
+        ],
+        extra: ['lluvia', 'jardineros'],
+      },
     ],
   ],
   ca: [
     [
       { parts: ['Tinc ', B('un'), ' gos'], extra: ['una', 'el'] },
       { parts: ['El cel ', B('és'), ' blau'], extra: ['són', 'està'] },
+      { parts: ['Tenim ', B('un'), ' gat'], extra: ['una', 'el'] },
     ],
     [
       { parts: ['Ella té ', B('una'), ' poma'], extra: ['un', 'la'] },
       { parts: ['El gat està ', B('dins'), ' la caixa'], extra: ['sobre', 'sota'] },
+      { parts: ['La pilota és ', B('sobre'), ' la taula'], extra: ['dins', 'sota'] },
     ],
     [
       { parts: ['Els ocells ', B('estan'), ' volant ', B('sobre'), ' els arbres'], extra: ['és', 'sota'] },
       { parts: ['Vam veure ', B('un'), ' arc de Sant Martí després de ', B('la'), ' pluja'], extra: ['una', 'el'] },
+      { parts: ['Les estrelles ', B('brillen'), ' molt al cel ', B('fosc')], extra: ['dormen', 'clar'] },
     ],
     [
       { parts: ['El peix neda sota ', B('la'), ' barca i a prop de ', B('les'), ' roques'], extra: ['el', 'els'] },
       { parts: ['El gos corre ', B('ràpid'), ' i salta ', B('alt')], extra: ['lent', 'baix'] },
+      { parts: ['El nen munta ', B('ràpid'), ' i saluda ', B('orgullós')], extra: ['lent', 'callat'] },
     ],
     [
       { parts: ['Cada matí ', B('el'), ' gall es ', B('desperta'), ' i canta molt ', B('fort')], extra: ['un', 'dorm'] },
@@ -308,12 +432,20 @@ const PUZZLES = {
         parts: ['Ahir ', B('nosaltres'), ' vam anar al parc i vam jugar durant ', B('tota'), ' la ', B('tarda')],
         extra: ['ells', 'poca'],
       },
+      {
+        parts: ['Després de classe ', B('nosaltres'), ' caminem cap a casa i mengem ', B('un'), ' ', B('entrepà')],
+        extra: ['ells', 'dos'],
+      },
     ],
     [
       { parts: ['Si plou ', B('ens'), ' quedarem a ', B('casa'), ' i llegirem ', B('llibres')], extra: ['et', 'escola'] },
       {
         parts: ['El cadell ', B('va córrer'), ' pel jardí i ', B('va lladrar'), ' molt ', B('content')],
         extra: ['va saltar', 'trist'],
+      },
+      {
+        parts: ['Quan neva ', B('nosaltres'), ' fem un ', B('ninot'), ' i llancem ', B('boles')],
+        extra: ['ells', 'casa'],
       },
     ],
     [
@@ -324,6 +456,19 @@ const PUZZLES = {
       {
         parts: ['Com que feia ', B('fred'), ' els nens portaven ', B('abrics'), ' ', B('gruixuts'), ' i gorres ', B('calentetes')],
         extra: ['calor', 'prims'],
+      },
+      {
+        parts: [
+          'Quan ',
+          B('arriba'),
+          ' el tren els passatgers ',
+          B('ràpidament'),
+          ' ',
+          B('deixen'),
+          ' els seus seients i caminen cap a la ',
+          B('porta'),
+        ],
+        extra: ['surt', 'lentament'],
       },
     ],
     [
@@ -343,6 +488,19 @@ const PUZZLES = {
       {
         parts: ['La biblioteca ', B('vella'), ' estava plena de llibres ', B('empolsinats'), ' i ', B('racons'), ' molt ', B('tranquils')],
         extra: ['nova', 'nets'],
+      },
+      {
+        parts: [
+          'El pintor ',
+          B('talentós'),
+          ' va barrejar colors ',
+          B('brillants'),
+          ' i va ',
+          B('crear'),
+          ' un quadre ',
+          B('preciós'),
+        ],
+        extra: ['maldestre', 'opacs'],
       },
     ],
     [
@@ -376,6 +534,21 @@ const PUZZLES = {
         ],
         extra: ['tímids', 'perdre'],
       },
+      {
+        parts: [
+          'A les vacances la ',
+          B('nostra'),
+          ' família va ',
+          B('planejar'),
+          ' un viatge llarg i va ',
+          B('visitar'),
+          ' moltes ',
+          B('ciutats'),
+          ' ',
+          B('llunyanes'),
+        ],
+        extra: ['seva', 'cancelar'],
+      },
     ],
     [
       {
@@ -408,16 +581,33 @@ const PUZZLES = {
         ],
         extra: ['dies', 'cantant'],
       },
+      {
+        parts: [
+          'Després de la ',
+          B('tempesta'),
+          ' els ',
+          B('pagesos'),
+          ' van ',
+          B('revisar'),
+          ' amb cura els seus camps i van reparar les ',
+          B('tanques'),
+          ' ',
+          B('trencades'),
+        ],
+        extra: ['pluja', 'jardiners'],
+      },
     ],
   ],
   fr: [
     [
       { parts: ['Nous avons ', B('un'), ' chien'], extra: ['une', 'le'] },
       { parts: ['Le ciel ', B('est'), ' bleu'], extra: ['sont', 'es'] },
+      { parts: ['Nous avons ', B('un'), ' chat'], extra: ['une', 'le'] },
     ],
     [
       { parts: ['Elle a ', B('une'), ' pomme'], extra: ['un', 'la'] },
       { parts: ['Le chat est ', B('dans'), ' la boîte'], extra: ['sur', 'sous'] },
+      { parts: ['Le ballon est ', B('sur'), ' la table'], extra: ['dans', 'sous'] },
     ],
     [
       {
@@ -425,10 +615,12 @@ const PUZZLES = {
         extra: ['sous les', 'depuis'],
       },
       { parts: ['Nous avons vu ', B('un'), ' arc en ciel après ', B('la'), ' pluie'], extra: ['une', 'le'] },
+      { parts: ['Les étoiles ', B('brillent'), ' fort dans le ciel ', B('noir')], extra: ['dorment', 'clair'] },
     ],
     [
       { parts: ['Le poisson nage sous ', B('le'), ' bateau et près ', B('des'), ' rochers'], extra: ['la', 'les'] },
       { parts: ['Le chien court ', B('vite'), ' et saute ', B('haut')], extra: ['lentement', 'bas'] },
+      { parts: ['Le garçon pédale ', B('vite'), ' et salue ', B('fièrement')], extra: ['lentement', 'doucement'] },
     ],
     [
       { parts: ['Chaque matin ', B('le'), ' coq se ', B('réveille'), ' et chante très ', B('fort')], extra: ['un', 'dort'] },
@@ -436,12 +628,20 @@ const PUZZLES = {
         parts: ['Hier ', B('nous'), ' sommes allés au parc et avons joué pendant ', B('toute'), ' la ', B('journée')],
         extra: ['ils', 'part'],
       },
+      {
+        parts: ['Après les cours ', B('nous'), ' marchons vers la maison et mangeons ', B('un'), ' ', B('goûter')],
+        extra: ['ils', 'deux'],
+      },
     ],
     [
       { parts: ['Quand il pleut ', B('nous'), ' restons à la maison et lisons ', B('des'), ' ', B('livres')], extra: ['vous', 'les'] },
       {
         parts: ['Le petit chiot ', B('a couru'), ' dans le jardin et ', B('a aboyé'), ' très ', B('joyeusement')],
         extra: ['court', 'aboie'],
+      },
+      {
+        parts: ['Quand il neige ', B('nous'), ' faisons un ', B('bonhomme'), ' et lançons ', B('boules')],
+        extra: ['ils', 'maison'],
       },
     ],
     [
@@ -452,6 +652,19 @@ const PUZZLES = {
       {
         parts: ['Comme il faisait ', B('froid'), ' les enfants portaient des manteaux ', B('épais'), ' et des ', B('bonnets'), ' ', B('chauds')],
         extra: ['chaud', 'fins'],
+      },
+      {
+        parts: [
+          'Quand le train ',
+          B('arrive'),
+          ' les passagers ',
+          B('quittent'),
+          ' ',
+          B('rapidement'),
+          ' leurs places et marchent vers la ',
+          B('porte'),
+        ],
+        extra: ['part', 'lentement'],
       },
     ],
     [
@@ -472,6 +685,19 @@ const PUZZLES = {
       {
         parts: ['La ', B('vieille'), ' bibliothèque était pleine de livres ', B('poussiéreux'), ' et de ', B('coins'), ' très ', B('calmes')],
         extra: ['nouvelle', 'propres'],
+      },
+      {
+        parts: [
+          'Le peintre ',
+          B('talentueux'),
+          ' a mélangé des couleurs ',
+          B('vives'),
+          ' et a ',
+          B('créé'),
+          ' un tableau ',
+          B('magnifique'),
+        ],
+        extra: ['maladroit', 'ternes'],
       },
     ],
     [
@@ -505,6 +731,21 @@ const PUZZLES = {
         ],
         extra: ['timides', 'perdaient'],
       },
+      {
+        parts: [
+          'Pendant les vacances ',
+          B('notre'),
+          ' famille a ',
+          B('planifié'),
+          ' un long voyage et a ',
+          B('visité'),
+          ' de nombreuses ',
+          B('villes'),
+          ' ',
+          B('lointaines'),
+        ],
+        extra: ['leur', 'annulé'],
+      },
     ],
     [
       {
@@ -537,6 +778,21 @@ const PUZZLES = {
         ],
         extra: ['jours', 'chanteuse'],
       },
+      {
+        parts: [
+          'Après la ',
+          B('tempête'),
+          ' les ',
+          B('fermiers'),
+          ' ont ',
+          B('vérifié'),
+          ' avec soin leurs champs et ont réparé les ',
+          B('clôtures'),
+          ' ',
+          B('cassées'),
+        ],
+        extra: ['pluie', 'jardiniers'],
+      },
     ],
   ],
 }
@@ -558,7 +814,11 @@ const tierFor = (level) => Math.floor(level / LEVELS_PER_TIER)
 function makeRound(locale, level) {
   const tiers = poolFor(locale)
   const tier = Math.min(tierFor(level), tiers.length - 1)
-  const tpl = pick(tiers[tier])
+  const templates = tiers[tier]
+  // Deterministic, not random: cycling by level (rather than picking) is what
+  // guarantees every one of a tier's 3 templates is seen exactly once across
+  // its 3 rounds, so no sentence ever repeats within the 30-level run.
+  const tpl = templates[level % templates.length]
   const blanks = []
   tpl.parts.forEach((part, i) => {
     if (typeof part !== 'string') blanks.push({ index: i, word: part.w })

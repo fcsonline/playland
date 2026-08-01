@@ -92,6 +92,7 @@ export const TITLES = {
     blocks: 'Block Drop',
     bubbles: 'Bubble Pop',
     merge: 'Fruit Merge',
+    sentence: 'Sentence Builder',
   },
   es: {
     coloring: 'Estudio de Color',
@@ -138,6 +139,7 @@ export const TITLES = {
     blocks: 'Caída de Bloques',
     bubbles: 'Revienta Burbujas',
     merge: 'Une Frutas',
+    sentence: 'Completa la Frase',
   },
   ca: {
     coloring: 'Estudi de Color',
@@ -184,6 +186,7 @@ export const TITLES = {
     blocks: 'Caiguda de Blocs',
     bubbles: 'Rebenta Bombolles',
     merge: 'Uneix Fruites',
+    sentence: 'Completa la Frase',
   },
   fr: {
     coloring: 'Atelier de Coloriage',
@@ -230,6 +233,7 @@ export const TITLES = {
     blocks: 'Chute de Blocs',
     bubbles: 'Bulles à Éclater',
     merge: 'Fusion de Fruits',
+    sentence: 'Complète la Phrase',
   },
 }
 
@@ -275,6 +279,8 @@ export const UI = {
     tryAgain: 'Try again',
     shopTitle: 'Sticker Shop',
     shopRibbon: 'Shop',
+    rotateTitle: 'Turn your phone upright 🔄',
+    rotateHint: 'This game plays best standing up tall.',
   },
   es: {
     start: 'Empezar',
@@ -313,6 +319,8 @@ export const UI = {
     tryAgain: 'Reintentar',
     shopTitle: 'Tienda de Pegatinas',
     shopRibbon: 'Tienda',
+    rotateTitle: 'Gira el teléfono 🔄',
+    rotateHint: 'Este juego se juega mejor en vertical.',
   },
   ca: {
     start: 'Comença',
@@ -351,6 +359,8 @@ export const UI = {
     tryAgain: 'Torna-ho a provar',
     shopTitle: "Botiga d'Adhesius",
     shopRibbon: 'Botiga',
+    rotateTitle: 'Gira el mòbil 🔄',
+    rotateHint: 'Aquest joc es juga millor en vertical.',
   },
   fr: {
     start: 'Commencer',
@@ -389,6 +399,8 @@ export const UI = {
     tryAgain: 'Réessayer',
     shopTitle: 'Boutique de Stickers',
     shopRibbon: 'Boutique',
+    rotateTitle: 'Tourne ton téléphone 🔄',
+    rotateHint: 'Ce jeu se joue mieux à la verticale.',
   },
 }
 

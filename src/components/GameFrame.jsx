@@ -172,6 +172,26 @@ export default function GameFrame({ gameId, onBack }) {
           </div>
         </div>
       )}
+
+      {/* Some games' playfields only make sense tall (a golf hole, a fruit jar).
+          screen.orientation.lock() is best-effort and never works on iOS, so this
+          CSS-only overlay is the real enforcement: it covers the game whenever the
+          device is physically sideways, and clears the moment it's upright again. */}
+      {meta.portraitLock && (
+        <div className="game-frame__rotate-lock" role="alertdialog" aria-modal="true">
+          <div className="game-frame__rotate-card">
+            <span className="game-frame__rotate-emoji" aria-hidden="true">🔄</span>
+            <p className="game-frame__rotate-title">{t('rotateTitle')}</p>
+            <p className="game-frame__rotate-hint">{t('rotateHint')}</p>
+            {/* This overlay sits above the header's close button too, so give it
+                its own way out — a kid who can't rotate (car mount, propped up
+                tablet) is never stuck. */}
+            <button className="btn" style={{ marginTop: 16 }} onClick={onBack}>
+              {t('backHome')}
+            </button>
+          </div>
+        </div>
+      )}
     </div>
   )
 }

@@ -36,6 +36,7 @@ export const GAMES = [
     emoji: '🍇',
     colors: ['#ffb75e', '#ed5464'],
     tagline: 'Drop fruit — match pairs to grow a watermelon!',
+    portraitLock: true, // fruit drops down a tall jar — landscape breaks it
   },
   {
     id: 'pipes',
@@ -301,6 +302,7 @@ export const GAMES = [
     emoji: '⛳',
     colors: ['#56ab2f', '#a8e063'],
     tagline: 'Putt the ball in the hole!',
+    portraitLock: true, // holes are laid out tall — landscape breaks the course
   },
   {
     id: 'bricks',
@@ -329,6 +331,14 @@ export const GAMES = [
     emoji: '🟦',
     colors: ['#30cfd0', '#330867'],
     tagline: 'Fill rows with falling blocks!',
+  },
+  {
+    id: 'sentence',
+    title: 'Sentence Builder',
+    emoji: '📝',
+    colors: ['#43cea2', '#c86dd7'],
+    tagline: 'Drag the words to finish the sentence!',
+    isNew: true,
   },
 ]
 
@@ -382,6 +392,7 @@ export const GAME_AGES = {
   worm: 'all',
   domino: '6-8',
   blocks: '6-8',
+  sentence: '6-8',
 }
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -430,6 +441,7 @@ export const GAME_COMPONENTS = {
   blocks: lazy(() => import('./blocks/index.jsx')),
   bubbles: lazy(() => import('./bubbles/index.jsx')),
   merge: lazy(() => import('./merge/index.jsx')),
+  sentence: lazy(() => import('./sentence/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

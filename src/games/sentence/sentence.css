@@ -1,0 +1,127 @@
+.sentence {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* The sentence itself: text and blanks flow together and wrap naturally. */
+.sentence__board {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 20px;
+  min-height: 0;
+}
+
+.sentence__text {
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 6px 0;
+  font-size: clamp(1.15rem, 5vw, 1.6rem);
+  font-weight: 700;
+  color: var(--ink);
+  line-height: 1.7;
+  text-align: center;
+}
+
+.sentence__word {
+  white-space: pre-wrap;
+}
+
+/* A gap: dashed pill while empty, solid fill once the right word lands. */
+.sentence__blank {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 3.4em;
+  min-height: 1.5em;
+  margin: 0 2px;
+  padding: 2px 10px;
+  border-radius: var(--radius-sm);
+  border: 3px dashed rgba(108, 92, 231, 0.4);
+  background: rgba(108, 92, 231, 0.06);
+  color: var(--primary);
+  vertical-align: middle;
+}
+.sentence__blank.is-filled {
+  border: 3px solid transparent;
+  background: linear-gradient(180deg, #58e08c, var(--good));
+  color: #fff;
+  animation: sentence-snap 0.3s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+
+/* Word bank at the bottom. */
+.sentence__bank {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+  justify-content: center;
+  padding: 10px;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius-sm);
+}
+.sentence__chip {
+  padding: 10px 16px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink);
+  background: var(--white);
+  border-radius: 999px;
+  box-shadow: 0 3px 8px rgba(0, 0, 0, 0.16);
+  touch-action: none;
+  transition: transform 0.1s ease;
+}
+.sentence__chip:active {
+  transform: scale(0.94);
+}
+.sentence__chip.is-dragging {
+  opacity: 0.25;
+}
+.sentence__chip.is-wrong {
+  animation: wiggle 0.4s ease;
+}
+
+.sentence__hint {
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  color: var(--white);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+.sentence__footer {
+  display: flex;
+  justify-content: center;
+}
+
+/* Floating chip that follows the pointer while dragging. */
+.sentence__floater {
+  position: fixed;
+  z-index: 5000;
+  padding: 10px 16px;
+  font-size: 1.05rem;
+  font-weight: 800;
+  color: var(--ink);
+  background: var(--white);
+  border-radius: 999px;
+  transform: translate(-50%, -50%) scale(1.08);
+  pointer-events: none;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.25));
+}
+
+@keyframes sentence-snap {
+  0% {
+    transform: scale(1.25);
+    opacity: 0.4;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}

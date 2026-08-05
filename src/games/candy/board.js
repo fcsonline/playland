@@ -6,6 +6,17 @@ export const COLS = 6
 export const ROWS = 7
 export const CANDIES = ['🍬', '🍭', '🍫', '🍪', '🍩', '🧁']
 
+/** A subtle background tint per candy so same-toned pieces (🍪/🍩) are easy
+ *  to tell apart at a glance, even before reading the emoji. */
+export const CANDY_COLORS = {
+  '🍬': '#ffe1ea',
+  '🍭': '#efe0ff',
+  '🍫': '#e8d6c3',
+  '🍪': '#fdeac2',
+  '🍩': '#ffdcc2',
+  '🧁': '#dcf3ff',
+}
+
 const idx = (r, c) => r * COLS + c
 
 /** Random candy emoji. */

@@ -5,6 +5,7 @@ import { useT } from '../../lib/i18n.js'
 import {
   COLS,
   ROWS,
+  CANDY_COLORS,
   makeBoard,
   areAdjacent,
   swap,
@@ -164,6 +165,7 @@ export default function SweetMatch() {
             className={`candy__cell ${selected === i ? 'is-selected' : ''} ${
               clearing.has(i) ? 'is-clearing' : ''
             } ${badPair && badPair.includes(i) ? 'is-bad' : ''}`}
+            style={{ '--ccolor': CANDY_COLORS[candy] }}
             onClick={() => tapCell(i)}
             aria-label={t('candy', { c: candy })}
           >

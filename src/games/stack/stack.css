@@ -176,20 +176,6 @@
   }
 }
 
-.stack__footer {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 10px;
-}
-
-.stack__hint {
-  margin: 0;
-  font-weight: 800;
-  color: var(--white);
-  text-shadow: 0 1px 3px rgba(58, 44, 90, 0.35);
-}
-
 @media (prefers-reduced-motion: reduce) {
   .stack__world,
   .stack__chip,

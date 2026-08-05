@@ -17,12 +17,10 @@ import './stack.css'
 
 const STR = {
   en: {
-    hint: 'Tap to drop the block! 🧱',
     perfect: 'Perfect!',
     praise: 'So tall!',
     best: 'Best {n}',
     height: '{n} high',
-    again: 'New tower ↻',
     points: '{n} pts',
     combo: 'Combo {n}',
     bonus: 'Free wide block! 🎁',
@@ -33,12 +31,10 @@ const STR = {
     continue: 'New tower ↻',
   },
   es: {
-    hint: '¡Toca para soltar el bloque! 🧱',
     perfect: '¡Perfecto!',
     praise: '¡Qué torre!',
     best: 'Récord {n}',
     height: '{n} de alto',
-    again: 'Otra torre ↻',
     points: '{n} pts',
     combo: 'Combo {n}',
     bonus: '¡Bloque ancho gratis! 🎁',
@@ -49,12 +45,10 @@ const STR = {
     continue: 'Otra torre ↻',
   },
   ca: {
-    hint: 'Toca per deixar anar el bloc! 🧱',
     perfect: 'Perfecte!',
     praise: 'Quina torre!',
     best: 'Rècord {n}',
     height: "{n} d'alçada",
-    again: 'Una altra torre ↻',
     points: '{n} punts',
     combo: 'Combo {n}',
     bonus: 'Bloc ample gratis! 🎁',
@@ -65,12 +59,10 @@ const STR = {
     continue: 'Una altra torre ↻',
   },
   fr: {
-    hint: 'Touche pour lâcher le bloc ! 🧱',
     perfect: 'Parfait !',
     praise: 'Trop haute !',
     best: 'Record {n}',
     height: '{n} de haut',
-    again: 'Nouvelle tour ↻',
     points: '{n} pts',
     combo: 'Combo {n}',
     bonus: 'Bloc large gratuit ! 🎁',
@@ -351,13 +343,6 @@ export default function StackTower() {
             </div>
           </div>
         )}
-      </div>
-
-      <div className="stack__footer">
-        <p className="stack__hint">{t('hint')}</p>
-        <button className="btn btn--ghost" onClick={reset}>
-          {t('again')}
-        </button>
       </div>
     </div>
   )

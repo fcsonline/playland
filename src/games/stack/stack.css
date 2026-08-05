@@ -9,7 +9,19 @@
 .stack__meta {
   display: flex;
   justify-content: center;
+  flex-wrap: wrap;
   gap: 8px;
+}
+
+/* Combo chip pulses gently once a streak is worth bragging about. */
+.stack__meta .chip.is-hot {
+  background: var(--sun);
+  color: var(--ink);
+  animation: stack-combo-pulse 0.7s ease-in-out infinite;
+}
+@keyframes stack-combo-pulse {
+  0%, 100% { transform: scale(1); }
+  50% { transform: scale(1.08); }
 }
 
 .stack__board {
@@ -115,6 +127,55 @@
   }
 }
 
+/* Recap overlay shown once a tower finishes, before the next one starts. */
+.stack__result {
+  position: absolute;
+  inset: 0;
+  z-index: 6;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(58, 44, 90, 0.28);
+  backdrop-filter: blur(2px);
+  animation: stack-result-in 0.25s ease;
+}
+.stack__result-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 6px;
+  padding: 22px 28px;
+  border-radius: var(--radius, 18px);
+  background: var(--white);
+  box-shadow: var(--shadow-lg, 0 12px 30px rgba(58, 44, 90, 0.35));
+  text-align: center;
+}
+.stack__result-title {
+  margin: 0 0 4px;
+  font-size: clamp(1.1rem, 5vw, 1.5rem);
+  font-weight: 900;
+  color: var(--ink);
+}
+.stack__result-line {
+  margin: 0;
+  font-weight: 800;
+  color: var(--ink-soft, var(--ink));
+}
+.stack__result-best {
+  margin: 2px 0 0;
+  font-weight: 900;
+  color: var(--accent);
+}
+.stack__result-card .btn {
+  margin-top: 10px;
+}
+@keyframes stack-result-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+}
+
 .stack__footer {
   display: flex;
   align-items: center;
@@ -133,7 +194,9 @@
   .stack__world,
   .stack__chip,
   .is-wobble,
-  .stack__flash {
+  .stack__flash,
+  .stack__meta .chip.is-hot,
+  .stack__result {
     animation: none;
     transition: none;
   }

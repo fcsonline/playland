@@ -23,6 +23,14 @@ const STR = {
     best: 'Best {n}',
     height: '{n} high',
     again: 'New tower ↻',
+    points: '{n} pts',
+    combo: 'Combo {n}',
+    bonus: 'Free wide block! 🎁',
+    resultTitle: 'Tower complete!',
+    resultHeight: '{n} blocks high',
+    resultPoints: '{n} points',
+    resultBest: 'New best! ⭐',
+    continue: 'New tower ↻',
   },
   es: {
     hint: '¡Toca para soltar el bloque! 🧱',
@@ -31,6 +39,14 @@ const STR = {
     best: 'Récord {n}',
     height: '{n} de alto',
     again: 'Otra torre ↻',
+    points: '{n} pts',
+    combo: 'Combo {n}',
+    bonus: '¡Bloque ancho gratis! 🎁',
+    resultTitle: '¡Torre terminada!',
+    resultHeight: '{n} bloques de alto',
+    resultPoints: '{n} puntos',
+    resultBest: '¡Nuevo récord! ⭐',
+    continue: 'Otra torre ↻',
   },
   ca: {
     hint: 'Toca per deixar anar el bloc! 🧱',
@@ -39,6 +55,14 @@ const STR = {
     best: 'Rècord {n}',
     height: "{n} d'alçada",
     again: 'Una altra torre ↻',
+    points: '{n} punts',
+    combo: 'Combo {n}',
+    bonus: 'Bloc ample gratis! 🎁',
+    resultTitle: 'Torre acabada!',
+    resultHeight: "{n} blocs d'alçada",
+    resultPoints: '{n} punts',
+    resultBest: 'Nou rècord! ⭐',
+    continue: 'Una altra torre ↻',
   },
   fr: {
     hint: 'Touche pour lâcher le bloc ! 🧱',
@@ -47,6 +71,14 @@ const STR = {
     best: 'Record {n}',
     height: '{n} de haut',
     again: 'Nouvelle tour ↻',
+    points: '{n} pts',
+    combo: 'Combo {n}',
+    bonus: 'Bloc large gratuit ! 🎁',
+    resultTitle: 'Tour terminée !',
+    resultHeight: '{n} blocs de haut',
+    resultPoints: '{n} points',
+    resultBest: 'Nouveau record ! ⭐',
+    continue: 'Nouvelle tour ↻',
   },
 }
 
@@ -55,6 +87,10 @@ const BASE_W = 62 // starting width, in % of the board
 const PERFECT = 2.6 // % tolerance that still counts as a perfect drop
 const MIN_W = 10 // % — a slab this thin finishes the tower (celebrate + fresh start)
 const MILESTONES = { 6: 1, 12: 2, 18: 3 } // height -> mastery stars
+const COMBO_BONUS = 10 // consecutive perfect drops that earn a free wide block
+const POINTS_PLACE = 5 // points for any kept placement
+const POINTS_PERFECT = 15 // points for a perfect (no-trim) placement
+const POINTS_BONUS = 50 // extra points when the combo bonus fires
 
 const slabColor = (hue) => `linear-gradient(180deg, hsl(${hue} 82% 68%), hsl(${hue} 74% 56%))`
 
@@ -73,6 +109,9 @@ export default function StackTower() {
   const [flash, setFlash] = useState(null) // 'perfect' word popup
   const [wobble, setWobble] = useState(false)
   const [best, setBest] = useState(() => getGameLevel('stack'))
+  const [score, setScore] = useState(0) // points for the tower in progress
+  const [combo, setCombo] = useState(0) // consecutive perfect drops
+  const [result, setResult] = useState(null) // {height, score, isBest} recap once a tower finishes
   const [, repaint] = useState(0)
 
   const boardRef = useRef(null)
@@ -82,6 +121,7 @@ export default function StackTower() {
   const towerRef = useRef(tower)
   towerRef.current = tower
   const finishingRef = useRef(false) // brief input pause while a finished tower celebrates
+  const finishResetRef = useRef(null) // timeout id for the auto-continue after a recap
   const timeouts = useRef([])
   const later = (fn, ms) => timeouts.current.push(setTimeout(fn, ms))
   useEffect(() => () => timeouts.current.forEach(clearTimeout), [])
@@ -111,15 +151,18 @@ export default function StackTower() {
 
     if (overlap <= 1.5) {
       // Clean miss: the slab tumbles away, the tower shrugs, try again.
+      // The combo streak is discontinuous — a miss just breaks it, it never
+      // ends the tower.
       sfx.tap()
       dropChip(s.x - s.w / 2, s.w, h, hue)
       setWobble(true)
       later(() => setWobble(false), 500)
+      setCombo(0)
       return
     }
 
     const perfect = overlap >= s.w - PERFECT
-    const placed = perfect ? { x: top.x, w: top.w } : { x: left, w: overlap }
+    let placed = perfect ? { x: top.x, w: top.w } : { x: left, w: overlap }
     if (!perfect) {
       // Trim the overhang: one chip falls off whichever side stuck out.
       if (s.x - s.w / 2 < top.x) dropChip(s.x - s.w / 2, top.x - (s.x - s.w / 2), h, hue)
@@ -127,30 +170,68 @@ export default function StackTower() {
     }
 
     tone(240 * Math.pow(2, (h % 12) / 12), { duration: 0.14, gain: 0.5 })
+
+    // Score + combo: every perfect drop keeps the streak alive; any trimmed
+    // or missed drop resets it. Ten perfects in a row earns a free wide
+    // block — the tower regains width instead of staying pinned thin.
+    let gained = POINTS_PLACE
+    let nextCombo = combo
+    let bonusFired = false
     if (perfect) {
       sfx.good()
+      gained = POINTS_PERFECT
+      nextCombo = combo + 1
+      bonusFired = nextCombo % COMBO_BONUS === 0
       const rect = boardRef.current?.querySelector('.stack__frame')?.getBoundingClientRect()
       if (rect) earn(1, { x: rect.left + (rect.width * placed.x + (rect.width * placed.w) / 2) / 100, y: rect.top + rect.height * 0.35 })
       setFlash(t('perfect'))
       later(() => setFlash(null), 650)
+    } else {
+      nextCombo = 0
+    }
+    setCombo(nextCombo)
+
+    if (bonusFired) {
+      const widened = Math.min(BASE_W, placed.w + 18)
+      placed = {
+        x: Math.max(0, Math.min(100 - widened, placed.x - (widened - placed.w) / 2)),
+        w: widened,
+      }
+      gained += POINTS_BONUS
+      sfx.win()
+      later(() => {
+        setFlash(t('bonus'))
+        later(() => setFlash(null), 900)
+      }, 260)
     }
 
+    const newScore = score + gained
+    setScore(newScore)
+
     // A slab too thin to keep building on finishes the tower: celebrate the
-    // height reached and start a fresh one (no-fail — always a happy ending).
+    // height reached, show a recap, and start a fresh one (no-fail — always
+    // a happy ending).
     const finished = placed.w < MIN_W
     const stars = MILESTONES[h]
+    const isBest = h > best
     if (finished) {
       finishingRef.current = true
       later(() => {
         sfx.win()
         award(Math.min(3, Math.max(1, Math.floor(h / 6))), { praise: t('praise'), count: 14 + h })
+        setResult({ height: h, score: newScore, isBest })
       }, 300)
-      later(() => {
+      finishResetRef.current = setTimeout(() => {
+        finishResetRef.current = null
         finishingRef.current = false
         slider.current.phase = 0
         setTower(freshTower())
         setChips([])
-      }, 1800)
+        setScore(0)
+        setCombo(0)
+        setResult(null)
+      }, 2600)
+      timeouts.current.push(finishResetRef.current)
     } else if (stars) {
       later(() => {
         sfx.win()
@@ -174,10 +255,17 @@ export default function StackTower() {
 
   function reset() {
     sfx.tap()
+    if (finishResetRef.current) {
+      clearTimeout(finishResetRef.current)
+      finishResetRef.current = null
+    }
     finishingRef.current = false
     slider.current.phase = 0
     setTower(freshTower())
     setChips([])
+    setScore(0)
+    setCombo(0)
+    setResult(null)
   }
 
   // Desktop friendliness: space or enter drops too.
@@ -200,6 +288,8 @@ export default function StackTower() {
     <div className="stack">
       <div className="stack__meta">
         <span className="chip">{t('height', { n: height })}</span>
+        <span className="chip">🏆 {t('points', { n: score })}</span>
+        <span className={`chip ${combo >= 3 ? 'is-hot' : ''}`}>🔥 {t('combo', { n: combo })}</span>
         {best > 0 && <span className="chip">⭐ {t('best', { n: best })}</span>}
       </div>
 
@@ -247,6 +337,20 @@ export default function StackTower() {
         </div>
         </div>
         {flash && <div className="stack__flash">{flash}</div>}
+
+        {result && (
+          <div className="stack__result">
+            <div className="stack__result-card">
+              <p className="stack__result-title">{t('resultTitle')}</p>
+              <p className="stack__result-line">🧱 {t('resultHeight', { n: result.height })}</p>
+              <p className="stack__result-line">🏆 {t('resultPoints', { n: result.score })}</p>
+              {result.isBest && <p className="stack__result-best">{t('resultBest')}</p>}
+              <button className="btn btn--good" onClick={reset}>
+                {t('continue')}
+              </button>
+            </div>
+          </div>
+        )}
       </div>
 
       <div className="stack__footer">

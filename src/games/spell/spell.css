@@ -239,3 +239,20 @@
     grid-template-columns: repeat(13, minmax(34px, 42px));
   }
 }
+
+/* 💡 carries its own little counter of the three hints allowed per word. */
+.spell__hint-left {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 1.5em;
+  height: 1.5em;
+  margin-left: 4px;
+  border-radius: 999px;
+  background: rgba(108, 92, 231, 0.14);
+  color: var(--primary);
+  font-size: 0.85em;
+}
+.spell__hint.is-spent {
+  opacity: 0.5;
+}

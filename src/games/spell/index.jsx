@@ -23,13 +23,16 @@ import './spell.css'
  *  - ⌨️ ABC  — the whole A–Z keyboard, real spelling from scratch.
  *
  * No-fail: a wrong letter never lands, it just wiggles; there is no counter of
- * mistakes and no timer. 💡 reveals the next letter whenever they're stuck.
+ * mistakes and no timer. 💡 reveals the next letter, up to three times per word
+ * (the allowance refills with every new word) so the child still does most of
+ * the writing. Only whole words are ever spoken — never letter by letter.
  * Word length grows with the persisted level (3 letters → 6+), five words make
  * a set, and every set ends in a confetti cheer.
  */
 
 const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const SET_SIZE = 5 // words per celebrated set
+const HINT_LIMIT = 3 // 💡 taps allowed per word (refilled with every new word)
 const WORDS_PER_TIER = 8 // words solved before longer words show up
 
 const STR = {
@@ -116,7 +119,8 @@ export default function Spell() {
   const [wrongId, setWrongId] = useState(null) // key that just wiggled
   const [done, setDone] = useState(false)
   const [inSet, setInSet] = useState(0) // position in the current set of 5
-  const hintsUsed = useRef(0)
+  const [hintsLeft, setHintsLeft] = useState(HINT_LIMIT) // 💡 taps left on this word
+  const hintsUsed = useRef(0) // hints spent across the current set (sets the rating)
 
   // Voices load asynchronously (and some devices ship none at all), so assume
   // the word can be spoken and only show the "look at the picture" line once
@@ -144,6 +148,7 @@ export default function Spell() {
     setRound(makeRound(locale, nextLevel, recent.current))
     setTyped([])
     setUsed(new Set())
+    setHintsLeft(HINT_LIMIT)
     setDone(false)
   }
 
@@ -196,7 +201,6 @@ export default function Spell() {
     if (next.length < round.word.length) {
       sfx.good()
       earn(1, point)
-      speak(letter, locale, { rate: 0.9 })
       return true
     }
     // Word complete.
@@ -207,17 +211,18 @@ export default function Spell() {
       speak(round.word, locale)
     }, 220)
     if (inSet + 1 >= SET_SIZE) {
-      const stars = hintsUsed.current === 0 ? 3 : hintsUsed.current <= 2 ? 2 : 1
+      const stars = hintsUsed.current === 0 ? 3 : hintsUsed.current <= 3 ? 2 : 1
       hintsUsed.current = 0
       setTimeout(() => award(stars, { praise: t('praise'), count: 16 + round.tier * 4 }), 600)
     }
     return true
   }
 
-  /** 💡 fills in the next letter — free, and always available. */
+  /** 💡 fills in the next letter. Three per word, then it waits for the next one. */
   function hint(e) {
-    if (done) return
+    if (done || hintsLeft <= 0) return
     const letter = round.word[typed.length]
+    setHintsLeft((n) => n - 1)
     hintsUsed.current += 1
     sfx.pop()
     const tile = round.bank.find((b) => b.letter === letter && !used.has(b.id))
@@ -292,8 +297,12 @@ export default function Spell() {
             {t('next')} →
           </button>
         ) : (
-          <button className="btn btn--ghost" onClick={hint}>
-            💡 {t('hint')}
+          <button
+            className={`btn btn--ghost spell__hint ${hintsLeft <= 0 ? 'is-spent' : ''}`}
+            onClick={hint}
+            disabled={hintsLeft <= 0}
+          >
+            💡 {t('hint')} <span className="spell__hint-left">{hintsLeft}</span>
           </button>
         )}
       </div>

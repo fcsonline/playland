@@ -46,7 +46,7 @@ export const WORDS = {
     ],
     [
       W('PERRO', '🐶'), W('LIBRO', '📚'), W('PLAYA', '🏖️'), W('QUESO', '🧀'), W('CABRA', '🐐'),
-      W('CIELO', '☁️'), W('PIZZA', '🍕'), W('GLOBO', '🎈'), W('SILLA', '🪑'), W('BOTAS', '👢'),
+      W('FRESA', '🍓'), W('PIZZA', '🍕'), W('GLOBO', '🎈'), W('SILLA', '🪑'), W('BOTAS', '👢'),
       W('COCHE', '🚗'), W('LECHE', '🥛'),
     ],
     [
@@ -58,22 +58,22 @@ export const WORDS = {
   ca: [
     [
       W('GAT', '🐱'), W('GOS', '🐶'), W('SOL', '☀️'), W('MAR', '🌊'), W('NEU', '❄️'),
-      W('ULL', '👁️'), W('NAS', '👃'), W('PEU', '🦶'), W('NIT', '🌙'), W('CEL', '☁️'),
+      W('ULL', '👁️'), W('NAS', '👃'), W('PEU', '🦶'), W('SAC', '🎒'), W('BOU', '🐂'),
     ],
     [
       W('PEIX', '🐟'), W('FLOR', '🌸'), W('CASA', '🏠'), W('VACA', '🐮'), W('POMA', '🍎'),
       W('PORC', '🐷'), W('LLUM', '💡'), W('MOTO', '🏍️'), W('LLIT', '🛏️'), W('PERA', '🍐'),
-      W('TREN', '🚂'),
+      W('TREN', '🚂'), W('SERP', '🐍'),
     ],
     [
-      W('LLUNA', '🌙'), W('OCELL', '🐦'), W('ARBRE', '🌳'), W('PLATJA', '🏖️'), W('TAULA', '🪑'),
+      W('LLUNA', '🌙'), W('OCELL', '🐦'), W('ARBRE', '🌳'), W('PLATJA', '🏖️'), W('CADIRA', '🪑'),
       W('PIZZA', '🍕'), W('CAVALL', '🐴'), W('ABELLA', '🐝'), W('CONILL', '🐰'),
       W('PILOTA', '⚽'), W('SABATA', '👟'),
     ],
     [
       W('TORTUGA', '🐢'), W('ELEFANT', '🐘'), W('TARONJA', '🍊'), W('FINESTRA', '🪟'),
-      W('ESTRELLA', '⭐'), W('GUITARRA', '🎸'), W('PAPALLONA', '🦋'), W('SERPENT', '🐍'),
-      W('FORMATGE', '🧀'), W('BALENA', '🐳'),
+      W('ESTRELLA', '⭐'), W('GUITARRA', '🎸'), W('PAPALLONA', '🦋'), W('FORMATGE', '🧀'),
+      W('BALENA', '🐳'), W('MUNTANYA', '⛰️'),
     ],
   ],
   fr: [
@@ -91,8 +91,9 @@ export const WORDS = {
     ],
     [
       W('SOLEIL', '☀️'), W('POISSON', '🐟'), W('MAISON', '🏠'), W('CANARD', '🦆'),
-      W('BALLON', '🎈'), W('GUITARE', '🎸'), W('TORTUE', '🐢'), W('ELEPHANT', '🐘'),
+      W('BALLON', '🎈'), W('GUITARE', '🎸'), W('TORTUE', '🐢'), W('CHEVAL', '🐴'),
       W('PAPILLON', '🦋'), W('VOITURE', '🚗'), W('ORANGE', '🍊'), W('GRENOUILLE', '🐸'),
+      W('BATEAU', '🚢'), W('MOUTON', '🐑'),
     ],
   ],
 }

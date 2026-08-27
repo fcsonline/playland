@@ -333,6 +333,14 @@ export const GAMES = [
     tagline: 'Drag the words to finish the sentence!',
     isNew: true,
   },
+  {
+    id: 'spell',
+    title: 'Spell It!',
+    emoji: '🔤',
+    colors: ['#f7797d', '#c471ed'],
+    tagline: 'Listen to the word and write it!',
+    isNew: true,
+  },
 ]
 
 /**
@@ -385,6 +393,7 @@ export const GAME_AGES = {
   domino: '6-8',
   blocks: '6-8',
   sentence: '6-8',
+  spell: '6-8',
 }
 
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
@@ -433,6 +442,7 @@ export const GAME_COMPONENTS = {
   bubbles: lazy(() => import('./bubbles/index.jsx')),
   merge: lazy(() => import('./merge/index.jsx')),
   sentence: lazy(() => import('./sentence/index.jsx')),
+  spell: lazy(() => import('./spell/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

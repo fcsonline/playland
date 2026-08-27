@@ -398,6 +398,44 @@ export const GAME_ART = {
   ),
 
   // Word Search — a glossy letter grid with one "found" word highlighted.
+  // Spell It! — a speaker calling out a word onto a card of letter lines.
+  spell: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <linearGradient id="spCard" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#e9edf6" />
+        </linearGradient>
+        <linearGradient id="spSpeaker" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#b388ff" />
+          <stop offset="1" stopColor="#6c5ce7" />
+        </linearGradient>
+        <linearGradient id="spLine" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#ffc46b" />
+          <stop offset="1" stopColor="#ff8a5c" />
+        </linearGradient>
+      </defs>
+      {/* the card the word is written on */}
+      <rect x="9" y="34" width="82" height="54" rx="14" fill="url(#spCard)" />
+      <rect x="15" y="39" width="70" height="9" rx="4.5" fill="#ffffff" opacity="0.7" />
+      {/* two letters written, one line still blank */}
+      <g fontFamily="inherit" fontWeight="900" fontSize="20" textAnchor="middle" fill="#6c5ce7">
+        <text x="27" y="72">S</text>
+        <text x="50" y="72">U</text>
+      </g>
+      <rect x="17" y="76" width="20" height="5" rx="2.5" fill="url(#spLine)" />
+      <rect x="40" y="76" width="20" height="5" rx="2.5" fill="url(#spLine)" />
+      <rect x="63" y="76" width="20" height="5" rx="2.5" fill="#c9cfe0" />
+      {/* speaker box + cone */}
+      <rect x="16" y="12" width="14" height="16" rx="5" fill="url(#spSpeaker)" />
+      <path d="M28 20 46 8v24z" fill="url(#spSpeaker)" />
+      <rect x="19" y="14.5" width="4" height="7" rx="2" fill="#ffffff" opacity="0.4" />
+      {/* sound waves */}
+      <path d="M53 12a12 12 0 0 1 0 16" fill="none" stroke="#ff8a5c" strokeWidth="5" strokeLinecap="round" />
+      <path d="M62 6a22 22 0 0 1 0 28" fill="none" stroke="#ffc46b" strokeWidth="5" strokeLinecap="round" />
+    </svg>
+  ),
+
   wordsearch: () => (
     <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
       <defs>

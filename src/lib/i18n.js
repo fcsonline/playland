@@ -92,6 +92,7 @@ export const TITLES = {
     bubbles: 'Bubble Pop',
     merge: 'Fruit Merge',
     sentence: 'Sentence Builder',
+    spell: 'Spell It!',
   },
   es: {
     coloring: 'Estudio de Color',
@@ -138,6 +139,7 @@ export const TITLES = {
     bubbles: 'Revienta Burbujas',
     merge: 'Une Frutas',
     sentence: 'Completa la Frase',
+    spell: 'Escribe la Palabra',
   },
   ca: {
     coloring: 'Estudi de Color',
@@ -184,6 +186,7 @@ export const TITLES = {
     bubbles: 'Rebenta Bombolles',
     merge: 'Uneix Fruites',
     sentence: 'Completa la Frase',
+    spell: 'Escriu la Paraula',
   },
   fr: {
     coloring: 'Atelier de Coloriage',
@@ -230,6 +233,7 @@ export const TITLES = {
     bubbles: 'Bulles à Éclater',
     merge: 'Fusion de Fruits',
     sentence: 'Complète la Phrase',
+    spell: 'Écris le Mot',
   },
 }
 

@@ -1,6 +1,6 @@
 # 🎈 Kids Playland
 
-A stress-free collection of **19 mini games for children aged 3–8**. There are no
+A stress-free collection of **44 mini games for children aged 3–8**. There are no
 game-over screens, no timers, and no penalties — every tap produces a happy,
 rewarding outcome. Built with **React + Vite**, fully **offline-first** (all art is
 emoji / CSS / inline SVG, all sound is synthesized — there are no asset files).
@@ -66,6 +66,7 @@ src/
     GameFrame.jsx         # header, back button, live wallet, game gradient
     Stars.jsx             # 0–3 mastery display
   screens/Home.jsx        # responsive CSS-grid of lazy-loaded game cards
+                          #   (optionally grouped into categories — a setting)
   games/
     registry.js           # the catalogue (metadata + lazy components)
     <id>/index.jsx        # one folder per game (code-split chunk)

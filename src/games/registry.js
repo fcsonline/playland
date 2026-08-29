@@ -160,13 +160,6 @@ export const GAMES = [
     tagline: 'Fill in the picture tiles',
   },
   {
-    id: 'candy',
-    title: 'Sweet Match',
-    emoji: '🍬',
-    colors: ['#ff6ec4', '#7873f5'],
-    tagline: 'Match three candies',
-  },
-  {
     id: 'connect4',
     title: 'Four in a Row',
     emoji: '🔴',
@@ -369,7 +362,6 @@ export const GAME_AGES = {
   aquarium: '3-5',
   music: 'all',
   mosaic: 'all',
-  candy: 'all',
   connect4: '6-8',
   count: '6-8',
   whack: '3-5',
@@ -396,6 +388,72 @@ export const GAME_AGES = {
   spell: '6-8',
 }
 
+/**
+ * Optional catalogue grouping (the "Group by category" setting, off by
+ * default). `CATEGORIES` is the display order; `GAME_CATEGORIES` maps a game id
+ * to one of those keys. Home falls back to 'puzzles' for anything unlisted, so
+ * a new game always shows up somewhere even before it is filed here.
+ */
+export const CATEGORIES = [
+  { id: 'words', emoji: '🔤' },
+  { id: 'numbers', emoji: '🔢' },
+  { id: 'puzzles', emoji: '🧩' },
+  { id: 'create', emoji: '🎨' },
+  { id: 'action', emoji: '🏃' },
+]
+
+export const GAME_CATEGORIES = {
+  // 🔤 letters, reading and writing
+  spell: 'words',
+  sentence: 'words',
+  wordsearch: 'words',
+  trace: 'words',
+  // 🔢 counting and arithmetic
+  math: 'numbers',
+  mathquiz: 'numbers',
+  mathtiles: 'numbers',
+  count: 'numbers',
+  compare: 'numbers',
+  // 🧩 thinking, matching and building
+  puzzle: 'puzzles',
+  memory: 'puzzles',
+  maze: 'puzzles',
+  mosaic: 'puzzles',
+  tictactoe: 'puzzles',
+  connect4: 'puzzles',
+  domino: 'puzzles',
+  blocks: 'puzzles',
+  simon: 'puzzles',
+  cups: 'puzzles',
+  shapes: 'puzzles',
+  train: 'puzzles',
+  // 🎨 making things and calm play
+  coloring: 'create',
+  music: 'create',
+  aquarium: 'create',
+  popit: 'create',
+  bubbles: 'create',
+  balloon: 'create',
+  doctor: 'create',
+  coaster: 'create',
+  // 🏃 quick hands and reflexes
+  merge: 'action',
+  racing: 'action',
+  frog: 'action',
+  slice: 'action',
+  dino: 'action',
+  pong: 'action',
+  butterfly: 'action',
+  whack: 'action',
+  stack: 'action',
+  crossy: 'action',
+  flight: 'action',
+  cannon: 'action',
+  golf: 'action',
+  bricks: 'action',
+  worm: 'action',
+}
+
 // Lazy component map, keyed by id. Code-split so the home screen stays light.
 export const GAME_COMPONENTS = {
   coloring: lazy(() => import('./coloring/index.jsx')),
@@ -411,7 +469,6 @@ export const GAME_COMPONENTS = {
   mosaic: lazy(() => import('./mosaic/index.jsx')),
   dino: lazy(() => import('./dino/index.jsx')),
   pong: lazy(() => import('./pong/index.jsx')),
-  candy: lazy(() => import('./candy/index.jsx')),
   connect4: lazy(() => import('./connect4/index.jsx')),
   count: lazy(() => import('./count/index.jsx')),
   math: lazy(() => import('./math/index.jsx')),

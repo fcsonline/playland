@@ -121,6 +121,18 @@ export default function Splash({ onDone }) {
               </button>
             </div>
 
+            <div className="splash__group splash__group--row">
+              <span className="splash__label">{t('categories')}</span>
+              <button
+                className={`splash__toggle ${settings.categories ? 'is-on' : ''}`}
+                onClick={() => setSettings({ categories: !settings.categories })}
+                aria-pressed={settings.categories}
+                aria-label={t('toggleCategories')}
+              >
+                <span className="splash__toggle-knob" />
+              </button>
+            </div>
+
             {fullscreenSupported() && (
               <div className="splash__group splash__group--row">
                 <span className="splash__label">{t('fullScreen')}</span>

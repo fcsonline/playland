@@ -23,16 +23,20 @@ import './spell.css'
  *  - ⌨️ ABC  — the whole A–Z keyboard, real spelling from scratch.
  *
  * No-fail: a wrong letter never lands, it just wiggles; there is no counter of
- * mistakes and no timer. 💡 reveals the next letter, up to three times per word
- * (the allowance refills with every new word) so the child still does most of
- * the writing. Only whole words are ever spoken — never letter by letter.
+ * mistakes and no timer. 💡 reveals the next letter, allowed a quarter of the
+ * word's length per word (at least once, refilled with every new word), so the
+ * child still writes most of it. Only whole words are ever spoken — never
+ * letter by letter.
  * Word length grows with the persisted level (3 letters → 6+), five words make
  * a set, and every set ends in a confetti cheer.
  */
 
 const ALPHA = 'ABCDEFGHIJKLMNOPQRSTUVWXYZ'
 const SET_SIZE = 5 // words per celebrated set
-const HINT_LIMIT = 3 // 💡 taps allowed per word (refilled with every new word)
+// 💡 taps allowed on a word: a quarter of its letters (never fewer than one),
+// so a short word gets a single nudge and a long one a few. Refilled with
+// every new word.
+const hintsFor = (word) => Math.max(1, Math.round(word.length / 4))
 const WORDS_PER_TIER = 8 // words solved before longer words show up
 
 const STR = {
@@ -119,7 +123,7 @@ export default function Spell() {
   const [wrongId, setWrongId] = useState(null) // key that just wiggled
   const [done, setDone] = useState(false)
   const [inSet, setInSet] = useState(0) // position in the current set of 5
-  const [hintsLeft, setHintsLeft] = useState(HINT_LIMIT) // 💡 taps left on this word
+  const [hintsLeft, setHintsLeft] = useState(() => hintsFor(round.word)) // 💡 left on this word
   const hintsUsed = useRef(0) // hints spent across the current set (sets the rating)
 
   // Voices load asynchronously (and some devices ship none at all), so assume
@@ -145,10 +149,11 @@ export default function Spell() {
 
   function deal(nextLevel) {
     recent.current = [round.word, ...recent.current].slice(0, 8)
-    setRound(makeRound(locale, nextLevel, recent.current))
+    const next = makeRound(locale, nextLevel, recent.current)
+    setRound(next)
     setTyped([])
     setUsed(new Set())
-    setHintsLeft(HINT_LIMIT)
+    setHintsLeft(hintsFor(next.word))
     setDone(false)
   }
 
@@ -211,7 +216,8 @@ export default function Spell() {
       speak(round.word, locale)
     }, 220)
     if (inSet + 1 >= SET_SIZE) {
-      const stars = hintsUsed.current === 0 ? 3 : hintsUsed.current <= 3 ? 2 : 1
+      // Hint-free set → 3 stars; about one hint a word → 2; more → 1.
+      const stars = hintsUsed.current === 0 ? 3 : hintsUsed.current <= SET_SIZE ? 2 : 1
       hintsUsed.current = 0
       setTimeout(() => award(stars, { praise: t('praise'), count: 16 + round.tier * 4 }), 600)
     }

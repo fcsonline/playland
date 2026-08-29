@@ -1,6 +1,6 @@
 # 🎈 Kids Playland
 
-A stress-free collection of **44 mini games for children aged 3–8**. There are no
+A stress-free collection of **45 mini games for children aged 3–8**. There are no
 game-over screens, no timers, and no penalties — every tap produces a happy,
 rewarding outcome. Built with **React + Vite**, fully **offline-first** (all art is
 emoji / CSS / inline SVG, all sound is synthesized — there are no asset files).

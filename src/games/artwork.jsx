@@ -436,6 +436,54 @@ export const GAME_ART = {
     </svg>
   ),
 
+  // Perfect Fit — a deep frame with pieces seated in it, one still coming in.
+  fit: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <linearGradient id="ftFrame" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#5a4b9c" />
+          <stop offset="1" stopColor="#332b63" />
+        </linearGradient>
+        <linearGradient id="ftPink" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffa3bf" />
+          <stop offset="1" stopColor="#f8557f" />
+        </linearGradient>
+        <linearGradient id="ftSun" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffd782" />
+          <stop offset="1" stopColor="#f7a723" />
+        </linearGradient>
+        <linearGradient id="ftGreen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#8ce8bd" />
+          <stop offset="1" stopColor="#2fb383" />
+        </linearGradient>
+      </defs>
+      {/* the frame, with its empty sockets showing */}
+      <rect x="10" y="16" width="66" height="66" rx="13" fill="url(#ftFrame)" />
+      <g fill="#241d4d" opacity="0.55">
+        <rect x="17" y="45" width="14" height="14" rx="3.5" />
+        <rect x="33" y="45" width="14" height="14" rx="3.5" />
+        <rect x="17" y="61" width="14" height="14" rx="3.5" />
+        <rect x="33" y="61" width="14" height="14" rx="3.5" />
+        <rect x="49" y="61" width="14" height="14" rx="3.5" />
+      </g>
+      {/* pink piece seated across the top */}
+      <path d="M17 26.5a3.5 3.5 0 0 1 3.5-3.5H43a3.5 3.5 0 0 1 3.5 3.5v9A3.5 3.5 0 0 1 43 39H20.5a3.5 3.5 0 0 1-3.5-3.5z" fill="url(#ftPink)" />
+      <rect x="20" y="26" width="12" height="3.5" rx="1.75" fill="#ffffff" opacity="0.45" />
+      {/* amber square in the corner */}
+      <rect x="49" y="23" width="14" height="16" rx="3.5" fill="url(#ftSun)" />
+      <rect x="52" y="26" width="7" height="3.5" rx="1.75" fill="#ffffff" opacity="0.45" />
+      {/* amber column down the right of the frame */}
+      <rect x="49" y="45" width="14" height="14" rx="3.5" fill="url(#ftSun)" opacity="0.95" />
+      {/* the green piece still on its way in, bottom-right, clear of the ribbon */}
+      <g>
+        <rect x="60" y="70" width="16" height="16" rx="4" fill="url(#ftGreen)" />
+        <rect x="76" y="70" width="16" height="16" rx="4" fill="url(#ftGreen)" />
+        <rect x="76" y="54" width="16" height="16" rx="4" fill="url(#ftGreen)" />
+        <rect x="63" y="73" width="7" height="3.5" rx="1.75" fill="#ffffff" opacity="0.5" />
+      </g>
+    </svg>
+  ),
+
   wordsearch: () => (
     <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
       <defs>

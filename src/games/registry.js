@@ -334,6 +334,14 @@ export const GAMES = [
     tagline: 'Listen to the word and write it!',
     isNew: true,
   },
+  {
+    id: 'fit',
+    title: 'Perfect Fit',
+    emoji: '🟪',
+    colors: ['#5ee7df', '#66a6ff'],
+    tagline: 'Fit all five pieces into the frame!',
+    isNew: true,
+  },
 ]
 
 /**
@@ -386,6 +394,7 @@ export const GAME_AGES = {
   blocks: '6-8',
   sentence: '6-8',
   spell: '6-8',
+  fit: 'all',
 }
 
 /**
@@ -427,6 +436,7 @@ export const GAME_CATEGORIES = {
   cups: 'puzzles',
   shapes: 'puzzles',
   train: 'puzzles',
+  fit: 'puzzles',
   // 🎨 making things and calm play
   coloring: 'create',
   music: 'create',
@@ -500,6 +510,7 @@ export const GAME_COMPONENTS = {
   merge: lazy(() => import('./merge/index.jsx')),
   sentence: lazy(() => import('./sentence/index.jsx')),
   spell: lazy(() => import('./spell/index.jsx')),
+  fit: lazy(() => import('./fit/index.jsx')),
 }
 
 export const GAME_BY_ID = Object.fromEntries(GAMES.map((g) => [g.id, g]))

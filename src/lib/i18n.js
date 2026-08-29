@@ -92,6 +92,7 @@ export const TITLES = {
     merge: 'Fruit Merge',
     sentence: 'Sentence Builder',
     spell: 'Spell It!',
+    fit: 'Perfect Fit',
   },
   es: {
     coloring: 'Estudio de Color',
@@ -138,6 +139,7 @@ export const TITLES = {
     merge: 'Une Frutas',
     sentence: 'Completa la Frase',
     spell: 'Escribe la Palabra',
+    fit: 'Encaja las Piezas',
   },
   ca: {
     coloring: 'Estudi de Color',
@@ -184,6 +186,7 @@ export const TITLES = {
     merge: 'Uneix Fruites',
     sentence: 'Completa la Frase',
     spell: 'Escriu la Paraula',
+    fit: 'Encaixa les Peces',
   },
   fr: {
     coloring: 'Atelier de Coloriage',
@@ -230,6 +233,7 @@ export const TITLES = {
     merge: 'Fusion de Fruits',
     sentence: 'Complète la Phrase',
     spell: 'Écris le Mot',
+    fit: 'Pièces Parfaites',
   },
 }
 

@@ -92,13 +92,18 @@ function cut(rows, cols, sizes) {
   return free.size === 0 ? owner : null
 }
 
-/** A piece: its cell offsets normalized to (0,0), plus the size of its box. */
+/**
+ * A piece: its cell offsets normalized to (0,0), the size of its box, and
+ * `solution` — the spot on the board it was cut from. The game only reads the
+ * solution to ghost one piece in place when a child clears the board.
+ */
 function shapeOf(cells) {
   const minR = Math.min(...cells.map(([r]) => r))
   const minC = Math.min(...cells.map(([, c]) => c))
   const offsets = cells.map(([r, c]) => [r - minR, c - minC])
   return {
     cells: offsets,
+    solution: [minR, minC],
     rows: Math.max(...offsets.map(([r]) => r)) + 1,
     cols: Math.max(...offsets.map(([, c]) => c)) + 1,
   }

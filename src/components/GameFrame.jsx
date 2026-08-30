@@ -15,10 +15,20 @@ import './GameFrame.css'
 export default function GameFrame({ gameId, onBack }) {
   const meta = GAME_BY_ID[gameId]
   const Game = GAME_COMPONENTS[gameId]
-  const { wallet, earn, recordMastery } = useProgress()
+  const { wallet, earn, recordMastery, recordPlay } = useProgress()
   const { popStars, cheer, oops } = useReward()
   const t = useUI()
   const title = useTitle()
+
+  // Count this open in the play history the Stats panel shows. Guarded by a
+  // ref so a remount of the same game (StrictMode's double-invoke in dev, or a
+  // chunk-load retry) counts once, not twice.
+  const countedRef = useRef(null)
+  useEffect(() => {
+    if (countedRef.current === gameId) return
+    countedRef.current = gameId
+    recordPlay(gameId)
+  }, [gameId, recordPlay])
 
   // Auto-close a game after 2 minutes with no taps or key presses, so a kid who
   // wandered off gently lands back on the games grid instead of a stuck screen.

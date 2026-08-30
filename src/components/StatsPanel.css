@@ -1,0 +1,105 @@
+.stats {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.stats__empty {
+  margin: 18px 4px;
+  text-align: center;
+  font-weight: 700;
+  color: var(--ink-soft);
+  line-height: 1.5;
+}
+
+/* Four headline numbers. */
+.stats__tiles {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 8px;
+}
+.stats__tile {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2px;
+  padding: 10px 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(108, 92, 231, 0.09);
+}
+.stats__value {
+  font-size: 1.35rem;
+  font-weight: 900;
+  color: var(--primary);
+  line-height: 1.1;
+}
+.stats__label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  text-align: center;
+}
+
+.stats__heading {
+  margin: 2px 0 0;
+  font-size: 0.8rem;
+  font-weight: 900;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--ink-soft);
+}
+
+/* The most-played games. */
+.stats__list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+.stats__row {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 7px 10px;
+  border-radius: var(--radius-sm);
+  background: rgba(108, 92, 231, 0.06);
+}
+.stats__emoji {
+  font-size: 1.1rem;
+  line-height: 1;
+}
+.stats__name {
+  flex: 1;
+  min-width: 0;
+  font-weight: 800;
+  font-size: 0.9rem;
+  color: var(--ink);
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+.stats__stars {
+  display: inline-flex;
+  flex-shrink: 0;
+}
+.stats__count {
+  flex-shrink: 0;
+  min-width: 1.9em;
+  padding: 2px 8px;
+  border-radius: 999px;
+  background: var(--primary);
+  color: var(--white);
+  font-size: 0.8rem;
+  font-weight: 900;
+  text-align: center;
+}
+
+.stats__foot {
+  margin: 0;
+  text-align: center;
+  font-size: 0.82rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+}

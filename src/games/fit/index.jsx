@@ -3,6 +3,7 @@ import { useGame } from '../../state/game.jsx'
 import { useProgress } from '../../state/progress.jsx'
 import { useT } from '../../lib/i18n.js'
 import { sfx } from '../../lib/audio.js'
+import { pick } from '../../lib/random.js'
 import { useDrag } from '../../lib/useDrag.js'
 import { makeLevel, TIERS } from './level.js'
 import './fit.css'
@@ -19,6 +20,11 @@ import './fit.css'
  * fits, red when it doesn't, and a drop that doesn't fit simply returns it to
  * the tray. A placed piece is never stuck: tapping it puts it back, as often as
  * the child likes, and ↺ clears the board in one go.
+ *
+ * Clearing the board is also the signal that a child is stuck, so whenever it
+ * empties out after having had pieces on it, one piece is ghosted at a quarter
+ * opacity in its right place — a leg-up to build from, matched to its colour in
+ * the tray, never a piece placed for them.
  *
  * The board grows with the persisted level — 4×4 (pieces of 3–4 cells), then
  * 5×4, 5×5 and 6×5 (pieces of 6) — three puzzles per step.
@@ -81,6 +87,7 @@ export default function Fit() {
   const [placed, setPlaced] = useState({}) // piece id -> [row, col] of its top-left
   const [drag, setDrag] = useState(null) // { id, grab: [r, c], x, y }
   const [preview, setPreview] = useState(null) // { origin: [r, c], valid }
+  const [ghost, setGhost] = useState(null) // id of the piece shown in place, if any
   const [done, setDone] = useState(false)
 
   // Square cells, whichever way the phone is held: measure the space the board
@@ -136,7 +143,16 @@ export default function Fit() {
     setPuzzle(makeLevel(tierFor(nextLevel)))
     setPlaced({})
     setPreview(null)
+    setGhost(null)
     setDone(false)
+  }
+
+  /**
+   * An emptied board means "I'm stuck": ghost one piece where it belongs. A
+   * fresh puzzle starts clean — this only ever follows pieces being taken off.
+   */
+  function offerGhost(pieces) {
+    setGhost((current) => (current != null ? current : pick(pieces).id))
   }
 
   function nextPuzzle() {
@@ -149,9 +165,10 @@ export default function Fit() {
 
   /** Put every piece back in the tray — the board is never a dead end. */
   function reset() {
-    if (done) return
+    if (done || !Object.keys(placed).length) return
     setPlaced({})
     setPreview(null)
+    offerGhost(puzzle.pieces)
     sfx.tap()
   }
 
@@ -159,16 +176,16 @@ export default function Fit() {
   function pickUp(id) {
     if (done) return
     sfx.pop()
-    setPlaced((prev) => {
-      const next = { ...prev }
-      delete next[id]
-      return next
-    })
+    const next = { ...placed }
+    delete next[id]
+    setPlaced(next)
+    if (!Object.keys(next).length) offerGhost(puzzle.pieces) // board emptied by hand
   }
 
   function place(piece, origin, point) {
     const next = { ...placed, [piece.id]: origin }
     setPlaced(next)
+    if (ghost === piece.id) setGhost(null)
     const filled = puzzle.pieces.reduce((n, p) => n + (next[p.id] ? p.cells.length : 0), 0)
     if (filled < puzzle.rows * puzzle.cols) {
       sfx.good()
@@ -241,6 +258,14 @@ export default function Fit() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [preview, drag, puzzle])
 
+  // The ghosted piece's home squares, drawn faintly until it is placed.
+  const ghostCells = useMemo(() => {
+    if (ghost == null || done) return null
+    const piece = puzzle.pieces.find((p) => p.id === ghost)
+    if (!piece || placed[piece.id]) return null
+    return new Set(piece.cells.map(([dr, dc]) => `${piece.solution[0] + dr},${piece.solution[1] + dc}`))
+  }, [ghost, placed, puzzle, done])
+
   const tray = puzzle.pieces.filter((p) => !placed[p.id])
   const dragPiece = drag ? pieceById(drag.id) : null
   const step = cellPx + GAP
@@ -269,14 +294,21 @@ export default function Fit() {
             const c = i % puzzle.cols
             const owner = occupancy.get(`${r},${c}`)
             const hint = previewCells?.set.has(`${r},${c}`)
+            const ghosted = ghostCells?.has(`${r},${c}`)
             return (
               <div
                 key={i}
                 data-cell={`${r},${c}`}
                 className={`fit__cell ${owner != null ? 'is-filled' : ''} ${
-                  hint ? (previewCells.valid ? 'is-ok' : 'is-no') : ''
+                  hint ? (previewCells.valid ? 'is-ok' : 'is-no') : ghosted ? 'is-ghosted' : ''
                 }`}
-                style={owner != null ? { '--piece': COLORS[pieceById(owner).color] } : undefined}
+                style={
+                  owner != null
+                    ? { '--piece': COLORS[pieceById(owner).color] }
+                    : ghosted
+                      ? { '--piece': COLORS[pieceById(ghost).color] }
+                      : undefined
+                }
                 onClick={() => owner != null && pickUp(owner)}
               />
             )

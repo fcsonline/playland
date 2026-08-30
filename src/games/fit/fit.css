@@ -83,19 +83,24 @@
   flex-wrap: wrap;
   align-items: center;
   justify-content: center;
-  gap: 14px;
-  padding: 10px 8px;
+  gap: 6px;
+  padding: 6px 4px;
   min-height: 76px;
   background: rgba(255, 255, 255, 0.45);
   border-radius: var(--radius-sm);
 }
 
+/* The padding is hit-slop, not decoration: a press anywhere in a piece's box
+   picks it up, so the box wants to be at least a fingertip across even for the
+   smallest piece. The tray's own gap gives that room back, so the pieces still
+   sit as far apart as they look. */
 .fit__piece {
-  --tcell: clamp(13px, 4.6vw, 22px);
+  --tcell: clamp(15px, 5.2vw, 26px);
   display: grid;
   grid-template-columns: repeat(var(--cols), var(--tcell));
   grid-template-rows: repeat(var(--rows), var(--tcell));
   gap: 2px;
+  padding: 8px;
   touch-action: none;
   cursor: grab;
 }
@@ -161,11 +166,12 @@
   }
   .fit__tray {
     min-height: 56px;
-    gap: 12px;
-    padding: 6px;
+    gap: 4px;
+    padding: 4px;
   }
   .fit__piece {
-    --tcell: clamp(12px, 4.4vh, 20px);
+    --tcell: clamp(14px, 5vh, 24px);
+    padding: 6px;
   }
   .fit__hint {
     font-size: 0.85rem;

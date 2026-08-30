@@ -205,9 +205,27 @@ export default function Fit() {
   // so hit-testing it is more reliable than recomputing its geometry here).
   function cellAt(x, y) {
     const el = document.elementFromPoint(x, y)
-    const target = el && el.closest('[data-cell]')
-    if (!target) return null
-    return target.dataset.cell.split(',').map(Number)
+    if (!el) return null
+    const target = el.closest('[data-cell]')
+    if (target) return target.dataset.cell.split(',').map(Number)
+    // Over the frame but between the squares: the gaps and the border padding
+    // are a few pixels of nothing, and landing on them should not throw the
+    // piece back to the tray. Take the nearest square instead.
+    const board = el.closest('.fit__board')
+    if (!board) return null
+    let nearest = null
+    let best = Infinity
+    for (const cell of board.querySelectorAll('[data-cell]')) {
+      const r = cell.getBoundingClientRect()
+      const dx = x - Math.max(r.left, Math.min(x, r.right))
+      const dy = y - Math.max(r.top, Math.min(y, r.bottom))
+      const d = dx * dx + dy * dy
+      if (d < best) {
+        best = d
+        nearest = cell
+      }
+    }
+    return nearest ? nearest.dataset.cell.split(',').map(Number) : null
   }
 
   const grabbed = useRef(null) // { id, grab: [r, c] } captured on pointerdown
@@ -242,9 +260,29 @@ export default function Fit() {
     },
   })
 
-  const startDrag = (id, grab) => (e) => {
+  /**
+   * Start a drag from anywhere on the piece's box — its lit squares, the notch
+   * of an L, the gaps in between. Small fingers aim at the middle of a piece,
+   * and the middle of an L is a hole, so making only the lit squares grabbable
+   * leaves a piece feeling like it dodges the finger. The square that ends up
+   * under the finger is simply the lit one nearest the press.
+   */
+  const startDrag = (piece) => (e) => {
     if (done) return
-    grabbed.current = { id, grab }
+    let grab = null
+    let best = Infinity
+    for (const bit of e.currentTarget.querySelectorAll('[data-bit]')) {
+      const r = bit.getBoundingClientRect()
+      const dx = e.clientX - (r.left + r.width / 2)
+      const dy = e.clientY - (r.top + r.height / 2)
+      const d = dx * dx + dy * dy
+      if (d < best) {
+        best = d
+        grab = bit.dataset.bit.split(',').map(Number)
+      }
+    }
+    if (!grab) return
+    grabbed.current = { id: piece.id, grab }
     onPointerDown(e)
   }
 
@@ -331,18 +369,13 @@ export default function Fit() {
               key={piece.id}
               className={`fit__piece ${drag && drag.id === piece.id ? 'is-dragging' : ''}`}
               style={{ '--cols': piece.cols, '--rows': piece.rows, '--piece': COLORS[piece.color] }}
+              onPointerDown={startDrag(piece)}
             >
               {Array.from({ length: piece.rows * piece.cols }, (_, i) => {
                 const r = Math.floor(i / piece.cols)
                 const c = i % piece.cols
                 const on = piece.cells.some(([pr, pc]) => pr === r && pc === c)
-                return (
-                  <div
-                    key={i}
-                    className={`fit__bit ${on ? 'is-on' : ''}`}
-                    onPointerDown={on ? startDrag(piece.id, [r, c]) : undefined}
-                  />
-                )
+                return <div key={i} className={`fit__bit ${on ? 'is-on' : ''}`} data-bit={on ? `${r},${c}` : undefined} />
               })}
             </div>
           ))}

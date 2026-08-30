@@ -103,3 +103,27 @@
   font-weight: 700;
   color: var(--ink-soft);
 }
+
+/* "Reset all progress" sits under the numbers it erases. */
+.stats__reset {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 8px;
+  padding-top: 10px;
+  border-top: 2px solid #f0eef8;
+}
+.stats__warn {
+  margin: 0;
+  text-align: center;
+  font-size: 0.8rem;
+  font-weight: 700;
+  color: #c0392b;
+  line-height: 1.4;
+}
+.stats__reset-buttons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  justify-content: center;
+}

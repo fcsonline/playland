@@ -176,8 +176,8 @@
 }
 
 /* One piece ghosted in its right place after the board is cleared — a leg-up
-   for a stuck child, faint enough that the puzzle is still theirs to solve. */
+   for a stuck child, barely there so the puzzle stays theirs to solve. */
 .fit__cell.is-ghosted {
-  background: color-mix(in srgb, var(--piece) 25%, rgba(255, 255, 255, 0.85));
-  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--piece) 45%, transparent);
+  background: color-mix(in srgb, var(--piece) 10%, rgba(255, 255, 255, 0.85));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--piece) 22%, transparent);
 }

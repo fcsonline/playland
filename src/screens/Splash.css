@@ -243,17 +243,20 @@
 .splash__update:disabled {
   opacity: 0.6;
 }
-.splash__update-hint {
-  font-size: 0.78rem;
-  font-weight: 700;
+.splash__update-what {
+  margin: 0 0 2px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  line-height: 1.45;
   color: var(--ink-soft);
   text-align: center;
 }
-
-.splash__reset-row {
-  padding-top: 6px;
-  border-top: 2px solid #f0eef8;
-  align-items: center;
+.splash__update-hint {
+  font-size: 0.76rem;
+  font-weight: 700;
+  color: var(--ink-soft);
+  opacity: 0.85;
+  text-align: center;
 }
 
 .splash__reset {

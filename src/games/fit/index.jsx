@@ -22,9 +22,9 @@ import './fit.css'
  * the child likes, and ↺ clears the board in one go.
  *
  * Clearing the board is also the signal that a child is stuck, so whenever it
- * empties out after having had pieces on it, one piece is ghosted at a quarter
- * opacity in its right place — a leg-up to build from, matched to its colour in
- * the tray, never a piece placed for them.
+ * empties out after having had pieces on it, one piece is ghosted very faintly
+ * in its right place — a leg-up to build from, matched to its colour in the
+ * tray, never a piece placed for them.
  *
  * The board grows with the persisted level — 4×4 (pieces of 3–4 cells), then
  * 5×4, 5×5 and 6×5 (pieces of 6) — three puzzles per step.

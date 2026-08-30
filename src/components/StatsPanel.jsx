@@ -1,3 +1,4 @@
+import { useState } from 'react'
 import { GAMES } from '../games/registry.js'
 import { useProgress } from '../state/progress.jsx'
 import { useTitle, useUI } from '../lib/i18n.js'
@@ -10,11 +11,44 @@ import './StatsPanel.css'
  * mastery, lifetime stars) — nothing is sent anywhere, and none of it changes
  * how the games behave. Before anything has been played it shows a friendly
  * nudge instead of a wall of zeros.
+ *
+ * "Reset all progress" lives here too, next to the numbers it wipes: stars,
+ * stats, card ratings and every game's difficulty level. It asks once before
+ * doing it.
  */
 export default function StatsPanel() {
-  const { plays, days, mastery, lifetime } = useProgress()
+  const { plays, days, mastery, lifetime, resetAll } = useProgress()
   const t = useUI()
   const title = useTitle()
+  const [confirmReset, setConfirmReset] = useState(false)
+
+  const reset = (
+    <div className="stats__reset">
+      {confirmReset ? (
+        <>
+          <p className="stats__warn">{t('resetWhat')}</p>
+          <div className="stats__reset-buttons">
+            <button
+              className="splash__chip splash__chip--danger"
+              onClick={() => {
+                resetAll()
+                setConfirmReset(false)
+              }}
+            >
+              {t('resetConfirm')}
+            </button>
+            <button className="splash__chip" onClick={() => setConfirmReset(false)}>
+              {t('resetCancel')}
+            </button>
+          </div>
+        </>
+      ) : (
+        <button className="splash__reset" onClick={() => setConfirmReset(true)}>
+          {t('resetProgress')}
+        </button>
+      )}
+    </div>
+  )
 
   const totalPlays = Object.values(plays).reduce((n, v) => n + v, 0)
   const tried = Object.keys(plays).length
@@ -25,7 +59,13 @@ export default function StatsPanel() {
     .sort((a, b) => b[1] - a[1])
     .slice(0, 5)
 
-  if (!totalPlays) return <p className="stats__empty">{t('statsEmpty')}</p>
+  if (!totalPlays)
+    return (
+      <div className="stats">
+        <p className="stats__empty">{t('statsEmpty')}</p>
+        {reset}
+      </div>
+    )
 
   const tile = (value, label) => (
     <div className="stats__tile" key={label}>
@@ -64,7 +104,8 @@ export default function StatsPanel() {
         })}
       </ul>
 
-      <p className="stats__foot">{t('statMastered', { n: mastered })}</p>
+      <p className="stats__foot">{t(mastered === 1 ? 'statMastered1' : 'statMastered', { n: mastered })}</p>
+      {reset}
     </div>
   )
 }

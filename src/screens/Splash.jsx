@@ -2,7 +2,6 @@ import { useRef, useState } from 'react'
 import { enterFullscreen, fullscreenSupported } from '../lib/fullscreen.js'
 import { useSettings, setSettings, AGE_OPTIONS, LOCALE_OPTIONS } from '../lib/settings.js'
 import { useUI } from '../lib/i18n.js'
-import { useProgress } from '../state/progress.jsx'
 import StatsPanel from '../components/StatsPanel.jsx'
 import { forceUpdate } from '../lib/update.js'
 import { startMusic } from '../lib/audio.js'
@@ -19,22 +18,20 @@ const WELCOME_SRC = import.meta.env.BASE_URL + 'logo.webp'
  *
  * The panel has two tabs: Settings, whose controls are grouped under Player /
  * Sound / Screen / App headings so the list reads as four short blocks instead
- * of one long column, and Stats, which shows what the family has played.
+ * of one long column, and Stats, which shows what the family has played and
+ * holds the button that erases it all.
  */
 export default function Splash({ onDone }) {
   const cb = useRef(onDone)
   cb.current = onDone
   const settings = useSettings()
   const t = useUI()
-  const { resetAll } = useProgress()
   const [showSettings, setShowSettings] = useState(false)
   const [tab, setTab] = useState('settings')
   const [updating, setUpdating] = useState(false)
-  const [confirmReset, setConfirmReset] = useState(false)
 
   function openSettings() {
     setTab('settings')
-    setConfirmReset(false)
     setShowSettings(true)
   }
 
@@ -189,6 +186,7 @@ export default function Splash({ onDone }) {
             <h3 className="splash__section">{t('secApp')}</h3>
 
             <div className="splash__group splash__update-row">
+              <p className="splash__update-what">{t('updateWhat')}</p>
               <button
                 className="splash__update"
                 onClick={update}
@@ -197,29 +195,6 @@ export default function Splash({ onDone }) {
                 <span aria-hidden="true">↻</span> {updating ? t('updating') : t('update')}
               </button>
               <span className="splash__update-hint">{t('updateHint')}</span>
-            </div>
-
-            <div className="splash__group splash__reset-row">
-              {confirmReset ? (
-                <div className="splash__chips">
-                  <button
-                    className="splash__chip splash__chip--danger"
-                    onClick={() => { resetAll(); setConfirmReset(false) }}
-                  >
-                    {t('resetConfirm')}
-                  </button>
-                  <button
-                    className="splash__chip"
-                    onClick={() => setConfirmReset(false)}
-                  >
-                    {t('resetCancel')}
-                  </button>
-                </div>
-              ) : (
-                <button className="splash__reset" onClick={() => setConfirmReset(true)}>
-                  {t('resetProgress')}
-                </button>
-              )}
             </div>
             </>
             )}

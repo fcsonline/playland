@@ -268,7 +268,7 @@ export default function Fit() {
    * under the finger is simply the lit one nearest the press.
    */
   const startDrag = (piece) => (e) => {
-    if (done) return
+    if (done || placed[piece.id]) return
     let grab = null
     let best = Infinity
     for (const bit of e.currentTarget.querySelectorAll('[data-bit]')) {
@@ -304,7 +304,6 @@ export default function Fit() {
     return new Set(piece.cells.map(([dr, dc]) => `${piece.solution[0] + dr},${piece.solution[1] + dc}`))
   }, [ghost, placed, puzzle, done])
 
-  const tray = puzzle.pieces.filter((p) => !placed[p.id])
   const dragPiece = drag ? pieceById(drag.id) : null
   const step = cellPx + GAP
 
@@ -356,31 +355,39 @@ export default function Fit() {
 
       <p className="fit__hint">{done ? t('solved') : t('hint')}</p>
 
-      {done ? (
-        <div className="fit__footer">
-          <button className="btn btn--good" onClick={nextPuzzle}>
-            {t('next')} →
-          </button>
-        </div>
-      ) : (
-        <div className="fit__tray">
-          {tray.map((piece) => (
-            <div
-              key={piece.id}
-              className={`fit__piece ${drag && drag.id === piece.id ? 'is-dragging' : ''}`}
-              style={{ '--cols': piece.cols, '--rows': piece.rows, '--piece': COLORS[piece.color] }}
-              onPointerDown={startDrag(piece)}
-            >
-              {Array.from({ length: piece.rows * piece.cols }, (_, i) => {
-                const r = Math.floor(i / piece.cols)
-                const c = i % piece.cols
-                const on = piece.cells.some(([pr, pc]) => pr === r && pc === c)
-                return <div key={i} className={`fit__bit ${on ? 'is-on' : ''}`} data-bit={on ? `${r},${c}` : undefined} />
-              })}
-            </div>
-          ))}
-        </div>
-      )}
+      {/* Every piece keeps its slot for the whole puzzle — a placed one turns
+          invisible rather than leaving the tray, and the finished puzzle's
+          button sits on top of the tray instead of replacing it. So the tray
+          is exactly one size from the first piece to the last, the board it
+          leaves room for never resizes under the child's finger, and the
+          pieces still waiting stay put instead of sliding to a new spot after
+          every drop. */}
+      <div className="fit__tray">
+        {puzzle.pieces.map((piece) => (
+          <div
+            key={piece.id}
+            className={`fit__piece ${placed[piece.id] ? 'is-placed' : ''} ${
+              drag && drag.id === piece.id ? 'is-dragging' : ''
+            }`}
+            style={{ '--cols': piece.cols, '--rows': piece.rows, '--piece': COLORS[piece.color] }}
+            onPointerDown={startDrag(piece)}
+          >
+            {Array.from({ length: piece.rows * piece.cols }, (_, i) => {
+              const r = Math.floor(i / piece.cols)
+              const c = i % piece.cols
+              const on = piece.cells.some(([pr, pc]) => pr === r && pc === c)
+              return <div key={i} className={`fit__bit ${on ? 'is-on' : ''}`} data-bit={on ? `${r},${c}` : undefined} />
+            })}
+          </div>
+        ))}
+        {done && (
+          <div className="fit__footer">
+            <button className="btn btn--good" onClick={nextPuzzle}>
+              {t('next')} →
+            </button>
+          </div>
+        )}
+      </div>
 
       {/* The piece riding the finger, drawn at board scale so it reads as the
           thing about to land in the squares underneath. */}

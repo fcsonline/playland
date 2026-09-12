@@ -1,7 +1,7 @@
 import { useMemo, useRef, useState } from 'react'
 import { useGame } from '../../state/game.jsx'
 import { useDrag } from '../../lib/useDrag.js'
-import { pick } from '../../lib/random.js'
+import { shuffle } from '../../lib/random.js'
 import { sfx } from '../../lib/audio.js'
 import { useT } from '../../lib/i18n.js'
 import { PICTURES, COLORS, PALETTE } from './pictures.js'
@@ -15,10 +15,6 @@ const STR = {
     eraser: 'eraser',
     beautiful: 'Beautiful! 🎉',
     next: 'Next ➡️',
-    picHeart: '❤️ Heart',
-    picStar: '⭐ Star',
-    picSmiley: '😊 Smiley',
-    picFlower: '🌸 Flower',
   },
   es: {
     copyThis: 'Copia esto',
@@ -27,10 +23,6 @@ const STR = {
     eraser: 'goma',
     beautiful: '¡Precioso! 🎉',
     next: 'Siguiente ➡️',
-    picHeart: '❤️ Corazón',
-    picStar: '⭐ Estrella',
-    picSmiley: '😊 Carita',
-    picFlower: '🌸 Flor',
   },
   ca: {
     copyThis: 'Copia això',
@@ -39,10 +31,6 @@ const STR = {
     eraser: 'goma',
     beautiful: 'Preciós! 🎉',
     next: 'Següent ➡️',
-    picHeart: '❤️ Cor',
-    picStar: '⭐ Estrella',
-    picSmiley: '😊 Cara',
-    picFlower: '🌸 Flor',
   },
   fr: {
     copyThis: 'Copie ceci',
@@ -51,21 +39,19 @@ const STR = {
     eraser: 'gomme',
     beautiful: 'Magnifique ! 🎉',
     next: 'Suivant ➡️',
-    picHeart: '❤️ Cœur',
-    picStar: '⭐ Étoile',
-    picSmiley: '😊 Smiley',
-    picFlower: '🌸 Fleur',
   },
 }
 
 // Sentinel "color" for the eraser tool (clears a cell instead of painting it).
 const ERASE = 'erase'
 
-// Pick a random picture index, avoiding an immediate repeat of `avoid`.
-function randomPicIdx(avoid = -1) {
-  const choices = PICTURES.map((_, i) => i).filter((i) => i !== avoid)
-  return pick(choices.length ? choices : PICTURES.map((_, i) => i))
-}
+/**
+ * Pictures come out of a shuffled deck rather than a fresh random draw, so the
+ * child works through every one of them before any comes round again. Drawing
+ * at random only skipping the last one means, over a session, the same few
+ * keep reappearing while others go unseen for ages.
+ */
+const freshDeck = () => shuffle(PICTURES.map((_, i) => i))
 
 // All cells that need a color (non-empty in the reference).
 function targetCells(pic) {
@@ -82,8 +68,8 @@ export default function MosaicArt() {
   const { earn, award } = useGame()
   const t = useT(STR)
 
-  // Start on a random picture; the child never chooses.
-  const [picIdx, setPicIdx] = useState(() => randomPicIdx())
+  // Start anywhere in the deck; the child never chooses.
+  const [deck, setDeck] = useState(freshDeck)
   const [color, setColor] = useState('r')
   const [painted, setPainted] = useState({}) // index -> color key
   const [done, setDone] = useState(false)
@@ -91,14 +77,21 @@ export default function MosaicArt() {
   const gridRef = useRef(null)
   const lastCell = useRef(null) // avoid re-painting same cell repeatedly mid-drag
 
-  const pic = PICTURES[picIdx]
+  const pic = PICTURES[deck[0]]
   const targets = useMemo(() => targetCells(pic), [pic])
 
-  // Load a fresh random picture (no immediate repeat).
+  // Take the next picture off the deck, reshuffling once it runs out.
   function nextPicture() {
     setPainted({})
     setDone(false)
-    setPicIdx((cur) => randomPicIdx(cur))
+    setDeck((cur) => {
+      const rest = cur.slice(1)
+      if (rest.length) return rest
+      // Every picture has been through: deal again, but never hand back the
+      // one just finished as the very next.
+      const next = freshDeck()
+      return next.length > 1 && next[0] === cur[0] ? [...next.slice(1), next[0]] : next
+    })
     lastCell.current = null
   }
 

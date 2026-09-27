@@ -433,6 +433,7 @@ export const CATEGORIES = [
 
 export const GAME_CATEGORIES = {
   // 🔤 letters, reading and writing
+  readly: 'words',
   spell: 'words',
   sentence: 'words',
   wordsearch: 'words',
@@ -467,6 +468,7 @@ export const GAME_CATEGORIES = {
   doctor: 'create',
   coaster: 'create',
   // 🏃 quick hands and reflexes
+  jumper: 'action',
   merge: 'action',
   racing: 'action',
   frog: 'action',

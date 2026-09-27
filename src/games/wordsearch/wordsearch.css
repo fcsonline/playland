@@ -142,6 +142,13 @@
     max-width: min(86vh, 60%);
     margin: 0;
   }
+  .wordsearch__cell {
+    /* The board is now sized off viewport HEIGHT (86vh above), not width, so
+       the cell font must scale with vh here too — otherwise it inherits the
+       portrait vw-based size and reads oversized/undersized for the smaller
+       landscape cells. */
+    font-size: clamp(0.8rem, 3.6vh, 1.3rem);
+  }
   .wordsearch__footer {
     flex: 1;
   }

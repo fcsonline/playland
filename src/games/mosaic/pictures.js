@@ -3,9 +3,17 @@
  *
  * Each picture is a square grid of color keys (single chars). '.' means an empty
  * (background) cell that should stay blank. The palette maps keys -> CSS colors.
- * Bigger pictures unlock as the child finishes smaller ones.
  *
- * Every row string must be exactly `size` characters wide.
+ * Every row string must be exactly `size` characters wide, and every key must
+ * exist in COLORS — `npm run build` won't catch a typo here, so the shapes are
+ * checked by eye against the rendered grid.
+ *
+ * Sizes run 7 to 9: the win award is `1 + (size - 7)` stars, so a 7x7 is worth
+ * one star and a 9x9 three. Keep new pictures inside that range.
+ *
+ * White reads faintly against the grid's own near-white background, so use `w`
+ * only where it sits on top of another colour (the mushroom's spots), never for
+ * the outline of a shape.
  */
 
 export const COLORS = {
@@ -28,10 +36,10 @@ export const PALETTE = ['r', 'o', 'y', 'g', 'b', 'p', 'n', 'k', 'w']
 const grid = (rows) => rows.map((row) => row.split(''))
 
 export const PICTURES = [
+  // ---- 7x7 ----
   {
     id: 'heart',
     label: '❤️ Heart',
-    tkey: 'picHeart',
     size: 7,
     cells: grid([
       '.rr.rr.',
@@ -46,7 +54,6 @@ export const PICTURES = [
   {
     id: 'star',
     label: '⭐ Star',
-    tkey: 'picStar',
     size: 7,
     cells: grid([
       '...y...',
@@ -59,9 +66,136 @@ export const PICTURES = [
     ]),
   },
   {
+    id: 'apple',
+    label: '🍎 Apple',
+    size: 7,
+    cells: grid([
+      '...n...',
+      '..ngg..',
+      '.rrrrr.',
+      'rrrrrrr',
+      'rrrrrrr',
+      '.rrrrr.',
+      '..r.r..',
+    ]),
+  },
+  {
+    id: 'fish',
+    label: '🐟 Fish',
+    size: 7,
+    cells: grid([
+      '.......',
+      '.y.ooo.',
+      'yyooooo',
+      'yyoooko',
+      'yyooooo',
+      '.y.ooo.',
+      '.......',
+    ]),
+  },
+  {
+    id: 'tree',
+    label: '🌳 Tree',
+    size: 7,
+    cells: grid([
+      '...g...',
+      '..ggg..',
+      '.ggggg.',
+      'ggggggg',
+      '.ggggg.',
+      '...n...',
+      '...n...',
+    ]),
+  },
+  {
+    id: 'house',
+    label: '🏠 House',
+    size: 7,
+    cells: grid([
+      '...r...',
+      '..rrr..',
+      '.rrrrr.',
+      'rrrrrrr',
+      '.yyyyy.',
+      '.ybbny.',
+      '.yyyny.',
+    ]),
+  },
+  {
+    id: 'balloon',
+    label: '🎈 Balloon',
+    size: 7,
+    cells: grid([
+      '..ppp..',
+      '.ppppp.',
+      '.ppppp.',
+      '.ppppp.',
+      '..ppp..',
+      '...k...',
+      '...k...',
+    ]),
+  },
+  {
+    id: 'mushroom',
+    label: '🍄 Mushroom',
+    size: 7,
+    cells: grid([
+      '..rrr..',
+      '.rrwrr.',
+      'rrwrrwr',
+      'rrrrrrr',
+      '..www..',
+      '..www..',
+      '.wwwww.',
+    ]),
+  },
+  {
+    id: 'moon',
+    label: '🌙 Moon',
+    size: 7,
+    cells: grid([
+      '..yyy..',
+      '.yy....',
+      'yy.....',
+      'yy.....',
+      'yy.....',
+      '.yy....',
+      '..yyy..',
+    ]),
+  },
+  {
+    id: 'ladybug',
+    label: '🐞 Ladybug',
+    size: 7,
+    cells: grid([
+      '..kkk..',
+      '.rrrrr.',
+      'rrkrkrr',
+      'rrrrrrr',
+      'rrkrkrr',
+      '.rrrrr.',
+      '..rrr..',
+    ]),
+  },
+  {
+    id: 'duck',
+    label: '🦆 Duck',
+    size: 7,
+    cells: grid([
+      '..yy...',
+      '.ykyoo.',
+      '..yyy..',
+      '.yyyyy.',
+      'yyyyyyy',
+      '.yyyyy.',
+      '..ooo..',
+    ]),
+  },
+
+  // ---- 8x8 ----
+  {
     id: 'smiley',
     label: '😊 Smiley',
-    tkey: 'picSmiley',
     size: 8,
     cells: grid([
       '..yyyy..',
@@ -75,9 +209,85 @@ export const PICTURES = [
     ]),
   },
   {
+    id: 'butterfly',
+    label: '🦋 Butterfly',
+    size: 8,
+    cells: grid([
+      '.pp..pp.',
+      'pppkkppp',
+      'pppkkppp',
+      '.ppkkpp.',
+      '.ppkkpp.',
+      'rrpkkprr',
+      'rrrkkrrr',
+      '.rr..rr.',
+    ]),
+  },
+  {
+    id: 'cat',
+    label: '🐱 Cat',
+    size: 8,
+    cells: grid([
+      '.o....o.',
+      'oo....oo',
+      'oooooooo',
+      'okooooko',
+      'oooooooo',
+      'ooorrooo',
+      '.oooooo.',
+      '..oooo..',
+    ]),
+  },
+  {
+    id: 'boat',
+    label: '⛵ Boat',
+    size: 8,
+    cells: grid([
+      '...n....',
+      '...nr...',
+      '...nrr..',
+      '...nrrr.',
+      '...nrrrr',
+      'nnnnnnnn',
+      '.nnnnnn.',
+      'bbbbbbbb',
+    ]),
+  },
+  {
+    id: 'icecream',
+    label: '🍦 Ice cream',
+    size: 8,
+    cells: grid([
+      '..rrrr..',
+      '.rrrrrr.',
+      'rrrrrrrr',
+      '.rrrrrr.',
+      '..nnnn..',
+      '..nnnn..',
+      '...nn...',
+      '...nn...',
+    ]),
+  },
+  {
+    id: 'car',
+    label: '🚗 Car',
+    size: 8,
+    cells: grid([
+      '........',
+      '..bbbb..',
+      '..byyb..',
+      '.bbbbbb.',
+      'bbbbbbbb',
+      'bbbbbbbb',
+      '.kk..kk.',
+      '........',
+    ]),
+  },
+
+  // ---- 9x9 ----
+  {
     id: 'flower',
     label: '🌸 Flower',
-    tkey: 'picFlower',
     size: 9,
     cells: grid([
       '...ppp...',
@@ -91,7 +301,69 @@ export const PICTURES = [
       '...ggg...',
     ]),
   },
+  {
+    id: 'rainbow',
+    label: '🌈 Rainbow',
+    size: 9,
+    // Concentric bands around a centre just below the grid, so it arches.
+    cells: grid([
+      '..rrrrr..',
+      'rrooooorr',
+      'ooyyyyyoo',
+      'oygggggyo',
+      'yggbbbggy',
+      'ggb...bgg',
+      'gb.....bg',
+      'gb.....bg',
+      'gb.....bg',
+    ]),
+  },
+  {
+    id: 'turtle',
+    label: '🐢 Turtle',
+    size: 9,
+    cells: grid([
+      '....g....',
+      '...ggg...',
+      '.nnnnnnn.',
+      'nngnnngnn',
+      'nnnngnnnn',
+      'nngnnngnn',
+      '.nnnnnnn.',
+      '.g.....g.',
+      'gg.....gg',
+    ]),
+  },
+  {
+    id: 'rocket',
+    label: '🚀 Rocket',
+    size: 9,
+    cells: grid([
+      '....r....',
+      '...rrr...',
+      '...rbr...',
+      '...rbr...',
+      '..rrrrr..',
+      '..rrrrr..',
+      '.rr.r.rr.',
+      '...ooo...',
+      '....y....',
+    ]),
+  },
+  {
+    id: 'crown',
+    label: '👑 Crown',
+    size: 9,
+    cells: grid([
+      '.........',
+      'y...y...y',
+      'y..yyy..y',
+      'yy.yyy.yy',
+      'yyyyyyyyy',
+      'yyrygybyy',
+      'yyyyyyyyy',
+      'yyyyyyyyy',
+      '.yyyyyyy.',
+    ]),
+  },
 ]
-
-// Bigger mosaics unlock after completing earlier ones (by total finishes).
-export const UNLOCK_AT = { smiley: 1, flower: 2 }

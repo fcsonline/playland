@@ -3,9 +3,10 @@ import { setAudioMuted, setMusicEnabled } from './audio.js'
 
 /**
  * Tiny app-wide settings store (localStorage), with a React hook. Kept simple:
- * a kid age range, a locale, and a "start in fullscreen" preference. Changing a
- * setting persists it, applies side effects (html lang / data-age), and notifies
- * any mounted `useSettings()` via a window event so screens stay in sync.
+ * a kid age range, a locale, a "start in fullscreen" preference, and whether
+ * the catalogue is grouped into categories. Changing a setting persists it,
+ * applies side effects (html lang / data-age), and notifies any mounted
+ * `useSettings()` via a window event so screens stay in sync.
  *
  * These are intentionally light-touch for now — stored + applied to the document
  * so games (and future copy) can read them — and meant to grow influence later.
@@ -26,7 +27,7 @@ export const LOCALE_OPTIONS = [
   { id: 'fr', label: 'Français' },
 ]
 
-const DEFAULTS = { ageRange: 'all', locale: 'en', fullscreen: true, sound: true, music: true }
+const DEFAULTS = { ageRange: 'all', locale: 'en', fullscreen: true, sound: true, music: true, categories: false }
 
 export function getSettings() {
   if (typeof localStorage === 'undefined') return { ...DEFAULTS }

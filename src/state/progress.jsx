@@ -11,6 +11,10 @@ import { createContext, useCallback, useContext, useEffect, useMemo, useRef, use
  * (new drawings, train types, planets...). Nothing is ever locked away forever —
  * unlocks only ever add content.
  *
+ * And a light play history for the Stats panel: `plays[gameId]` counts the
+ * times each game was opened, `days` marks the dates it was played on. Both are
+ * counters for the family to look at — nothing in the games reads them.
+ *
  * Everything is persisted to localStorage so play is offline-first and durable.
  */
 
@@ -18,7 +22,7 @@ const STORAGE_KEY = 'kids-playland.save.v1'
 
 const ProgressContext = createContext(null)
 
-const emptySave = () => ({ wallet: 0, lifetime: 0, mastery: {}, unlocks: {}, gameLevel: {} })
+const emptySave = () => ({ wallet: 0, lifetime: 0, mastery: {}, unlocks: {}, gameLevel: {}, plays: {}, days: {} })
 
 function loadSave() {
   try {
@@ -31,6 +35,8 @@ function loadSave() {
       mastery: parsed.mastery && typeof parsed.mastery === 'object' ? parsed.mastery : {},
       unlocks: parsed.unlocks && typeof parsed.unlocks === 'object' ? parsed.unlocks : {},
       gameLevel: parsed.gameLevel && typeof parsed.gameLevel === 'object' ? parsed.gameLevel : {},
+      plays: parsed.plays && typeof parsed.plays === 'object' ? parsed.plays : {},
+      days: parsed.days && typeof parsed.days === 'object' ? parsed.days : {},
     }
   } catch {
     return emptySave()
@@ -94,6 +100,21 @@ export function ProgressProvider({ children }) {
 
   const getGameLevel = useCallback((gameId) => saveRef.current.gameLevel[gameId] || 0, [])
 
+  // One tick per game opened, plus the day it happened on (local date, so
+  // "days played" matches the family's calendar rather than UTC).
+  const recordPlay = useCallback((gameId) => {
+    if (!gameId) return
+    const today = new Date()
+    const day = `${today.getFullYear()}-${String(today.getMonth() + 1).padStart(2, '0')}-${String(
+      today.getDate(),
+    ).padStart(2, '0')}`
+    setSave((s) => ({
+      ...s,
+      plays: { ...s.plays, [gameId]: (s.plays[gameId] || 0) + 1 },
+      days: s.days[day] ? s.days : { ...s.days, [day]: true },
+    }))
+  }, [])
+
   const isUnlocked = useCallback((key) => !!saveRef.current.unlocks[key], [])
 
   const resetAll = useCallback(() => setSave(emptySave()), [])
@@ -105,6 +126,8 @@ export function ProgressProvider({ children }) {
       mastery: save.mastery,
       unlocks: save.unlocks,
       gameLevel: save.gameLevel,
+      plays: save.plays,
+      days: save.days,
       earn,
       spend,
       recordMastery,
@@ -112,9 +135,10 @@ export function ProgressProvider({ children }) {
       isUnlocked,
       setGameLevel,
       getGameLevel,
+      recordPlay,
       resetAll,
     }),
-    [save, earn, spend, recordMastery, unlock, isUnlocked, setGameLevel, getGameLevel, resetAll],
+    [save, earn, spend, recordMastery, unlock, isUnlocked, setGameLevel, getGameLevel, recordPlay, resetAll],
   )
 
   return <ProgressContext.Provider value={value}>{children}</ProgressContext.Provider>

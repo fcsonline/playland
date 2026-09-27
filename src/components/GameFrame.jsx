@@ -15,10 +15,20 @@ import './GameFrame.css'
 export default function GameFrame({ gameId, onBack }) {
   const meta = GAME_BY_ID[gameId]
   const Game = GAME_COMPONENTS[gameId]
-  const { wallet, earn, recordMastery } = useProgress()
+  const { wallet, earn, recordMastery, recordPlay } = useProgress()
   const { popStars, cheer, oops } = useReward()
   const t = useUI()
   const title = useTitle()
+
+  // Count this open in the play history the Stats panel shows. Guarded by a
+  // ref so a remount of the same game (StrictMode's double-invoke in dev, or a
+  // chunk-load retry) counts once, not twice.
+  const countedRef = useRef(null)
+  useEffect(() => {
+    if (countedRef.current === gameId) return
+    countedRef.current = gameId
+    recordPlay(gameId)
+  }, [gameId, recordPlay])
 
   // Auto-close a game after 2 minutes with no taps or key presses, so a kid who
   // wandered off gently lands back on the games grid instead of a stuck screen.
@@ -169,6 +179,26 @@ export default function GameFrame({ gameId, onBack }) {
               <button className="btn" onClick={keepPlaying}>{t('keepPlaying')}</button>
               <button className="btn" style={{ opacity: 0.7 }} onClick={onBack}>{t('backHome')}</button>
             </div>
+          </div>
+        </div>
+      )}
+
+      {/* Some games' playfields only make sense tall (a golf hole, a fruit jar).
+          screen.orientation.lock() is best-effort and never works on iOS, so this
+          CSS-only overlay is the real enforcement: it covers the game whenever the
+          device is physically sideways, and clears the moment it's upright again. */}
+      {meta.portraitLock && (
+        <div className="game-frame__rotate-lock" role="alertdialog" aria-modal="true">
+          <div className="game-frame__rotate-card">
+            <span className="game-frame__rotate-emoji" aria-hidden="true">🔄</span>
+            <p className="game-frame__rotate-title">{t('rotateTitle')}</p>
+            <p className="game-frame__rotate-hint">{t('rotateHint')}</p>
+            {/* This overlay sits above the header's close button too, so give it
+                its own way out — a kid who can't rotate (car mount, propped up
+                tablet) is never stuck. */}
+            <button className="btn" style={{ marginTop: 16 }} onClick={onBack}>
+              {t('backHome')}
+            </button>
           </div>
         </div>
       )}

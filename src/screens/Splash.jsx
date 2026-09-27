@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 import { enterFullscreen, fullscreenSupported } from '../lib/fullscreen.js'
 import { useSettings, setSettings, AGE_OPTIONS, LOCALE_OPTIONS } from '../lib/settings.js'
 import { useUI } from '../lib/i18n.js'
-import { useProgress } from '../state/progress.jsx'
+import StatsPanel from '../components/StatsPanel.jsx'
 import { forceUpdate } from '../lib/update.js'
 import { startMusic } from '../lib/audio.js'
 import './Splash.css'
@@ -12,19 +12,28 @@ const WELCOME_SRC = import.meta.env.BASE_URL + 'logo.webp'
 
 /**
  * Welcome screen: the Playland logo + a big green "Start" button, plus a subtle
- * gear that opens simple settings (age range, language, fullscreen). The Start
- * tap is the user gesture that authorizes fullscreen — done only when the saved
- * preference asks for it — then it opens the catalog.
+ * gear that opens the settings panel. The Start tap is the user gesture that
+ * authorizes fullscreen — done only when the saved preference asks for it —
+ * then it opens the catalog.
+ *
+ * The panel has two tabs: Settings, whose controls are grouped under Player /
+ * Sound / Screen / App headings so the list reads as four short blocks instead
+ * of one long column, and Stats, which shows what the family has played and
+ * holds the button that erases it all.
  */
 export default function Splash({ onDone }) {
   const cb = useRef(onDone)
   cb.current = onDone
   const settings = useSettings()
   const t = useUI()
-  const { resetAll } = useProgress()
   const [showSettings, setShowSettings] = useState(false)
+  const [tab, setTab] = useState('settings')
   const [updating, setUpdating] = useState(false)
-  const [confirmReset, setConfirmReset] = useState(false)
+
+  function openSettings() {
+    setTab('settings')
+    setShowSettings(true)
+  }
 
   function update() {
     setUpdating(true)
@@ -50,7 +59,7 @@ export default function Splash({ onDone }) {
 
       <button
         className="splash__gear"
-        onClick={() => setShowSettings(true)}
+        onClick={openSettings}
         aria-label={t('settings')}
       >
         <svg className="splash__gear-icon" viewBox="0 0 24 24" aria-hidden="true">
@@ -65,7 +74,30 @@ export default function Splash({ onDone }) {
       {showSettings && (
         <div className="splash__settings" role="dialog" aria-label={t('settings')}>
           <div className="splash__panel">
-            <h2 className="splash__panel-title">{t('settings')}</h2>
+            <div className="splash__tabs" role="tablist">
+              <button
+                role="tab"
+                aria-selected={tab === 'settings'}
+                className={`splash__tab ${tab === 'settings' ? 'is-on' : ''}`}
+                onClick={() => setTab('settings')}
+              >
+                ⚙️ {t('settings')}
+              </button>
+              <button
+                role="tab"
+                aria-selected={tab === 'stats'}
+                className={`splash__tab ${tab === 'stats' ? 'is-on' : ''}`}
+                onClick={() => setTab('stats')}
+              >
+                📊 {t('tabStats')}
+              </button>
+            </div>
+
+            {tab === 'stats' && <StatsPanel />}
+
+            {tab === 'settings' && (
+            <>
+            <h3 className="splash__section">{t('secPlayer')}</h3>
 
             <div className="splash__group">
               <span className="splash__label">{t('age')}</span>
@@ -97,6 +129,8 @@ export default function Splash({ onDone }) {
               </div>
             </div>
 
+            <h3 className="splash__section">{t('secSound')}</h3>
+
             <div className="splash__group splash__group--row">
               <span className="splash__label">{t('sound')}</span>
               <button
@@ -121,6 +155,20 @@ export default function Splash({ onDone }) {
               </button>
             </div>
 
+            <h3 className="splash__section">{t('secScreen')}</h3>
+
+            <div className="splash__group splash__group--row">
+              <span className="splash__label">{t('categories')}</span>
+              <button
+                className={`splash__toggle ${settings.categories ? 'is-on' : ''}`}
+                onClick={() => setSettings({ categories: !settings.categories })}
+                aria-pressed={settings.categories}
+                aria-label={t('toggleCategories')}
+              >
+                <span className="splash__toggle-knob" />
+              </button>
+            </div>
+
             {fullscreenSupported() && (
               <div className="splash__group splash__group--row">
                 <span className="splash__label">{t('fullScreen')}</span>
@@ -135,7 +183,10 @@ export default function Splash({ onDone }) {
               </div>
             )}
 
+            <h3 className="splash__section">{t('secApp')}</h3>
+
             <div className="splash__group splash__update-row">
+              <p className="splash__update-what">{t('updateWhat')}</p>
               <button
                 className="splash__update"
                 onClick={update}
@@ -145,29 +196,8 @@ export default function Splash({ onDone }) {
               </button>
               <span className="splash__update-hint">{t('updateHint')}</span>
             </div>
-
-            <div className="splash__group splash__reset-row">
-              {confirmReset ? (
-                <div className="splash__chips">
-                  <button
-                    className="splash__chip splash__chip--danger"
-                    onClick={() => { resetAll(); setConfirmReset(false) }}
-                  >
-                    {t('resetConfirm')}
-                  </button>
-                  <button
-                    className="splash__chip"
-                    onClick={() => setConfirmReset(false)}
-                  >
-                    {t('resetCancel')}
-                  </button>
-                </div>
-              ) : (
-                <button className="splash__reset" onClick={() => setConfirmReset(true)}>
-                  {t('resetProgress')}
-                </button>
-              )}
-            </div>
+            </>
+            )}
 
             <button className="splash__done" onClick={() => setShowSettings(false)}>
               {t('done')}

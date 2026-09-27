@@ -150,6 +150,68 @@
   min-height: 0;
 }
 
+/* Portrait-only games (a tall golf hole, a fruit jar): block play with a full
+   screen "turn it back" prompt whenever the device is physically sideways.
+   Hidden by default; only appears while the viewport itself reports landscape,
+   regardless of whether screen.orientation.lock() actually took effect. */
+.game-frame__rotate-lock {
+  display: none;
+}
+@media (orientation: landscape) {
+  .game-frame__rotate-lock {
+    position: fixed;
+    inset: 0;
+    z-index: 500;
+    display: grid;
+    place-items: center;
+    padding: 24px;
+    background: rgba(20, 16, 40, 0.92);
+    animation: gf-fade 0.25s ease;
+  }
+}
+.game-frame__rotate-card {
+  width: 100%;
+  max-width: 320px;
+  padding: 26px 24px;
+  text-align: center;
+  background: var(--white);
+  border-radius: var(--radius);
+  box-shadow: var(--shadow-lg);
+  animation: pop-in 0.3s ease;
+}
+.game-frame__rotate-emoji {
+  display: inline-block;
+  font-size: 3.2rem;
+  line-height: 1;
+  animation: gf-spin 1.8s ease-in-out infinite;
+}
+.game-frame__rotate-title {
+  margin: 10px 0 4px;
+  font-size: 1.4rem;
+  font-weight: 900;
+  color: var(--ink);
+}
+.game-frame__rotate-hint {
+  margin: 0;
+  color: var(--ink-soft);
+  font-size: 1rem;
+  line-height: 1.35;
+}
+@keyframes gf-spin {
+  0%,
+  100% {
+    transform: rotate(0deg);
+  }
+  50% {
+    transform: rotate(-90deg);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .game-frame__rotate-emoji {
+    animation: none;
+  }
+}
+
 /* Landscape phones are short: reclaim the whole header row. The title, stars and
    fullscreen button are hidden and the close button floats in the top-right
    corner, so the playfield gets the full height. */

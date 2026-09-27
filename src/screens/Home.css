@@ -104,6 +104,32 @@
   height: 0;
   display: none; /* Chromium / WebKit (incl. iOS Safari) */
 }
+/* ---- Category sections (optional "Group games by category" setting) ---- */
+.home__section {
+  position: relative;
+  z-index: 1;
+}
+.home__section + .home__section {
+  margin-top: 4px;
+}
+.home__cat {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin: 12px 2px 8px;
+  font-size: 1.05rem;
+  font-weight: 900;
+  color: var(--ink);
+}
+/* A soft rule trailing the title, so sections read apart at a glance. */
+.home__cat::after {
+  content: '';
+  flex: 1;
+  height: 3px;
+  border-radius: 999px;
+  background: rgba(108, 92, 231, 0.18);
+}
+
 /* Portrait phones: always exactly 3 columns, regardless of device width, so
    narrow phones don't fall back to 2 oversized covers. Landscape overrides the
    columns below. */
@@ -166,16 +192,6 @@ svg.card__art {
   animation: wiggle 0.3s ease;
 }
 
-/* The sticker-shop doorway: first card in the grid, dressed in gold. */
-.card--shop .card__thumb {
-  background: linear-gradient(150deg, #ffd76e, #ff9ecb);
-}
-.card__wallet {
-  font-size: 0.78rem;
-  font-weight: 900;
-  color: var(--ink);
-}
-
 /* Games outside the chosen age band: still playable, just quieter. */
 .card--soft {
   opacity: 0.82;
@@ -216,13 +232,6 @@ svg.card__art {
   pointer-events: none;
 }
 
-/* The shop's ribbon goes gold (its star currency) so it never reads as a game. */
-.card__badge--shop {
-  background: linear-gradient(180deg, #ffd76e, #f6b93d);
-  color: var(--ink);
-  text-shadow: 0 1px 0 rgba(255, 255, 255, 0.35);
-}
-
 /* Portrait keeps the default grid: rows of cards that page DOWN (vertical
    scroll). Landscape flips it: rows fill the (short) height and the list flows
    into columns that scroll left↔right (swipe), instead of a tall page.
@@ -259,6 +268,23 @@ svg.card__art {
   }
   .card {
     scroll-snap-align: start;
+  }
+  /* Grouped, the sideways single-grid trick can't work (every section would
+     claim the full height), so the sections just page down as in portrait. */
+  .home--grouped {
+    overflow-y: auto;
+  }
+  .home--grouped .home__grid {
+    height: auto;
+    grid-template-columns: repeat(auto-fill, minmax(96px, 1fr));
+    grid-template-rows: none;
+    grid-auto-flow: row;
+    gap: 10px;
+    overflow: visible;
+  }
+  .home--grouped .home__cat {
+    margin: 6px 2px 6px;
+    font-size: 0.95rem;
   }
 }
 /* Add rows as the landscape height grows so the cards never get oversized. */

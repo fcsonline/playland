@@ -448,6 +448,92 @@ export const GAME_ART = {
   ),
 
   // Word Search — a glossy letter grid with one "found" word highlighted.
+  // Spell It! — a speaker calling out a word onto a card of letter lines.
+  spell: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <linearGradient id="spCard" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#e9edf6" />
+        </linearGradient>
+        <linearGradient id="spSpeaker" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#b388ff" />
+          <stop offset="1" stopColor="#6c5ce7" />
+        </linearGradient>
+        <linearGradient id="spLine" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0" stopColor="#ffc46b" />
+          <stop offset="1" stopColor="#ff8a5c" />
+        </linearGradient>
+      </defs>
+      {/* the card the word is written on */}
+      <rect x="9" y="34" width="82" height="54" rx="14" fill="url(#spCard)" />
+      <rect x="15" y="39" width="70" height="9" rx="4.5" fill="#ffffff" opacity="0.7" />
+      {/* two letters written, one line still blank */}
+      <g fontFamily="inherit" fontWeight="900" fontSize="20" textAnchor="middle" fill="#6c5ce7">
+        <text x="27" y="72">S</text>
+        <text x="50" y="72">U</text>
+      </g>
+      <rect x="17" y="76" width="20" height="5" rx="2.5" fill="url(#spLine)" />
+      <rect x="40" y="76" width="20" height="5" rx="2.5" fill="url(#spLine)" />
+      <rect x="63" y="76" width="20" height="5" rx="2.5" fill="#c9cfe0" />
+      {/* speaker box + cone */}
+      <rect x="16" y="12" width="14" height="16" rx="5" fill="url(#spSpeaker)" />
+      <path d="M28 20 46 8v24z" fill="url(#spSpeaker)" />
+      <rect x="19" y="14.5" width="4" height="7" rx="2" fill="#ffffff" opacity="0.4" />
+      {/* sound waves */}
+      <path d="M53 12a12 12 0 0 1 0 16" fill="none" stroke="#ff8a5c" strokeWidth="5" strokeLinecap="round" />
+      <path d="M62 6a22 22 0 0 1 0 28" fill="none" stroke="#ffc46b" strokeWidth="5" strokeLinecap="round" />
+    </svg>
+  ),
+
+  // Perfect Fit — a deep frame with pieces seated in it, one still coming in.
+  fit: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <linearGradient id="ftFrame" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#5a4b9c" />
+          <stop offset="1" stopColor="#332b63" />
+        </linearGradient>
+        <linearGradient id="ftPink" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffa3bf" />
+          <stop offset="1" stopColor="#f8557f" />
+        </linearGradient>
+        <linearGradient id="ftSun" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffd782" />
+          <stop offset="1" stopColor="#f7a723" />
+        </linearGradient>
+        <linearGradient id="ftGreen" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#8ce8bd" />
+          <stop offset="1" stopColor="#2fb383" />
+        </linearGradient>
+      </defs>
+      {/* the frame, with its empty sockets showing */}
+      <rect x="10" y="16" width="66" height="66" rx="13" fill="url(#ftFrame)" />
+      <g fill="#241d4d" opacity="0.55">
+        <rect x="17" y="45" width="14" height="14" rx="3.5" />
+        <rect x="33" y="45" width="14" height="14" rx="3.5" />
+        <rect x="17" y="61" width="14" height="14" rx="3.5" />
+        <rect x="33" y="61" width="14" height="14" rx="3.5" />
+        <rect x="49" y="61" width="14" height="14" rx="3.5" />
+      </g>
+      {/* pink piece seated across the top */}
+      <path d="M17 26.5a3.5 3.5 0 0 1 3.5-3.5H43a3.5 3.5 0 0 1 3.5 3.5v9A3.5 3.5 0 0 1 43 39H20.5a3.5 3.5 0 0 1-3.5-3.5z" fill="url(#ftPink)" />
+      <rect x="20" y="26" width="12" height="3.5" rx="1.75" fill="#ffffff" opacity="0.45" />
+      {/* amber square in the corner */}
+      <rect x="49" y="23" width="14" height="16" rx="3.5" fill="url(#ftSun)" />
+      <rect x="52" y="26" width="7" height="3.5" rx="1.75" fill="#ffffff" opacity="0.45" />
+      {/* amber column down the right of the frame */}
+      <rect x="49" y="45" width="14" height="14" rx="3.5" fill="url(#ftSun)" opacity="0.95" />
+      {/* the green piece still on its way in, bottom-right, clear of the ribbon */}
+      <g>
+        <rect x="60" y="70" width="16" height="16" rx="4" fill="url(#ftGreen)" />
+        <rect x="76" y="70" width="16" height="16" rx="4" fill="url(#ftGreen)" />
+        <rect x="76" y="54" width="16" height="16" rx="4" fill="url(#ftGreen)" />
+        <rect x="63" y="73" width="7" height="3.5" rx="1.75" fill="#ffffff" opacity="0.5" />
+      </g>
+    </svg>
+  ),
+
   wordsearch: () => (
     <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
       <defs>

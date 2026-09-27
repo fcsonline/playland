@@ -264,8 +264,9 @@ export default function SkyCannon() {
               cbs.current.award(stars, { count: 22 })
               // Spawn a slightly harder set after a short celebration beat.
               setTimeout(() => nextLevel(), 900)
+              resetDart()
             }
-            resetDart()
+            // Keep flying — one dart can pop a whole line of balloons!
             break
           }
         }

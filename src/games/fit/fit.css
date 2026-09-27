@@ -1,0 +1,198 @@
+.fit {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.fit__topline {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 8px;
+}
+.fit__level {
+  font-size: 0.85rem;
+}
+.fit__reset {
+  font-size: 0.85rem;
+  cursor: pointer;
+  border: none;
+}
+.fit__reset:disabled {
+  opacity: 0.45;
+}
+
+/* The frame the pieces go into: centred in whatever room is left. */
+.fit__board-wrap {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 10px;
+}
+
+.fit__board {
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--cell));
+  grid-template-rows: repeat(var(--rows), var(--cell));
+  gap: 3px;
+  padding: 6px;
+  border-radius: var(--radius-sm);
+  background: rgba(108, 92, 231, 0.16);
+  box-shadow: inset 0 2px 8px rgba(58, 44, 90, 0.16);
+  touch-action: none;
+}
+.fit__board.is-done {
+  animation: fit-solved 0.5s ease;
+}
+
+.fit__cell {
+  border-radius: 6px;
+  background: rgba(255, 255, 255, 0.85);
+  box-shadow: inset 0 0 0 2px rgba(108, 92, 231, 0.12);
+  transition: background 0.12s ease, transform 0.12s ease;
+}
+.fit__cell.is-filled {
+  background: var(--piece);
+  box-shadow: inset 0 -3px 0 rgba(0, 0, 0, 0.12), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+  cursor: pointer;
+  animation: fit-drop 0.24s cubic-bezier(0.2, 1.5, 0.4, 1);
+}
+/* Drop preview: where the dragged piece would land. */
+.fit__cell.is-ok {
+  background: rgba(86, 197, 150, 0.5);
+}
+.fit__cell.is-no {
+  background: rgba(255, 138, 171, 0.45);
+}
+
+.fit__hint {
+  margin: 0;
+  text-align: center;
+  font-weight: 800;
+  color: var(--white);
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.2);
+}
+
+/* Tray of pieces still to place. */
+.fit__tray {
+  position: relative; /* the solved puzzle's button lays over the pieces */
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 6px 4px;
+  min-height: 76px;
+  background: rgba(255, 255, 255, 0.45);
+  border-radius: var(--radius-sm);
+}
+
+/* The padding is hit-slop, not decoration: a press anywhere in a piece's box
+   picks it up, so the box wants to be at least a fingertip across even for the
+   smallest piece. The tray's own gap gives that room back, so the pieces still
+   sit as far apart as they look. */
+.fit__piece {
+  --tcell: clamp(15px, 5.2vw, 26px);
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--tcell));
+  grid-template-rows: repeat(var(--rows), var(--tcell));
+  gap: 2px;
+  padding: 8px;
+  touch-action: none;
+  cursor: grab;
+}
+.fit__piece.is-dragging {
+  opacity: 0.25;
+}
+/* On the board now — hidden, but still holding its place in the tray so
+   nothing below it moves. */
+.fit__piece.is-placed {
+  visibility: hidden;
+}
+
+.fit__bit {
+  border-radius: 4px;
+}
+.fit__bit.is-on {
+  background: var(--piece);
+  box-shadow: inset 0 -2px 0 rgba(0, 0, 0, 0.12), inset 0 2px 0 rgba(255, 255, 255, 0.35);
+}
+
+/* Covers the emptied tray on a solved puzzle, so the row keeps its height. */
+.fit__footer {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* The piece riding the finger, drawn at board scale. */
+.fit__ghost {
+  position: fixed;
+  z-index: 5000;
+  display: grid;
+  grid-template-columns: repeat(var(--cols), var(--cell));
+  grid-template-rows: repeat(var(--rows), var(--cell));
+  gap: 3px;
+  pointer-events: none;
+  filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.3));
+}
+.fit__ghost .fit__bit {
+  border-radius: 6px;
+}
+
+@keyframes fit-drop {
+  0% {
+    transform: scale(1.25);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(1);
+    opacity: 1;
+  }
+}
+@keyframes fit-solved {
+  0%,
+  100% {
+    transform: scale(1);
+  }
+  40% {
+    transform: scale(1.04);
+  }
+}
+
+/* Landscape: same stack, tighter — the board takes the height it can get. */
+@media (orientation: landscape) {
+  /* The frame's close button floats over the top-right corner in short
+     landscape, so the row underneath it keeps clear of that corner. */
+  .fit__topline {
+    padding-right: 54px;
+  }
+  .fit__tray {
+    min-height: 56px;
+    gap: 4px;
+    padding: 4px;
+  }
+  .fit__piece {
+    --tcell: clamp(14px, 5vh, 24px);
+    padding: 6px;
+  }
+  .fit__hint {
+    font-size: 0.85rem;
+  }
+  .fit__board-wrap {
+    padding: 6px;
+  }
+}
+
+/* One piece ghosted in its right place after the board is cleared — a leg-up
+   for a stuck child, barely there so the puzzle stays theirs to solve. */
+.fit__cell.is-ghosted {
+  background: color-mix(in srgb, var(--piece) 10%, rgba(255, 255, 255, 0.85));
+  box-shadow: inset 0 0 0 2px color-mix(in srgb, var(--piece) 22%, transparent);
+}

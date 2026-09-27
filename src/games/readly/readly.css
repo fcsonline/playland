@@ -1,0 +1,265 @@
+.readly {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  min-height: 0;
+  flex: 1;
+}
+
+/* ---- progress row ---- */
+.readly__top {
+  flex: none;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  color: var(--white);
+  font-weight: 800;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+.readly__track {
+  flex: 1;
+  height: 10px;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.4);
+  overflow: hidden;
+}
+.readly__fill {
+  height: 100%;
+  border-radius: 999px;
+  background: linear-gradient(90deg, var(--good), var(--sun), var(--accent));
+  transition: width 0.35s ease;
+}
+.readly__counter {
+  white-space: nowrap;
+  font-size: 0.95rem;
+}
+
+/* ---- stage: the sentence is the hero ---- */
+.readly__stage {
+  flex: 1;
+  position: relative;
+  overflow: hidden;
+}
+.readly__fitbox {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.readly__sentence {
+  --size: 3rem;
+  margin: 0;
+  font-family: var(--font);
+  font-weight: 800;
+  font-size: var(--size);
+  line-height: 1.2;
+  text-align: center;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: baseline;
+  justify-content: center;
+  gap: 0.14em 0.72em;
+  max-width: 100%;
+  letter-spacing: 0;
+}
+.readly__sentence.is-upper {
+  text-transform: uppercase;
+  letter-spacing: 0.015em;
+}
+/* single-line mode: chosen by the fitter whenever the sentence can stay on one row */
+.readly__sentence.is-one-line {
+  flex-wrap: nowrap;
+  white-space: nowrap;
+}
+
+.readly__word {
+  display: inline-flex;
+  cursor: pointer;
+  border-radius: 0.18em;
+  /* words settle in one after another while the sentence is held whole */
+  animation: readly-settle 0.3s ease-out backwards;
+}
+/* scale rather than shift: a shifted word can push the underline of the last
+   line past the edge of the card, a shrunken one never can */
+@keyframes readly-settle {
+  from {
+    opacity: 0;
+    transform: scale(0.94);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+.readly__syl {
+  display: inline-block;
+  position: relative;
+  color: var(--ink);
+  transition: color 0.13s ease;
+}
+.readly__syl.is-done {
+  opacity: 0.55;
+}
+/* a real underline follows the baseline, so it sits right under the letters
+   whether the sentence is set in capitals or in lower case */
+.readly__syl.is-active {
+  color: #e8590c;
+  opacity: 1;
+  text-decoration: underline;
+  text-decoration-color: #e8590c;
+  text-decoration-thickness: 0.085em;
+  text-underline-offset: 0.16em;
+  text-decoration-skip-ink: none;
+}
+.readly__sentence.is-finished .readly__syl {
+  opacity: 1;
+}
+
+/* sparkle burst on sentence completion */
+.readly__sparkles {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+}
+.readly__sparkle {
+  position: absolute;
+  font-size: clamp(18px, 3.4vh, 30px);
+  animation: readly-pop 1.1s ease-out forwards;
+}
+@keyframes readly-pop {
+  0% {
+    transform: translate(0, 0) scale(0.4) rotate(0deg);
+    opacity: 0;
+  }
+  25% {
+    opacity: 1;
+  }
+  100% {
+    transform: translate(var(--dx), var(--dy)) scale(1.15) rotate(var(--rot));
+    opacity: 0;
+  }
+}
+
+.readly__hint {
+  margin: 0;
+  text-align: center;
+  color: var(--white);
+  font-weight: 800;
+  font-size: 0.9rem;
+  text-shadow: 0 2px 6px rgba(0, 0, 0, 0.18);
+}
+
+/* ---- controls ---- */
+.readly__controls {
+  flex: none;
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+}
+.readly__round {
+  width: 52px;
+  height: 52px;
+  padding: 0;
+  border-radius: 50%;
+}
+.readly__round svg {
+  width: 26px;
+  height: 26px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+.readly__play {
+  min-width: 140px;
+}
+.readly__play svg {
+  width: 22px;
+  height: 22px;
+  fill: none;
+  stroke: currentColor;
+  stroke-width: 3;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+}
+
+.readly__speed {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 14px;
+  border-radius: 999px;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  font-size: 1.2rem;
+}
+.readly__speed input[type='range'] {
+  width: clamp(90px, 20vw, 180px);
+  height: 12px;
+  margin: 0;
+  border-radius: 999px;
+  accent-color: var(--primary);
+  cursor: pointer;
+}
+
+.readly__toggles {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+  justify-content: center;
+}
+.readly__toggle {
+  color: var(--ink-soft);
+  font-size: 0.95rem;
+  transition: background 0.15s ease, color 0.15s ease, box-shadow 0.15s ease;
+}
+.readly__toggle.is-on {
+  color: var(--primary-dark);
+  background: color-mix(in srgb, var(--primary) 16%, #fff);
+  box-shadow: inset 0 0 0 2px var(--primary);
+}
+
+/* Landscape phones are short and the header collapses to a floating ✕ in the
+   top-right corner: keep the progress row clear of it and trim the chrome so
+   the sentence keeps the room. */
+@media (orientation: landscape) and (max-height: 600px) {
+  .readly {
+    gap: 4px;
+  }
+  .readly__top {
+    padding-right: 56px;
+  }
+  .readly__hint {
+    display: none;
+  }
+  .readly__round {
+    width: 44px;
+    height: 44px;
+  }
+  .readly__play {
+    min-width: 0;
+    padding: 8px 18px;
+    font-size: 1rem;
+  }
+  .readly__toggle {
+    padding: 6px 12px;
+    font-size: 0.85rem;
+  }
+  .readly__speed {
+    padding: 4px 12px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .readly__word,
+  .readly__sparkle {
+    animation: none;
+  }
+}

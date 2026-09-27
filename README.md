@@ -44,7 +44,7 @@ Designed for phones and tablets, with big finger-friendly targets.
 | 🏰 Block Castle | 🐠 Magic Aquarium | 🎵 Music Band |
 | 🎂 Cake Designer | 🏎️ Star Racing | 🌻 Happy Garden |
 | 🐾 Animal Tracks | ⚙️ Invention Machine | 🖼️ Mosaic Art |
-| 🦖 Dino Run | | |
+| 🦖 Dino Run | 📖 Read Along | 🍄 Pixel Jump |
 
 ## How it's organized
 

@@ -119,6 +119,15 @@ export const GAMES = [
     landscape: true, // a whole sentence on one line needs the wide side
   },
   {
+    id: 'jumper',
+    title: 'Pixel Jump',
+    emoji: '🍄',
+    colors: ['#5c94fc', '#0d3b8f'],
+    tagline: 'Run, jump and reach the flag!',
+    isNew: true,
+    landscape: true, // a side-scroller wants the wide side
+  },
+  {
     id: 'simon',
     title: 'Color Echo',
     emoji: '🌈',
@@ -361,6 +370,7 @@ export const GAME_AGES = {
   mathtiles: '6-8',
   dino: 'all',
   readly: '6-8',
+  jumper: 'all',
   simon: 'all',
   pong: 'all',
   puzzle: '3-5',
@@ -410,6 +420,7 @@ export const GAME_COMPONENTS = {
   mosaic: lazy(() => import('./mosaic/index.jsx')),
   dino: lazy(() => import('./dino/index.jsx')),
   readly: lazy(() => import('./readly/index.jsx')),
+  jumper: lazy(() => import('./jumper/index.jsx')),
   pong: lazy(() => import('./pong/index.jsx')),
   candy: lazy(() => import('./candy/index.jsx')),
   connect4: lazy(() => import('./connect4/index.jsx')),

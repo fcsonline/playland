@@ -13,6 +13,56 @@
  */
 
 export const GAME_ART = {
+  // Pixel Jump — a glossy gold ? block, the platformer's signature tile.
+  jumper: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <linearGradient id="jmpFace" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffd968" />
+          <stop offset="1" stopColor="#f39c12" />
+        </linearGradient>
+        <linearGradient id="jmpSide" x1="0" y1="0" x2="1" y2="1">
+          <stop offset="0" stopColor="#c46f0a" />
+          <stop offset="1" stopColor="#8a4a05" />
+        </linearGradient>
+        <linearGradient id="jmpMark" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#fff1c2" />
+        </linearGradient>
+      </defs>
+      {/* right and bottom faces for depth */}
+      <path d="M22 22h58a10 10 0 0 1 10 10v58a10 10 0 0 1-10 10H22z" fill="url(#jmpSide)" />
+      {/* front face */}
+      <rect x="10" y="10" width="72" height="72" rx="12" fill="url(#jmpFace)" />
+      {/* rivets */}
+      <circle cx="20" cy="20" r="3.2" fill="#c46f0a" opacity="0.7" />
+      <circle cx="72" cy="20" r="3.2" fill="#c46f0a" opacity="0.7" />
+      <circle cx="20" cy="72" r="3.2" fill="#c46f0a" opacity="0.7" />
+      <circle cx="72" cy="72" r="3.2" fill="#c46f0a" opacity="0.7" />
+      {/* the question mark */}
+      <path
+        d="M34 38a12 12 0 1 1 18 10.4c-4 2.3-6 4.6-6 9.6"
+        fill="none"
+        stroke="#a85a06"
+        strokeWidth="11"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <path
+        d="M34 38a12 12 0 1 1 18 10.4c-4 2.3-6 4.6-6 9.6"
+        fill="none"
+        stroke="url(#jmpMark)"
+        strokeWidth="7"
+        strokeLinecap="round"
+        strokeLinejoin="round"
+      />
+      <circle cx="46" cy="70" r="5.6" fill="#a85a06" />
+      <circle cx="46" cy="70" r="3.6" fill="url(#jmpMark)" />
+      {/* gloss */}
+      <rect x="16" y="15" width="60" height="12" rx="6" fill="#ffffff" opacity="0.45" />
+    </svg>
+  ),
+
   // Tiny Doctor — glossy white first-aid kit with a red cross.
   doctor: () => (
     <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">

@@ -59,7 +59,7 @@ const STR = {
 
 // World units are sprite pixels: one tile is 16 of them.
 const GRAVITY = 1400
-const JUMP_V = 420 // reaches about four tiles
+const JUMP_V = 440 // clears a four-tile pipe with a little to spare
 const JUMP_CUT = 140 // letting go early caps the rise: short taps give small hops
 const MAX_FALL = 400
 const RUN = 115

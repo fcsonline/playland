@@ -4,7 +4,7 @@ import { useT } from '../../lib/i18n.js'
 import { tone } from '../../lib/audio.js'
 import { useGameLoop } from '../../lib/useGameLoop.js'
 import Countdown from '../../components/Countdown.jsx'
-import { laneX, semitone, endlessBlock } from './songs.js'
+import { laneX, semitone, endlessBlock, MISS_PAST } from './songs.js'
 import { createScene, DEPTH } from './scene.js'
 import './pianorush.css'
 
@@ -40,17 +40,17 @@ const STR = {
 }
 
 // ---- Tuning ----------------------------------------------------------------
-// Sized for small hands: a block every ~1.8s to start, easing to one every
-// ~0.8s after a couple of minutes, and never faster. (It used to start at one
+// Sized for small hands: a block every ~1.5s to start, easing to one every
+// ~0.55s after a minute and a half, and never faster. (It used to start at one
 // per 1.25s and reach one per 0.28s within a minute, which random lanes make
-// impossible to follow.)
-const SPEED_START = 1.8 // key-lengths per second at the start: slow and gentle
-const SPEED_MAX = 3.6 // the run keeps speeding up until it reaches this
-const SPEED_RAMP = 0.015 // speed gained per second (the cap is ~2 minutes in)
+// impossible to follow.) Distances are in key-lengths; the camera shows the
+// whole road, so one of them is about 31px near the line on a phone.
+const SPEED_START = 3.0 // key-lengths per second at the start: slow and gentle
+const SPEED_MAX = 6.4 // the run keeps speeding up until it reaches this
+const SPEED_RAMP = 0.04 // speed gained per second (the cap is ~85s in)
 const SPAWN_AHEAD = 14 // blocks appear this far down the road
-const FIRST_BLOCK = 10 // the first block starts this far ahead after "Go!"
+const FIRST_BLOCK = 14 // the first block starts this far ahead after "Go!"
 const TAP_AHEAD = 10 // a block can be tapped once it is this close
-const MISS_PAST = 1.2 // a block this far past the line is a miss (late taps still count)
 const BEST_KEY = 'playland.pianorush.best'
 
 const semiFreq = (semi) => 261.63 * 2 ** (semi / 12)

@@ -1,6 +1,6 @@
 import * as THREE from 'three'
 import { RoundedBoxGeometry } from 'three/examples/jsm/geometries/RoundedBoxGeometry.js'
-import { laneX } from './songs.js'
+import { laneX, MISS_PAST } from './songs.js'
 
 // World units: one lane is 1 unit wide. The player looks down a road that
 // runs away along -z, and a block lands on the gold line at z = 0.
@@ -11,6 +11,36 @@ const PITCH = (24 * Math.PI) / 180 // low camera angle = flat look
 const FOV = 42
 const HALF_ROAD = 3.5
 const BG = 0x3a3590
+
+// What the screen must show. A block can still be tapped a little after it
+// passes the line (MISS_PAST), so the view has to reach that far in front of
+// the line, and every lane has to be on screen all the way down to it. NEAR_Z
+// is the nearest ground we guarantee, with a little to spare; BOTTOM is how far
+// down the canvas it lands (1 = the very edge).
+const NEAR_Z = MISS_PAST + 0.2
+const BOTTOM = 0.94
+
+/**
+ * Where to put the camera for a canvas of this aspect ratio.
+ *
+ * The view is narrowest at its nearest edge, so that is where the road has to
+ * fit across the width: framing it at the far end instead (as this once did)
+ * left the two outer lanes sliding off the sides of a portrait phone well
+ * before they reached the line. Returns the camera's distance from the point
+ * it looks at, and that point's z, chosen so the ground at NEAR_Z sits at
+ * BOTTOM down the canvas.
+ */
+export function framing(aspect) {
+  const t = Math.tan((FOV * Math.PI) / 360)
+  const sinP = Math.sin(PITCH)
+  const cosP = Math.cos(PITCH)
+  // Width: (HALF_ROAD + a sliver) must span the canvas at NEAR_Z. Depth along
+  // the view axis of a ground point q in front of the look-at point is
+  // dist - q*cosP, and q is fixed by BOTTOM, which gives this in closed form.
+  const dist = Math.max(((HALF_ROAD + 0.1) * (sinP + BOTTOM * t * cosP)) / (t * aspect * sinP), 7)
+  const q = (BOTTOM * t * dist) / (sinP + BOTTOM * t * cosP)
+  return { dist, targetZ: NEAR_Z - q }
+}
 
 function roadTexture() {
   const c = document.createElement('canvas')
@@ -142,13 +172,16 @@ export function createScene(canvas) {
     h = height
     renderer.setSize(w, h, false)
     camera.aspect = w / h
-    // Pull the camera back until the whole road fits across the screen.
-    const halfW = HALF_ROAD + 0.4
-    const dist = Math.max(halfW / (Math.tan((FOV * Math.PI) / 360) * camera.aspect), 7)
-    const target = new THREE.Vector3(0, 0, -8)
+    const { dist, targetZ } = framing(camera.aspect)
+    const target = new THREE.Vector3(0, 0, targetZ)
     camera.position.set(0, Math.sin(PITCH) * dist, target.z + Math.cos(PITCH) * dist)
     camera.lookAt(target)
     camera.updateProjectionMatrix()
+    // Keep the haze the same distance past the line wherever the camera sits,
+    // so pulling back doesn't wash the far blocks out.
+    const toLine = camera.position.length()
+    scene.fog.near = toLine + 5
+    scene.fog.far = toLine + 35
     return true
   }
 

@@ -13,12 +13,13 @@ export const semitone = (lane, black) => NATURAL[lane] + (black ? 1 : 0)
 /**
  * The n-th block of the endless run. Black blocks creep in over the first
  * minute or so, and the distance to the next block shrinks a little, but never
- * below a gap a child can still react to.
+ * below a gap a child can still react to. Together with the road's speed (see
+ * the tuning in index.jsx) the gap sets the time between blocks: gap / speed.
  */
 export function endlessBlock(n) {
   return {
     lane: Math.floor(Math.random() * LANES),
     black: Math.random() < Math.min(0.5, 0.1 + n * 0.012),
-    gap: Math.max(2.2, 3 - n * 0.012), // key-lengths to the next block
+    gap: Math.max(2.8, 3.2 - n * 0.006), // key-lengths to the next block
   }
 }

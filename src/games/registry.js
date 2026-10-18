@@ -122,6 +122,14 @@ export const GAMES = [
     landscape: true, // a side-scroller wants the wide side
   },
   {
+    id: 'pianorush',
+    title: 'Piano Rush',
+    emoji: '🎹',
+    colors: ['#7f5af0', '#2cb1bc'],
+    tagline: 'Tap the blocks as they land on the keys!',
+    isNew: true,
+  },
+  {
     id: 'simon',
     title: 'Color Echo',
     emoji: '🌈',
@@ -382,6 +390,7 @@ export const GAME_AGES = {
   dino: 'all',
   readly: '6-8',
   jumper: 'all',
+  pianorush: 'all',
   simon: 'all',
   pong: 'all',
   puzzle: '3-5',
@@ -469,6 +478,7 @@ export const GAME_CATEGORIES = {
   coaster: 'create',
   // 🏃 quick hands and reflexes
   jumper: 'action',
+  pianorush: 'action',
   merge: 'action',
   racing: 'action',
   frog: 'action',
@@ -502,6 +512,7 @@ export const GAME_COMPONENTS = {
   dino: lazy(() => import('./dino/index.jsx')),
   readly: lazy(() => import('./readly/index.jsx')),
   jumper: lazy(() => import('./jumper/index.jsx')),
+  pianorush: lazy(() => import('./pianorush/index.jsx')),
   pong: lazy(() => import('./pong/index.jsx')),
   connect4: lazy(() => import('./connect4/index.jsx')),
   count: lazy(() => import('./count/index.jsx')),

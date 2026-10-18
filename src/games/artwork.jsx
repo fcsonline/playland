@@ -13,6 +13,36 @@
  */
 
 export const GAME_ART = {
+  // Piano Rush — a white and a black 3D block landing on piano keys.
+  pianorush: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <linearGradient id="prKey" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#ffffff" />
+          <stop offset="1" stopColor="#d9def0" />
+        </linearGradient>
+        <linearGradient id="prBlack" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0" stopColor="#5a6090" />
+          <stop offset="1" stopColor="#1d2040" />
+        </linearGradient>
+      </defs>
+      {/* keyboard */}
+      <rect x="10" y="60" width="80" height="30" rx="7" fill="url(#prKey)" />
+      <path d="M30 60v30M50 60v30M70 60v30" stroke="#b9c1de" strokeWidth="1.8" />
+      <rect x="25" y="60" width="10" height="18" rx="3" fill="url(#prBlack)" />
+      <rect x="45" y="60" width="10" height="18" rx="3" fill="url(#prBlack)" />
+      <rect x="65" y="60" width="10" height="18" rx="3" fill="url(#prBlack)" />
+      {/* falling white block: top, front, side */}
+      <path d="M17 24l9-6h18l-5 6z" fill="#ffffff" />
+      <path d="M44 18l-5 6v14l5-6z" fill="#b9c1de" />
+      <rect x="17" y="24" width="22" height="14" rx="2" fill="#e4e8f8" />
+      {/* falling black block */}
+      <path d="M58 6l8-5h14l-4 5z" fill="#6c73a8" />
+      <path d="M80 1l-4 5v16l4-5z" fill="#0f1128" />
+      <rect x="58" y="6" width="18" height="16" rx="2" fill="#2a2e56" />
+      <rect x="60" y="8" width="14" height="3" rx="1.5" fill="#6fe3ff" opacity="0.8" />
+    </svg>
+  ),
   // Tiny Doctor — glossy white first-aid kit with a red cross.
   doctor: () => (
     <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">

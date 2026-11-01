@@ -130,6 +130,14 @@ export const GAMES = [
     isNew: true,
   },
   {
+    id: 'hoops',
+    title: 'Hoop Shot',
+    emoji: '🏀',
+    colors: ['#ffb347', '#e8590c'],
+    tagline: 'Kick the ball into the moving basket!',
+    isNew: true,
+  },
+  {
     id: 'simon',
     title: 'Color Echo',
     emoji: '🌈',
@@ -391,6 +399,7 @@ export const GAME_AGES = {
   readly: '6-8',
   jumper: 'all',
   pianorush: 'all',
+  hoops: 'all',
   simon: 'all',
   pong: 'all',
   puzzle: '3-5',
@@ -479,6 +488,7 @@ export const GAME_CATEGORIES = {
   // 🏃 quick hands and reflexes
   jumper: 'action',
   pianorush: 'action',
+  hoops: 'action',
   merge: 'action',
   racing: 'action',
   frog: 'action',
@@ -513,6 +523,7 @@ export const GAME_COMPONENTS = {
   readly: lazy(() => import('./readly/index.jsx')),
   jumper: lazy(() => import('./jumper/index.jsx')),
   pianorush: lazy(() => import('./pianorush/index.jsx')),
+  hoops: lazy(() => import('./hoops/index.jsx')),
   pong: lazy(() => import('./pong/index.jsx')),
   connect4: lazy(() => import('./connect4/index.jsx')),
   count: lazy(() => import('./count/index.jsx')),

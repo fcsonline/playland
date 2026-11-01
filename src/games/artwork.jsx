@@ -13,6 +13,28 @@
  */
 
 export const GAME_ART = {
+  // Hoop Shot — a glossy basketball dropping toward an orange hoop.
+  hoops: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <defs>
+        <radialGradient id="hsBall" cx="0.35" cy="0.3" r="0.8">
+          <stop offset="0" stopColor="#ffb86b" />
+          <stop offset="1" stopColor="#e8590c" />
+        </radialGradient>
+      </defs>
+      {/* backboard */}
+      <rect x="22" y="8" width="56" height="34" rx="6" fill="#ffffff" />
+      <rect x="39" y="22" width="22" height="16" rx="3" fill="none" stroke="#e8590c" strokeWidth="3" />
+      {/* net */}
+      <path d="M31 47l9 24M44 47l4 24M56 47l-4 24M69 47l-9 24M33 56h34M37 65h26" stroke="#e9eefc" strokeWidth="2.2" strokeLinecap="round" fill="none" />
+      {/* rim */}
+      <ellipse cx="50" cy="46" rx="22" ry="5.5" fill="none" stroke="#ff5a1f" strokeWidth="4.5" />
+      {/* ball */}
+      <circle cx="50" cy="78" r="15" fill="url(#hsBall)" />
+      <path d="M35 78h30M50 63v30M40 67q6 11 0 22M60 67q-6 11 0 22" stroke="#3b2412" strokeWidth="1.8" fill="none" />
+      <ellipse cx="44" cy="71" rx="4.5" ry="3" fill="#ffffff" opacity="0.55" />
+    </svg>
+  ),
   // Piano Rush — a white and a black 3D block landing on piano keys.
   pianorush: () => (
     <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">

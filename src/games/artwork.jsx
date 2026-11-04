@@ -13,6 +13,18 @@
  */
 
 export const GAME_ART = {
+  // Bullseye Rush — a red-and-white target wrapped in a draining green ring.
+  bullseye: () => (
+    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
+      <circle cx="50" cy="50" r="40" fill="none" stroke="#ffffff" strokeOpacity="0.45" strokeWidth="8" />
+      <path d="M50 10a40 40 0 1 1 -38 52" fill="none" stroke="#22c55e" strokeWidth="8" strokeLinecap="round" />
+      <circle cx="50" cy="50" r="32" fill="#ffffff" />
+      <circle cx="50" cy="50" r="28" fill="#ef3b4a" />
+      <circle cx="50" cy="50" r="20" fill="#ffffff" />
+      <circle cx="50" cy="50" r="12" fill="#ef3b4a" />
+      <circle cx="50" cy="50" r="5" fill="#ffffff" />
+    </svg>
+  ),
   // Hoop Shot — a glossy basketball dropping toward an orange hoop.
   hoops: () => (
     <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">

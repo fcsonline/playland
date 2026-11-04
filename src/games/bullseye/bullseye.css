@@ -1,0 +1,159 @@
+.bullseye {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: manipulation;
+}
+
+.bullseye__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background:
+    radial-gradient(circle at 50% 40%, rgba(255, 255, 255, 0.5), transparent 60%),
+    linear-gradient(180deg, #d9f2ff 0%, #b6e3c8 100%);
+}
+
+.bullseye__target {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  padding: 0;
+  border: 0;
+  background: none;
+  border-radius: 50%;
+  cursor: pointer;
+  touch-action: manipulation;
+  -webkit-tap-highlight-color: transparent;
+  animation: bullseye-in 0.18s ease-out;
+  filter: drop-shadow(0 4px 6px rgba(20, 40, 60, 0.25));
+}
+
+.bullseye__target svg {
+  display: block;
+  width: 100%;
+  height: 100%;
+  overflow: visible;
+}
+
+.bullseye__track {
+  fill: none;
+  stroke: rgba(0, 0, 0, 0.12);
+  stroke-width: 8;
+}
+
+.bullseye__ring {
+  fill: none;
+  stroke: #22c55e;
+  stroke-width: 8;
+  stroke-linecap: round;
+  transform: rotate(-90deg);
+  transform-origin: 50% 50%;
+}
+
+.bullseye__target.is-missed {
+  animation: bullseye-shake 0.4s ease-in-out 2;
+}
+
+.bullseye__target.is-missed .bullseye__track {
+  stroke: #ef3b4a;
+}
+
+.bullseye__pop {
+  position: absolute;
+  transform: translate(-50%, -50%);
+  border-radius: 50%;
+  border: 6px solid #22c55e;
+  pointer-events: none;
+  animation: bullseye-pop 0.4s ease-out forwards;
+}
+
+.bullseye__hud {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  right: 8px;
+  display: flex;
+  justify-content: space-between;
+  gap: 8px;
+  pointer-events: none;
+}
+
+.bullseye__overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 12px;
+  padding: 16px;
+  background: rgba(20, 40, 50, 0.6);
+  color: #fff;
+  text-align: center;
+  overflow-y: auto;
+}
+
+.bullseye__title {
+  font-size: clamp(1.5rem, 6vw, 2.1rem);
+  font-weight: 800;
+  line-height: 1.1;
+}
+
+.bullseye__sub {
+  font-size: 1.15rem;
+  opacity: 0.9;
+}
+
+.bullseye__hint {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  bottom: 14%;
+  text-align: center;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-shadow: 0 2px 6px rgba(20, 40, 60, 0.7);
+  pointer-events: none;
+}
+
+@keyframes bullseye-in {
+  from {
+    transform: translate(-50%, -50%) scale(0.3);
+    opacity: 0;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes bullseye-pop {
+  from {
+    transform: translate(-50%, -50%) scale(0.8);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-50%, -50%) scale(1.6);
+    opacity: 0;
+  }
+}
+
+@keyframes bullseye-shake {
+  0%,
+  100% {
+    transform: translate(-50%, -50%);
+  }
+  25% {
+    transform: translate(calc(-50% - 6px), -50%);
+  }
+  75% {
+    transform: translate(calc(-50% + 6px), -50%);
+  }
+}

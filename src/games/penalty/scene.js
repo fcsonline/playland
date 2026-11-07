@@ -31,8 +31,12 @@ function grassTexture() {
   c.height = 256
   const g = c.getContext('2d')
   for (let i = 0; i < 8; i++) {
-    g.fillStyle = i % 2 ? '#3ea646' : '#46b54f'
+    g.fillStyle = i % 2 ? '#3a9d43' : '#48b552'
     g.fillRect(0, i * 32, 64, 32)
+  }
+  for (let i = 0; i < 700; i++) {
+    g.fillStyle = Math.random() < 0.5 ? 'rgba(255,255,255,0.07)' : 'rgba(0,50,0,0.08)'
+    g.fillRect(Math.random() * 64, Math.random() * 256, 1.5, 3)
   }
   const tex = new THREE.CanvasTexture(c)
   tex.colorSpace = THREE.SRGBColorSpace
@@ -78,16 +82,16 @@ function ballTexture() {
 const mat = (color, extra = {}) => new THREE.MeshStandardMaterial({ color, roughness: 0.6, ...extra })
 
 /** A little goalkeeper built from primitives, facing +z (toward the player). */
-function buildKeeper() {
+function buildPlayer({ shirtColor, shortsColor, sockColor, gloveColor, hairColor }) {
   const root = new THREE.Group()
   const body = new THREE.Group() // leans / dives as a unit
   root.add(body)
 
-  const shirt = mat(0xffd43b)
-  const shorts = mat(0x1d1d2b)
+  const shirt = mat(shirtColor)
+  const shorts = mat(shortsColor)
   const skin = mat(0xf2b88c)
-  const glove = mat(0x2fbf71)
-  const sock = mat(0xffd43b)
+  const glove = mat(gloveColor)
+  const sock = mat(sockColor)
 
   const torso = new THREE.Mesh(new THREE.CapsuleGeometry(0.34, 0.5, 6, 12), shirt)
   torso.position.y = 1.25
@@ -100,7 +104,7 @@ function buildKeeper() {
   body.add(head)
   const hair = new THREE.Mesh(
     new THREE.SphereGeometry(0.27, 18, 10, 0, Math.PI * 2, 0, Math.PI * 0.5),
-    mat(0x4a2c17),
+    mat(hairColor),
   )
   hair.position.y = 1.9
   body.add(hair)
@@ -143,6 +147,27 @@ function buildKeeper() {
   const armR = arm(1)
   body.add(armL, armR)
 
+  // A shirt number on the back (+z is the back for a player facing -z after rotating).
+  const c = document.createElement('canvas')
+  c.width = c.height = 64
+  const g = c.getContext('2d')
+  g.fillStyle = '#ffffff'
+  g.font = 'bold 44px sans-serif'
+  g.textAlign = 'center'
+  g.textBaseline = 'middle'
+  g.fillText('1', 32, 34)
+  const numTex = new THREE.CanvasTexture(c)
+  const num = new THREE.Mesh(
+    new THREE.PlaneGeometry(0.34, 0.34),
+    new THREE.MeshBasicMaterial({ map: numTex, transparent: true }),
+  )
+  num.position.set(0, 1.28, -0.345)
+  num.rotation.y = Math.PI
+  body.add(num)
+
+  root.traverse((o) => {
+    if (o.isMesh && o.material.map !== numTex) o.castShadow = true
+  })
   root.userData = { body, armL, armR, legL, legR }
   return root
 }
@@ -150,14 +175,39 @@ function buildKeeper() {
 export function createScene(canvas) {
   const renderer = new THREE.WebGLRenderer({ canvas, antialias: true })
   renderer.setPixelRatio(Math.min(2, window.devicePixelRatio || 1))
+  renderer.shadowMap.enabled = true
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap
   const scene = new THREE.Scene()
   scene.background = skyTexture()
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 120)
 
-  scene.add(new THREE.AmbientLight(0xffffff, 1.6))
-  const sun = new THREE.DirectionalLight(0xffffff, 2.2)
-  sun.position.set(-4, 10, 8)
-  scene.add(sun)
+  scene.fog = new THREE.Fog(0xcfeaff, 32, 75)
+  scene.add(new THREE.HemisphereLight(0xdff1ff, 0x4a8a3a, 1.5))
+  const sun = new THREE.DirectionalLight(0xfff4dd, 2.4)
+  sun.position.set(-9, 11, 3)
+  sun.target.position.set(0, 0, -6)
+  sun.castShadow = true
+  sun.shadow.mapSize.set(2048, 2048)
+  Object.assign(sun.shadow.camera, { left: -13, right: 13, top: 12, bottom: -12, near: 1, far: 40 })
+  sun.shadow.bias = -0.0004
+  sun.shadow.radius = 3
+  scene.add(sun, sun.target)
+
+  // Soft clouds drifting behind the stands.
+  const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, fog: false })
+  const clouds = []
+  for (let i = 0; i < 5; i++) {
+    const cl = new THREE.Group()
+    for (let k = 0; k < 4; k++) {
+      const p = new THREE.Mesh(new THREE.SphereGeometry(1.4 + (k % 2) * 0.5, 12, 8), cloudMat)
+      p.position.set(k * 1.5 - 2.2, (k % 2) * 0.5, 0)
+      p.scale.y = 0.6
+      cl.add(p)
+    }
+    cl.position.set(-30 + i * 15, 17 + (i % 2) * 3, GOAL_Z - 30)
+    scene.add(cl)
+    clouds.push(cl)
+  }
 
   // ---- Pitch ---------------------------------------------------------------
   const pitch = new THREE.Mesh(
@@ -166,6 +216,7 @@ export function createScene(canvas) {
   )
   pitch.rotation.x = -Math.PI / 2
   pitch.position.set(0, 0, -10)
+  pitch.receiveShadow = true
   scene.add(pitch)
 
   const white = new THREE.MeshBasicMaterial({ color: 0xffffff })
@@ -194,25 +245,38 @@ export function createScene(canvas) {
   kitRing.position.set(0, 0.015, 0)
   scene.add(kitRing)
 
-  // ---- Stands: ad boards and a colourful crowd -----------------------------
+  // ---- Stands: ad boards, tiered seats and an instanced crowd -----------------
   const boardColors = [0xff6b6b, 0xffd43b, 0x4dabf7, 0x69db7c, 0xb197fc]
-  for (let i = 0; i < 12; i++) {
+  for (let i = 0; i < 14; i++) {
     const b = new THREE.Mesh(new THREE.BoxGeometry(5, 0.9, 0.2), mat(boardColors[i % 5]))
-    b.position.set(-27.5 + i * 5, 0.45, GOAL_Z - 5)
+    b.position.set(-32.5 + i * 5, 0.45, GOAL_Z - 4.5)
+    b.castShadow = true
     scene.add(b)
   }
-  const stand = new THREE.Mesh(new THREE.BoxGeometry(60, 5, 2), mat(0x6b7a99))
-  stand.position.set(0, 3.4, GOAL_Z - 8)
-  scene.add(stand)
-  const fan = new THREE.SphereGeometry(0.28, 8, 6)
-  const fanMats = [0xff6b6b, 0xffd43b, 0x4dabf7, 0xffffff, 0x69db7c].map((c) => mat(c))
-  for (let r = 0; r < 3; r++) {
-    for (let i = 0; i < 40; i++) {
-      const f = new THREE.Mesh(fan, fanMats[(i * 7 + r * 3) % 5])
-      f.position.set(-19.5 + i, 4.8 + r * 0.55 + (i % 2) * 0.12, GOAL_Z - 7 + r * 0.01)
-      scene.add(f)
+  const TIERS = 5
+  for (let r = 0; r < TIERS; r++) {
+    const tier = new THREE.Mesh(new THREE.BoxGeometry(70, 1.1, 1.6), mat(r % 2 ? 0x7d8aa8 : 0x6b7a99))
+    tier.position.set(0, 1 + r * 1.1, GOAL_Z - 6.5 - r * 1.6)
+    scene.add(tier)
+  }
+  const backWall = new THREE.Mesh(new THREE.BoxGeometry(70, 10, 0.5), mat(0x8a97b5))
+  backWall.position.set(0, 5, GOAL_Z - 6.5 - TIERS * 1.6 - 0.2)
+  scene.add(backWall)
+  const fanGeo = new THREE.SphereGeometry(0.3, 8, 6)
+  const fans = new THREE.InstancedMesh(fanGeo, new THREE.MeshStandardMaterial({ roughness: 0.8 }), TIERS * 56)
+  const fanColors = [0xff6b6b, 0xffd43b, 0x4dabf7, 0xffffff, 0x69db7c, 0xffa94d]
+  const m4 = new THREE.Matrix4()
+  const col = new THREE.Color()
+  let n = 0
+  for (let r = 0; r < TIERS; r++) {
+    for (let i = 0; i < 56; i++) {
+      m4.makeTranslation(-27.5 + i + (r % 2) * 0.5, 2.05 + r * 1.1 + 0.55 + Math.random() * 0.1, GOAL_Z - 6.5 - r * 1.6 + 0.2)
+      fans.setMatrixAt(n, m4)
+      fans.setColorAt(n, col.setHex(fanColors[Math.floor(Math.random() * fanColors.length)]))
+      n++
     }
   }
+  scene.add(fans)
 
   // ---- Goal ----------------------------------------------------------------
   const goal = new THREE.Group()
@@ -220,11 +284,13 @@ export function createScene(canvas) {
   for (const sx of [-1, 1]) {
     const p = new THREE.Mesh(new THREE.CylinderGeometry(POST_R, POST_R, GOAL_H, 12), postMat)
     p.position.set(sx * GOAL_HALF, GOAL_H / 2, GOAL_Z)
+    p.castShadow = true
     goal.add(p)
   }
   const bar = new THREE.Mesh(new THREE.CylinderGeometry(POST_R, POST_R, GOAL_HALF * 2 + POST_R * 2, 12), postMat)
   bar.rotation.z = Math.PI / 2
   bar.position.set(0, GOAL_H, GOAL_Z)
+  bar.castShadow = true
   goal.add(bar)
 
   const netMat = new THREE.MeshBasicMaterial({
@@ -249,22 +315,25 @@ export function createScene(canvas) {
   scene.add(goal)
 
   // ---- Keeper --------------------------------------------------------------
-  const keeper = buildKeeper()
+  const keeper = buildPlayer({ shirtColor: 0xffd43b, shortsColor: 0x1d1d2b, sockColor: 0xffd43b, gloveColor: 0x2fbf71, hairColor: 0x4a2c17 })
   keeper.position.z = GOAL_Z + 0.35
   scene.add(keeper)
+
+  // The kicker, seen from behind, standing by the ball.
+  const kicker = buildPlayer({ shirtColor: 0xe03131, shortsColor: 0xffffff, sockColor: 0xe03131, gloveColor: 0xf2b88c, hairColor: 0x2b1b10 })
+  kicker.rotation.y = Math.PI
+  kicker.position.set(-2.4, 0, 0.5)
+  kicker.userData.armL.rotation.z = Math.PI - 0.15
+  kicker.userData.armR.rotation.z = -(Math.PI - 0.15)
+  scene.add(kicker)
 
   // ---- Ball ----------------------------------------------------------------
   const ball = new THREE.Mesh(
     new THREE.SphereGeometry(BALL_R, 28, 20),
-    new THREE.MeshStandardMaterial({ map: ballTexture(), roughness: 0.45 }),
+    new THREE.MeshStandardMaterial({ map: ballTexture(), roughness: 0.35 }),
   )
+  ball.castShadow = true
   scene.add(ball)
-  const shadow = new THREE.Mesh(
-    new THREE.CircleGeometry(BALL_R, 24),
-    new THREE.MeshBasicMaterial({ color: 0x000000, transparent: true, opacity: 0.3 }),
-  )
-  shadow.rotation.x = -Math.PI / 2
-  scene.add(shadow)
 
   // ---- Aim reticle (lives just in front of the goal line) --------------------
   const reticle = new THREE.Group()
@@ -336,11 +405,12 @@ export function createScene(canvas) {
     ball.position.set(state.ball.x, state.ball.y, state.ball.z)
     ball.rotation.x -= (state.ball.spinX || 0) * dt
     ball.rotation.z = state.ball.spin || 0
-    shadow.position.set(state.ball.x, 0.02, state.ball.z)
-    const lift = Math.max(0, state.ball.y - BALL_R)
-    shadow.scale.setScalar(Math.max(0.4, 1 - lift * 0.15))
-    shadow.material.opacity = Math.max(0.08, 0.3 - lift * 0.05)
-    kitRing.material.color.setHex(state.kit)
+
+    const kt = state.kickT || 0
+    const swing = kt < 0.35 ? Math.sin((kt / 0.35) * Math.PI) : 0
+    kicker.userData.legL.rotation.x = -0.5 * Math.min(1, kt / 0.12) * (kt < 0.35 ? 1 : 0) + swing * 1.5
+    kicker.userData.body.rotation.x = swing * 0.12
+    for (const c of clouds) c.position.x = ((c.position.x + dt * 0.4 + 40) % 80) - 40
 
     const k = state.keeper
     keeper.position.x = k.x

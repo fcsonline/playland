@@ -4,7 +4,7 @@ import { useT } from '../../lib/i18n.js'
 import { tone, noiseBurst, sfx } from '../../lib/audio.js'
 import { useGameLoop } from '../../lib/useGameLoop.js'
 import { createScene, GOAL_Z } from './scene.js'
-import { freshWorld, resetBall, shoot, step } from './physics.js'
+import { freshWorld, resetBall, shoot, step, FLIGHT } from './physics.js'
 import './penalty.css'
 
 const STR = {
@@ -14,11 +14,6 @@ const STR = {
     save: 'Saved! Try again!',
     post: 'So close!',
     wide: 'Oh, so close!',
-    turn: ['Red’s turn', 'Blue’s turn'],
-    one: '1 player',
-    two: '2 players',
-    win: ['Red wins! 🎉', 'Blue wins! 🎉'],
-    draw: 'A draw — you are both champions! 🏆',
     solo: 'What a shooter! 🏆',
     again: 'Play again',
   },
@@ -28,11 +23,6 @@ const STR = {
     save: '¡Paradón! ¡Otra vez!',
     post: '¡Por poco!',
     wide: '¡Uy, por poco!',
-    turn: ['Turno de Rojo', 'Turno de Azul'],
-    one: '1 jugador',
-    two: '2 jugadores',
-    win: ['¡Gana Rojo! 🎉', '¡Gana Azul! 🎉'],
-    draw: '¡Empate: los dos sois campeones! 🏆',
     solo: '¡Qué gran tirador! 🏆',
     again: 'Jugar otra vez',
   },
@@ -42,11 +32,6 @@ const STR = {
     save: 'Parada! Torna-ho a provar!',
     post: 'Per poc!',
     wide: 'Uf, per poc!',
-    turn: ['Torn de Vermell', 'Torn de Blau'],
-    one: '1 jugador',
-    two: '2 jugadors',
-    win: ['Guanya Vermell! 🎉', 'Guanya Blau! 🎉'],
-    draw: 'Empat: els dos sou campions! 🏆',
     solo: 'Quin gran golejador! 🏆',
     again: 'Torna a jugar',
   },
@@ -56,18 +41,12 @@ const STR = {
     save: 'Arrêt ! Réessaie !',
     post: 'Presque !',
     wide: 'Oh, presque !',
-    turn: ['Tour de Rouge', 'Tour de Bleu'],
-    one: '1 joueur',
-    two: '2 joueurs',
-    win: ['Rouge gagne ! 🎉', 'Bleu gagne ! 🎉'],
-    draw: 'Égalité : vous êtes tous les deux champions ! 🏆',
     solo: 'Quel tireur ! 🏆',
     again: 'Rejouer',
   },
 }
 
 const SHOTS = 5 // per player, per round
-const KITS = [0xff5a5a, 0x4dabf7]
 const WAIT = 1.5 // seconds the result stays on screen
 
 export default function Penalty() {
@@ -84,7 +63,7 @@ export default function Penalty() {
   const handlers = useRef({})
 
   // Game state lives in a ref (read by the loop) and is mirrored to React for display.
-  const gs = useRef({ mode: 2, scores: [0, 0], shots: [0, 0], turn: 0, over: false, goals: 0 })
+  const gs = useRef({ score: 0, shots: 0, over: false })
   const [ui, setUi] = useState(gs.current)
   const [msg, setMsg] = useState({ key: '', n: 0 })
   const [touched, setTouched] = useState(false)
@@ -145,8 +124,8 @@ export default function Penalty() {
     aim.current = null
   }
 
-  function restart(mode = gs.current.mode) {
-    gs.current = { mode, scores: [0, 0], shots: [0, 0], turn: 0, over: false, goals: 0 }
+  function restart() {
+    gs.current = { score: 0, shots: 0, over: false }
     if (world.current) resetBall(world.current)
     setMsg({ key: '', n: 0 })
     sync()
@@ -154,12 +133,10 @@ export default function Penalty() {
 
   function outcome(sc, w, result) {
     const g = gs.current
-    const who = g.turn
-    g.shots[who] += 1
+    g.shots += 1
     const rect = canvasRef.current?.getBoundingClientRect()
     if (result === 'goal') {
-      g.scores[who] += 1
-      g.goals += 1
+      g.score += 1
       sfx.good()
       noiseBurst({ duration: 0.4, gain: 0.18, type: 'lowpass', freq: 1800 })
       sc.swish()
@@ -178,15 +155,13 @@ export default function Penalty() {
 
   function nextTurn(w) {
     const g = gs.current
-    const done = g.mode === 1 ? g.shots[0] >= SHOTS : g.shots[0] >= SHOTS && g.shots[1] >= SHOTS
+    const done = g.shots >= SHOTS
     setMsg({ key: '', n: 0 })
     if (done) {
       g.over = true
-      const best = Math.max(g.scores[0], g.mode === 2 ? g.scores[1] : 0)
       sfx.win()
-      cbs.current.award(best >= 4 ? 3 : best >= 2 ? 2 : 1, { count: 24 })
+      cbs.current.award(g.score >= 4 ? 3 : g.score >= 2 ? 2 : 1, { count: 24 })
     } else {
-      g.turn = g.mode === 2 ? 1 - g.turn : 0
       resetBall(w)
     }
     sync()
@@ -203,7 +178,7 @@ export default function Penalty() {
     while (left > 0) {
       const d = Math.min(left, 1 / 90)
       left -= d
-      const result = step(w, d, gs.current.goals)
+      const result = step(w, d, gs.current.score)
       if (result) outcome(sc, w, result)
     }
     if (w.phase === 'after' && w.wait > 0) {
@@ -216,71 +191,34 @@ export default function Penalty() {
         ball: w.ball,
         keeper: w.keeper,
         aim: w.phase === 'aim' ? aim.current : null,
-        kit: KITS[gs.current.turn],
+        kickT: w.phase === 'flying' ? w.u * FLIGHT : w.phase === 'after' ? 9 : 0,
       },
       dt,
     )
   })
 
-  const { mode, scores, shots, turn, over } = ui
+  const { score, shots, over } = ui
   const text = msg.key ? t(msg.key) : ''
 
   return (
     <div className="penalty">
       <div className="penalty__stage play-surface" ref={wrapRef}>
         <div className="penalty__hud">
-          {mode === 2 ? (
-            [0, 1].map((p) => (
-              <span
-                key={p}
-                className={`chip penalty__score penalty__score--${p ? 'blue' : 'red'}${turn === p && !over ? ' is-active' : ''}`}
-              >
-                ⚽ {scores[p]} <small>{shots[p]}/{SHOTS}</small>
-              </span>
-            ))
-          ) : (
-            <span className="chip penalty__score is-active">
-              ⚽ {scores[0]} <small>{shots[0]}/{SHOTS}</small>
-            </span>
-          )}
+          <span className="chip penalty__score">
+            ⚽ {score} <small>{shots}/{SHOTS}</small>
+          </span>
         </div>
-
-        <div className="penalty__modes">
-          {[1, 2].map((m) => (
-            <button
-              key={m}
-              type="button"
-              className={`penalty__mode${mode === m ? ' is-on' : ''}`}
-              onClick={() => mode !== m && restart(m)}
-            >
-              {'🧑'.repeat(m)} {t(m === 1 ? 'one' : 'two')}
-            </button>
-          ))}
-        </div>
-
-        {mode === 2 && !over && (
-          <div className={`penalty__turn penalty__turn--${turn ? 'blue' : 'red'}`}>{t('turn')[turn]}</div>
-        )}
         {!touched && !over && <div className="penalty__hint">{t('hint')}</div>}
         {text && (
           <div key={msg.n} className={`penalty__msg penalty__msg--${msg.key}`} aria-hidden="true">
             {text}
           </div>
         )}
-
         {over && (
           <div className="penalty__over">
             <div className="penalty__over-card">
-              <div className="penalty__over-title">
-                {mode === 1
-                  ? t('solo')
-                  : scores[0] === scores[1]
-                    ? t('draw')
-                    : t('win')[scores[0] > scores[1] ? 0 : 1]}
-              </div>
-              <div className="penalty__over-score">
-                {mode === 2 ? `🔴 ${scores[0]}  –  ${scores[1]} 🔵` : `⚽ ${scores[0]} / ${SHOTS}`}
-              </div>
+              <div className="penalty__over-title">{t('solo')}</div>
+              <div className="penalty__over-score">⚽ {score} / {SHOTS}</div>
               <button type="button" className="btn btn--good" onClick={() => restart()}>
                 {t('again')}
               </button>

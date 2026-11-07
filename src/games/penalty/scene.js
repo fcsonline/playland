@@ -2,7 +2,7 @@ import * as THREE from 'three'
 
 // World units are roughly metres. The ball starts on the penalty spot at
 // z = 0 and flies toward the goal line at z = GOAL_Z. x is across, y is up.
-export const BALL_R = 0.38
+export const BALL_R = 0.45
 export const GOAL_Z = -9
 export const GOAL_HALF = 3.66 // half the goal width
 export const GOAL_H = 2.44
@@ -16,8 +16,8 @@ function skyTexture() {
   c.height = 256
   const g = c.getContext('2d')
   const grad = g.createLinearGradient(0, 0, 0, 256)
-  grad.addColorStop(0, '#5db6ff')
-  grad.addColorStop(1, '#cdeeff')
+  grad.addColorStop(0, '#7ec8ff')
+  grad.addColorStop(1, '#d6efff')
   g.fillStyle = grad
   g.fillRect(0, 0, 4, 256)
   const tex = new THREE.CanvasTexture(c)
@@ -181,7 +181,6 @@ export function createScene(canvas) {
   scene.background = skyTexture()
   const camera = new THREE.PerspectiveCamera(FOV, 1, 0.1, 120)
 
-  scene.fog = new THREE.Fog(0xcfeaff, 32, 75)
   scene.add(new THREE.HemisphereLight(0xdff1ff, 0x4a8a3a, 1.5))
   const sun = new THREE.DirectionalLight(0xfff4dd, 2.4)
   sun.position.set(-9, 11, 3)
@@ -192,22 +191,6 @@ export function createScene(canvas) {
   sun.shadow.bias = -0.0004
   sun.shadow.radius = 3
   scene.add(sun, sun.target)
-
-  // Soft clouds drifting behind the stands.
-  const cloudMat = new THREE.MeshBasicMaterial({ color: 0xffffff, transparent: true, opacity: 0.9, fog: false })
-  const clouds = []
-  for (let i = 0; i < 5; i++) {
-    const cl = new THREE.Group()
-    for (let k = 0; k < 4; k++) {
-      const p = new THREE.Mesh(new THREE.SphereGeometry(1.4 + (k % 2) * 0.5, 12, 8), cloudMat)
-      p.position.set(k * 1.5 - 2.2, (k % 2) * 0.5, 0)
-      p.scale.y = 0.6
-      cl.add(p)
-    }
-    cl.position.set(-30 + i * 15, 17 + (i % 2) * 3, GOAL_Z - 30)
-    scene.add(cl)
-    clouds.push(cl)
-  }
 
   // ---- Pitch ---------------------------------------------------------------
   const pitch = new THREE.Mesh(
@@ -245,38 +228,24 @@ export function createScene(canvas) {
   kitRing.position.set(0, 0.015, 0)
   scene.add(kitRing)
 
-  // ---- Stands: ad boards, tiered seats and an instanced crowd -----------------
+  // ---- Clean ad boards behind the goal ---------------------------------------
   const boardColors = [0xff6b6b, 0xffd43b, 0x4dabf7, 0x69db7c, 0xb197fc]
-  for (let i = 0; i < 14; i++) {
-    const b = new THREE.Mesh(new THREE.BoxGeometry(5, 0.9, 0.2), mat(boardColors[i % 5]))
-    b.position.set(-32.5 + i * 5, 0.45, GOAL_Z - 4.5)
+  for (let i = 0; i < 16; i++) {
+    const b = new THREE.Mesh(new THREE.BoxGeometry(4, 1.1, 0.25), mat(boardColors[i % 5]))
+    b.position.set(-30 + i * 4, 0.55, GOAL_Z - 4)
     b.castShadow = true
     scene.add(b)
   }
-  const TIERS = 5
-  for (let r = 0; r < TIERS; r++) {
-    const tier = new THREE.Mesh(new THREE.BoxGeometry(70, 1.1, 1.6), mat(r % 2 ? 0x7d8aa8 : 0x6b7a99))
-    tier.position.set(0, 1 + r * 1.1, GOAL_Z - 6.5 - r * 1.6)
-    scene.add(tier)
+  // A soft green hedge and gentle hills fill the horizon.
+  const hedge = new THREE.Mesh(new THREE.BoxGeometry(70, 2.6, 2), mat(0x2f8f46))
+  hedge.position.set(0, 1.3, GOAL_Z - 6)
+  scene.add(hedge)
+  for (let i = 0; i < 4; i++) {
+    const hill = new THREE.Mesh(new THREE.SphereGeometry(9 + i, 24, 12), mat(i % 2 ? 0x7fcf8f : 0x9be0a6))
+    hill.scale.y = 0.5
+    hill.position.set(-24 + i * 16, -1, GOAL_Z - 20 - (i % 2) * 4)
+    scene.add(hill)
   }
-  const backWall = new THREE.Mesh(new THREE.BoxGeometry(70, 10, 0.5), mat(0x8a97b5))
-  backWall.position.set(0, 5, GOAL_Z - 6.5 - TIERS * 1.6 - 0.2)
-  scene.add(backWall)
-  const fanGeo = new THREE.SphereGeometry(0.3, 8, 6)
-  const fans = new THREE.InstancedMesh(fanGeo, new THREE.MeshStandardMaterial({ roughness: 0.8 }), TIERS * 56)
-  const fanColors = [0xff6b6b, 0xffd43b, 0x4dabf7, 0xffffff, 0x69db7c, 0xffa94d]
-  const m4 = new THREE.Matrix4()
-  const col = new THREE.Color()
-  let n = 0
-  for (let r = 0; r < TIERS; r++) {
-    for (let i = 0; i < 56; i++) {
-      m4.makeTranslation(-27.5 + i + (r % 2) * 0.5, 2.05 + r * 1.1 + 0.55 + Math.random() * 0.1, GOAL_Z - 6.5 - r * 1.6 + 0.2)
-      fans.setMatrixAt(n, m4)
-      fans.setColorAt(n, col.setHex(fanColors[Math.floor(Math.random() * fanColors.length)]))
-      n++
-    }
-  }
-  scene.add(fans)
 
   // ---- Goal ----------------------------------------------------------------
   const goal = new THREE.Group()
@@ -316,16 +285,9 @@ export function createScene(canvas) {
 
   // ---- Keeper --------------------------------------------------------------
   const keeper = buildPlayer({ shirtColor: 0xffd43b, shortsColor: 0x1d1d2b, sockColor: 0xffd43b, gloveColor: 0x2fbf71, hairColor: 0x4a2c17 })
+  keeper.scale.setScalar(1.12)
   keeper.position.z = GOAL_Z + 0.35
   scene.add(keeper)
-
-  // The kicker, seen from behind, standing by the ball.
-  const kicker = buildPlayer({ shirtColor: 0xe03131, shortsColor: 0xffffff, sockColor: 0xe03131, gloveColor: 0xf2b88c, hairColor: 0x2b1b10 })
-  kicker.rotation.y = Math.PI
-  kicker.position.set(-2.4, 0, 0.5)
-  kicker.userData.armL.rotation.z = Math.PI - 0.15
-  kicker.userData.armR.rotation.z = -(Math.PI - 0.15)
-  scene.add(kicker)
 
   // ---- Ball ----------------------------------------------------------------
   const ball = new THREE.Mesh(
@@ -382,10 +344,10 @@ export function createScene(canvas) {
     renderer.setSize(w, h, false)
     camera.aspect = w / h
     // Frame ~11.5 units across the goal line, however narrow the screen is.
-    const dist = Math.max(11.5 / 2 / (tanHalf * camera.aspect), 8.5)
+    const dist = Math.max(8.8 / 2 / (tanHalf * camera.aspect), 6.5)
     const camZ = GOAL_Z + dist
-    camera.position.set(0, 2.6, camZ)
-    camera.lookAt(0, 0.9, GOAL_Z + 1)
+    camera.position.set(0, 2.1, camZ)
+    camera.lookAt(0, 1.0, GOAL_Z)
     camera.updateProjectionMatrix()
     return true
   }
@@ -405,12 +367,6 @@ export function createScene(canvas) {
     ball.position.set(state.ball.x, state.ball.y, state.ball.z)
     ball.rotation.x -= (state.ball.spinX || 0) * dt
     ball.rotation.z = state.ball.spin || 0
-
-    const kt = state.kickT || 0
-    const swing = kt < 0.35 ? Math.sin((kt / 0.35) * Math.PI) : 0
-    kicker.userData.legL.rotation.x = -0.5 * Math.min(1, kt / 0.12) * (kt < 0.35 ? 1 : 0) + swing * 1.5
-    kicker.userData.body.rotation.x = swing * 0.12
-    for (const c of clouds) c.position.x = ((c.position.x + dt * 0.4 + 40) % 80) - 40
 
     const k = state.keeper
     keeper.position.x = k.x

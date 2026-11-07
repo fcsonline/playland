@@ -4,7 +4,7 @@ import { useT } from '../../lib/i18n.js'
 import { tone, noiseBurst, sfx } from '../../lib/audio.js'
 import { useGameLoop } from '../../lib/useGameLoop.js'
 import { createScene, GOAL_Z } from './scene.js'
-import { freshWorld, resetBall, shoot, step, FLIGHT } from './physics.js'
+import { freshWorld, resetBall, shoot, step } from './physics.js'
 import './penalty.css'
 
 const STR = {
@@ -191,7 +191,6 @@ export default function Penalty() {
         ball: w.ball,
         keeper: w.keeper,
         aim: w.phase === 'aim' ? aim.current : null,
-        kickT: w.phase === 'flying' ? w.u * FLIGHT : w.phase === 'after' ? 9 : 0,
       },
       dt,
     )

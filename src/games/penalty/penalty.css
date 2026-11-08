@@ -1,0 +1,130 @@
+.penalty {
+  flex: 1;
+  min-height: 0;
+  display: flex;
+  flex-direction: column;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.penalty__stage {
+  position: relative;
+  flex: 1;
+  min-height: 0;
+  padding: 0;
+  overflow: hidden;
+  border-radius: var(--radius);
+  background: #5db6ff;
+}
+
+.penalty__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+  touch-action: none;
+}
+
+.penalty__hud {
+  position: absolute;
+  top: 8px;
+  left: 8px;
+  display: flex;
+  gap: 6px;
+  pointer-events: none;
+}
+
+.penalty__score {
+  border: 3px solid transparent;
+  opacity: 0.85;
+}
+.penalty__score small {
+  font-size: 0.7em;
+  opacity: 0.7;
+  margin-left: 4px;
+}
+.penalty__score.is-active {
+  opacity: 1;
+  transform: scale(1.08);
+}
+
+
+
+.penalty__hint {
+  position: absolute;
+  left: 16px;
+  right: 16px;
+  top: 57%;
+  text-align: center;
+  color: #fff;
+  font-size: 1.05rem;
+  font-weight: 800;
+  text-shadow: 0 2px 6px rgba(20, 40, 90, 0.7);
+  pointer-events: none;
+}
+
+.penalty__msg {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 20%;
+  text-align: center;
+  color: #fff;
+  font-size: clamp(2rem, 9vw, 3.2rem);
+  font-weight: 800;
+  text-shadow: 0 3px 8px rgba(20, 90, 40, 0.85);
+  pointer-events: none;
+  animation: penalty-pop 1.3s ease-out forwards;
+}
+.penalty__msg--goal {
+  color: #ffe066;
+}
+
+@keyframes penalty-pop {
+  0% {
+    opacity: 0;
+    transform: scale(0.6);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(1.15);
+  }
+  80% {
+    opacity: 1;
+  }
+  100% {
+    opacity: 0;
+    transform: translateY(-20px) scale(1);
+  }
+}
+
+.penalty__over {
+  position: absolute;
+  inset: 0;
+  display: grid;
+  place-items: center;
+  background: rgba(20, 40, 90, 0.35);
+}
+.penalty__over-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  max-width: 85%;
+  padding: 20px 24px;
+  border-radius: var(--radius);
+  background: var(--white);
+  box-shadow: var(--shadow-lg);
+  text-align: center;
+}
+.penalty__over-title {
+  font-size: 1.4rem;
+  font-weight: 800;
+  color: var(--ink);
+}
+.penalty__over-score {
+  font-size: 1.8rem;
+  font-weight: 800;
+}

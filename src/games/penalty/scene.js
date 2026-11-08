@@ -370,6 +370,96 @@ export function createScene(canvas) {
     g.fill()
   }
 
+  /**
+   * A chunky 3D-looking arrow rising out of the ball toward the reticle. It narrows
+   * with distance, has a lit top edge and a shadow on the grass, and goes from green
+   * (low) to red (high) so the child can feel the height.
+   */
+  function drawArrow(a, t) {
+    const s0 = project(0, BALL_R, 0)
+    const r = BALL_R * s0.s
+    const tx = L.cx + a.x * L.k
+    const ty = L.gy - a.y * L.k
+    const dx = tx - s0.x
+    const dy = ty - s0.y
+    const dist = Math.hypot(dx, dy)
+    const th = Math.atan2(dy, dx)
+    const start = r * 0.8
+    const len = Math.max(r * 2.2, dist * 0.8 - start)
+    const headL = Math.min(len * 0.45, r * 1.3)
+    const shaftL = len - headL
+    const w0 = r * 0.62
+    const w1 = r * 0.34
+    const hw = r * 1.15
+    const f = Math.min(1, Math.max(0, (a.y - 0.2) / (GOAL_H + 0.9 - 0.2)))
+    const hue = 130 - 130 * f
+    const base = `hsl(${hue}, 85%, 52%)`
+    const light = `hsl(${hue}, 90%, 72%)`
+    const dark = `hsl(${hue}, 80%, 34%)`
+
+    const shape = () => {
+      g.beginPath()
+      g.moveTo(0, -w0 / 2)
+      g.lineTo(shaftL, -w1 / 2)
+      g.lineTo(shaftL, -hw / 2)
+      g.lineTo(shaftL + headL, 0)
+      g.lineTo(shaftL, hw / 2)
+      g.lineTo(shaftL, w1 / 2)
+      g.lineTo(0, w0 / 2)
+      g.closePath()
+    }
+    g.save()
+    g.translate(s0.x, s0.y)
+    g.rotate(th)
+    g.translate(start, 0)
+    // shadow on the grass, dropped straight down on the screen
+    g.save()
+    g.rotate(-th)
+    g.translate(0, r * 0.55)
+    g.rotate(th)
+    g.fillStyle = 'rgba(0,50,20,0.22)'
+    shape()
+    g.fill()
+    g.restore()
+    // body, lit from the top
+    const grad = g.createLinearGradient(0, -hw / 2, 0, hw / 2)
+    grad.addColorStop(0, light)
+    grad.addColorStop(0.45, base)
+    grad.addColorStop(1, dark)
+    g.fillStyle = grad
+    shape()
+    g.fill()
+    // the lower half of the head is in shade, which makes it read as a solid cone
+    g.fillStyle = 'rgba(0,0,0,0.18)'
+    g.beginPath()
+    g.moveTo(shaftL, 0)
+    g.lineTo(shaftL + headL, 0)
+    g.lineTo(shaftL, hw / 2)
+    g.closePath()
+    g.fill()
+    // moving chevrons show which way it points
+    g.save()
+    shape()
+    g.clip()
+    g.strokeStyle = 'rgba(255,255,255,0.5)'
+    g.lineWidth = r * 0.12
+    for (let i = 0; i < 4; i++) {
+      const x = ((t * 1.2 + i / 4) % 1) * shaftL
+      g.beginPath()
+      g.moveTo(x - w0 * 0.2, -w0 * 0.4)
+      g.lineTo(x + w0 * 0.1, 0)
+      g.lineTo(x - w0 * 0.2, w0 * 0.4)
+      g.stroke()
+    }
+    g.restore()
+    g.strokeStyle = 'rgba(255,255,255,0.85)'
+    g.lineWidth = Math.max(1.5, r * 0.07)
+    g.lineJoin = 'round'
+    shape()
+    g.stroke()
+    g.restore()
+  }
+
   function drawReticle(a, t) {
     const p = { x: L.cx + a.x * L.k, y: L.gy - a.y * L.k }
     const r = 0.5 * L.k * (1 + Math.sin(t * 8) * 0.06)
@@ -407,6 +497,7 @@ export function createScene(canvas) {
     const behind = state.ball.z < KEEPER_Z
     if (behind) drawBall(state.ball)
     drawKeeper(state.keeper, clock)
+    if (state.aim) drawArrow(state.aim, clock)
     if (!behind) drawBall(state.ball)
     if (state.aim) drawReticle(state.aim, clock)
 

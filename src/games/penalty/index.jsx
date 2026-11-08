@@ -107,6 +107,7 @@ export default function Penalty() {
     if (!three.current.onBall(px, py)) return
     canvasRef.current.setPointerCapture?.(e.pointerId)
     aim.current = { x: 0, y: heightAt(0), t: 0 }
+    setTouched(true)
   }
   handlers.current.move = (e) => {
     if (!aim.current || !canAim()) return

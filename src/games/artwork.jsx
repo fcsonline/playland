@@ -13,32 +13,6 @@
  */
 
 export const GAME_ART = {
-  // Penalty Kick — a glossy football in front of a goal with a net.
-  penalty: () => (
-    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
-      <defs>
-        <radialGradient id="penBall" cx="0.35" cy="0.3" r="0.85">
-          <stop offset="0" stopColor="#ffffff" />
-          <stop offset="1" stopColor="#d3dbe8" />
-        </radialGradient>
-        <linearGradient id="penGrass" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#6fd57a" />
-          <stop offset="1" stopColor="#2b9348" />
-        </linearGradient>
-      </defs>
-      <rect x="6" y="66" width="88" height="26" rx="13" fill="url(#penGrass)" />
-      {/* net */}
-      <rect x="18" y="16" width="64" height="48" rx="6" fill="#ffffff" opacity="0.35" />
-      <path d="M30 18v44M42 18v44M54 18v44M66 18v44M20 29h60M20 41h60M20 53h60" stroke="#ffffff" strokeWidth="1.6" opacity="0.8" />
-      {/* posts */}
-      <path d="M17 66V16h66v50" fill="none" stroke="#ffffff" strokeWidth="6" strokeLinecap="round" strokeLinejoin="round" />
-      {/* ball */}
-      <circle cx="58" cy="72" r="15" fill="url(#penBall)" />
-      <path d="M58 64l7 5-3 8h-8l-3-8z" fill="#3a4256" />
-      <path d="M58 64v-5M65 69l5-2M62 77l3 5M54 77l-3 5M51 69l-5-2" stroke="#3a4256" strokeWidth="2" strokeLinecap="round" />
-      <ellipse cx="52" cy="65" rx="4.5" ry="3" fill="#ffffff" opacity="0.8" />
-    </svg>
-  ),
   // Tiny Doctor — glossy white first-aid kit with a red cross.
   doctor: () => (
     <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">

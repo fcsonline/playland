@@ -230,90 +230,174 @@ export function createScene(canvas) {
     g.stroke()
   }
 
-  function drawKeeper(kp, t) {
+  // The keeper is drawn in the style of the cover art: thick brown outlines, a green
+  // jersey with a white 1, blue cuffs, white gloves and green boots. His pose follows
+  // the play: ready, diving at the ball, happy after a save, glum after a goal.
+  const INK = '#3b2414'
+  const pose = { raise: 1.1, hang: 0 } // smoothed arm angle and "arms hanging" amount
+  function blob(path, fill, lw = 0.05) {
+    g.beginPath()
+    path()
+    g.fillStyle = fill
+    g.fill()
+    g.lineWidth = lw
+    g.strokeStyle = INK
+    g.lineJoin = 'round'
+    g.lineCap = 'round'
+    g.stroke()
+  }
+  function glove(open) {
+    // pointing up (-y); the wrist is at the origin
+    if (open) {
+      for (const [x, y, r] of [[-0.16, -0.36, 0.07], [-0.05, -0.43, 0.075], [0.07, -0.42, 0.075], [0.17, -0.34, 0.07]]) {
+        blob(() => g.ellipse(x, y, r, 0.13, (x / 0.2) * 0.3, 0, TAU), '#f6f2e6', 0.04)
+      }
+      blob(() => g.ellipse(0.24, -0.1, 0.08, 0.13, 0.9, 0, TAU), '#f6f2e6', 0.04)
+      blob(() => g.roundRect(-0.22, -0.3, 0.44, 0.34, 0.14), '#fffdf4')
+    } else {
+      blob(() => g.ellipse(0, -0.14, 0.23, 0.2, 0, 0, TAU), '#fffdf4')
+      g.strokeStyle = 'rgba(59,36,20,0.55)'
+      g.lineWidth = 0.03
+      g.beginPath()
+      g.moveTo(-0.1, -0.2)
+      g.lineTo(0.1, -0.2)
+      g.stroke()
+    }
+  }
+
+  function drawKeeper(kp, t, st) {
+    const mood = st.mood // 'save' | 'goal' | 'post' | 'wide' | null
     const dive = kp.dive
     const p = project(kp.x, 0, KEEPER_Z)
     p.x = L.cx + kp.x * L.k // keep the sideways position matching where saves are decided
-    const s = p.s * 1.05
+    const s = p.s * 1.1
+    const sway = Math.sin(t * 7) * 0.06
+
+    // Arm pose: V-shape when ready, straight up when diving, hanging after a goal.
+    let target = 1.1 + sway
+    if (dive > 0.3) target = 0.3
+    else if (mood === 'goal') target = 2.75
+    else if (mood === 'post' || mood === 'wide') target = 1.8
+    pose.raise += (target - pose.raise) * 0.2
+
     g.save()
     g.translate(p.x, p.y)
     g.scale(s, s)
     // ground shadow
     g.fillStyle = 'rgba(0,50,20,0.28)'
     g.beginPath()
-    g.ellipse(0, 0.04, 0.7, 0.14, 0, 0, TAU)
+    g.ellipse(0, 0.04, 0.8, 0.16, 0, 0, TAU)
     g.fill()
-    g.translate(0, -dive * 0.25)
-    g.rotate(kp.lean * (0.18 + dive * 0.4))
-    const sway = Math.sin(t * 9) * 0.1
 
-    // legs
+    // Whole body pivots around the hips: a small lean while sliding, a big tilt in a dive.
+    const hipY = -0.95
+    g.translate(0, hipY - dive * 0.45)
+    g.rotate(kp.lean * 0.18 + (kp.diveDir || 0) * dive * 1.1)
+    g.translate(0, -hipY)
+
+    // boots + legs (they kick out a little behind when diving)
     for (const sx of [-1, 1]) {
       g.save()
-      g.translate(sx * 0.2, -0.88)
-      g.rotate(sx * 0.06 + Math.sin(t * 9) * 0.08 * sx)
-      g.fillStyle = '#ffd43b'
-      rr(g, -0.1, 0.25, 0.2, 0.55, 0.09)
-      g.fill()
-      g.fillStyle = '#1d1d2b'
-      rr(g, -0.13, 0, 0.26, 0.45, 0.12)
-      g.fill()
-      g.fillStyle = '#2b2b3a'
-      rr(g, -0.15, 0.72, 0.3, 0.16, 0.08)
-      g.fill()
+      g.translate(sx * 0.22, -0.95)
+      g.rotate(sx * (0.06 + dive * 0.35) + Math.sin(t * 9) * 0.05 * sx * (1 - dive))
+      blob(() => g.roundRect(-0.13, 0.05, 0.26, 0.55, 0.12), '#f2b88c') // leg
+      blob(() => g.roundRect(-0.14, 0.4, 0.28, 0.2, 0.08), '#2b2b3a') // sock
+      blob(() => g.ellipse(sx * 0.03, 0.72, 0.21, 0.13, 0, 0, TAU), '#37c24a') // boot
+      g.fillStyle = INK
+      for (let i = 0; i < 3; i++) g.fillRect(sx * 0.03 - 0.09 + i * 0.08, 0.66, 0.035, 0.06)
       g.restore()
     }
+
     // arms (behind the torso)
-    const raise = 0.75 + dive * 0.9
+    const hang = pose.raise > 2
     for (const sx of [-1, 1]) {
       g.save()
-      g.translate(sx * 0.4, -1.55)
-      g.rotate(sx * (raise + sway * sx))
-      g.fillStyle = '#ffd43b'
-      rr(g, -0.1, -0.6, 0.2, 0.62, 0.1)
-      g.fill()
-      const gl = g.createRadialGradient(-0.04, -0.72, 0.02, 0, -0.68, 0.22)
-      gl.addColorStop(0, '#7ee8a2')
-      gl.addColorStop(1, '#22a06b')
-      g.fillStyle = gl
-      g.beginPath()
-      g.arc(0, -0.7, 0.19, 0, TAU)
-      g.fill()
+      g.translate(sx * 0.46, -1.78)
+      g.rotate(sx * pose.raise)
+      blob(() => g.roundRect(-0.13, -0.62, 0.26, 0.72, 0.13), '#3fcf4e') // sleeve
+      blob(() => g.roundRect(-0.15, -0.66, 0.3, 0.16, 0.06), '#2f78e0') // cuff
+      g.translate(0, -0.6)
+      glove(!hang && dive > 0.3)
       g.restore()
     }
-    // torso
-    const tg = g.createLinearGradient(-0.4, 0, 0.4, 0)
-    tg.addColorStop(0, '#ffe066')
-    tg.addColorStop(1, '#f5b800')
-    g.fillStyle = tg
-    rr(g, -0.38, -1.95, 0.76, 1.12, 0.3)
+
+    // torso: jersey, white 1 and black shorts
+    blob(() => g.roundRect(-0.46, -2.0, 0.92, 1.2, 0.3), '#3fcf4e')
+    g.fillStyle = 'rgba(255,255,255,0.28)'
+    g.beginPath()
+    g.roundRect(-0.36, -1.92, 0.16, 0.62, 0.08)
     g.fill()
-    g.fillStyle = 'rgba(255,255,255,0.45)'
-    rr(g, -0.27, -1.85, 0.2, 0.7, 0.1)
-    g.fill()
-    g.fillStyle = '#1d1d2b'
-    rr(g, -0.37, -1.0, 0.74, 0.3, 0.12)
-    g.fill()
+    g.fillStyle = '#ffffff'
+    g.font = '900 0.62px system-ui, sans-serif'
+    g.textAlign = 'center'
+    g.textBaseline = 'middle'
+    g.fillText('1', 0.02, -1.45)
+    blob(() => g.roundRect(-0.45, -1.02, 0.9, 0.34, 0.14), '#2b2b3a')
+    g.fillStyle = '#ffffff'
+    g.fillRect(-0.42, -0.9, 0.84, 0.045)
+
     // head
-    g.fillStyle = '#f2b88c'
+    const hy = -2.25
+    blob(() => g.ellipse(-0.43, hy + 0.05, 0.07, 0.11, 0, 0, TAU), '#f2b88c', 0.04) // ears
+    blob(() => g.ellipse(0.43, hy + 0.05, 0.07, 0.11, 0, 0, TAU), '#f2b88c', 0.04)
+    blob(() => g.ellipse(0, hy, 0.46, 0.44, 0, 0, TAU), '#f7c59a')
+    // spiky hair with a bright streak
+    blob(() => {
+      const pts = [[-0.46, hy - 0.05], [-0.54, hy - 0.3], [-0.34, hy - 0.3], [-0.36, hy - 0.52], [-0.14, hy - 0.42], [-0.04, hy - 0.62], [0.12, hy - 0.42], [0.32, hy - 0.52], [0.32, hy - 0.3], [0.54, hy - 0.3], [0.46, hy - 0.05], [0.32, hy - 0.2], [0.12, hy - 0.28], [-0.06, hy - 0.2], [-0.26, hy - 0.26]]
+      g.moveTo(pts[0][0], pts[0][1])
+      for (const q of pts.slice(1)) g.lineTo(q[0], q[1])
+      g.closePath()
+    }, '#b5651d')
+    g.fillStyle = '#e0953f'
     g.beginPath()
-    g.arc(0, -2.2, 0.3, 0, TAU)
+    g.ellipse(-0.1, hy - 0.4, 0.1, 0.045, -0.5, 0, TAU)
     g.fill()
-    g.fillStyle = '#4a2c17'
-    g.beginPath()
-    g.arc(0, -2.26, 0.31, Math.PI, TAU)
-    g.fill()
-    g.fillStyle = '#222'
+    // eyes follow the ball
+    const lookX = Math.max(-1, Math.min(1, (st.ball.x - kp.x) / 4)) * 0.045
+    const lookY = Math.max(-1, Math.min(1, (st.ball.y - 1) / 3)) * -0.03
+    for (const sx of [-1, 1]) {
+      blob(() => g.ellipse(sx * 0.17, hy + 0.03, 0.12, 0.15, 0, 0, TAU), '#ffffff', 0.035)
+      g.fillStyle = '#17110c'
+      g.beginPath()
+      g.ellipse(sx * 0.17 + lookX, hy + 0.04 + lookY, 0.07, 0.095, 0, 0, TAU)
+      g.fill()
+      g.fillStyle = '#ffffff'
+      g.beginPath()
+      g.arc(sx * 0.17 + lookX - 0.02, hy + 0.0 + lookY, 0.025, 0, TAU)
+      g.fill()
+      // eyebrows: determined, or worried after a goal
+      g.strokeStyle = INK
+      g.lineWidth = 0.05
+      g.beginPath()
+      const worried = mood === 'goal'
+      g.moveTo(sx * 0.3, hy - (worried ? 0.2 : 0.14))
+      g.lineTo(sx * 0.08, hy - (worried ? 0.12 : 0.2))
+      g.stroke()
+    }
+    // mouth
+    g.lineWidth = 0.045
+    g.strokeStyle = INK
+    if (mood === 'goal') {
+      blob(() => g.ellipse(0, hy + 0.28, 0.07, 0.09, 0, 0, TAU), '#8a2f2a', 0.035)
+    } else if (mood === 'save' || dive > 0.3) {
+      blob(() => {
+        g.moveTo(-0.17, hy + 0.2)
+        g.quadraticCurveTo(0, hy + 0.5, 0.17, hy + 0.2)
+        g.closePath()
+      }, '#e0504a', 0.04)
+      g.fillStyle = '#ffffff'
+      g.fillRect(-0.12, hy + 0.205, 0.24, 0.04)
+    } else {
+      g.beginPath()
+      g.arc(0, hy + 0.2, 0.1, 0.15 * Math.PI, 0.85 * Math.PI)
+      g.stroke()
+    }
+    g.fillStyle = 'rgba(255,120,110,0.35)' // cheeks
     for (const sx of [-1, 1]) {
       g.beginPath()
-      g.arc(sx * 0.11, -2.16, 0.045, 0, TAU)
+      g.ellipse(sx * 0.3, hy + 0.2, 0.07, 0.045, 0, 0, TAU)
       g.fill()
     }
-    g.strokeStyle = '#a2562e'
-    g.lineWidth = 0.035
-    g.beginPath()
-    g.arc(0, -2.1, 0.09, 0.15 * Math.PI, 0.85 * Math.PI)
-    g.stroke()
     g.restore()
   }
 
@@ -496,7 +580,7 @@ export function createScene(canvas) {
     // The ball is hidden by the keeper until it has passed him.
     const behind = state.ball.z < KEEPER_Z
     if (behind) drawBall(state.ball)
-    drawKeeper(state.keeper, clock)
+    drawKeeper(state.keeper, clock, state)
     if (state.aim) drawArrow(state.aim, clock)
     if (!behind) drawBall(state.ball)
     if (state.aim) drawReticle(state.aim, clock)

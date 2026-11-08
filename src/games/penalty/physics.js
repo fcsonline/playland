@@ -6,6 +6,14 @@ const KEEPER_RANGE = GOAL_HALF - 0.95 // how far the keeper patrols from the cen
 const REACH_X = 0.95 // keeper's glove reach sideways
 const REACH_Y = 1.25 // ...and vertically (centred on 1.05)
 
+/** Shot height for how long the ball has been held: it climbs, then falls, and repeats. */
+export function heightAt(t) {
+  const u = (t / 1.1) % 2
+  const tri = u < 1 ? u : 2 - u
+  const e = tri * tri * (3 - 2 * tri)
+  return 0.2 + e * (GOAL_H + 0.9 - 0.2)
+}
+
 export function freshWorld() {
   return {
     phase: 'aim', // 'aim' | 'flying' | 'after'

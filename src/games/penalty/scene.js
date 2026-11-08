@@ -373,6 +373,14 @@ export function createScene(canvas) {
   function drawReticle(a, t) {
     const p = { x: L.cx + a.x * L.k, y: L.gy - a.y * L.k }
     const r = 0.5 * L.k * (1 + Math.sin(t * 8) * 0.06)
+    g.strokeStyle = 'rgba(255,59,59,0.55)'
+    g.lineWidth = Math.max(2, r * 0.1)
+    g.setLineDash([r * 0.3, r * 0.3])
+    g.beginPath()
+    g.moveTo(p.x, L.gy)
+    g.lineTo(p.x, p.y)
+    g.stroke()
+    g.setLineDash([])
     g.strokeStyle = '#ff3b3b'
     g.fillStyle = '#ff3b3b'
     g.lineWidth = Math.max(3, r * 0.2)
@@ -418,6 +426,12 @@ export function createScene(canvas) {
     })
   }
 
+  /** Is a screen point on (or near) the ball waiting on the spot? */
+  function onBall(px, py) {
+    const p = project(0, BALL_R, 0)
+    return Math.hypot(px - p.x, py - p.y) < BALL_R * p.s * 2.2
+  }
+
   /** The point on the goal plane under a screen point (clamped to a sane area). */
   function aimAt(px, py) {
     const x = (px - L.cx) / L.k
@@ -435,5 +449,5 @@ export function createScene(canvas) {
 
   function dispose() {}
 
-  return { fit, update, aimAt, burst, swish, toScreen, dispose, bounds }
+  return { fit, update, aimAt, onBall, burst, swish, toScreen, dispose, bounds }
 }

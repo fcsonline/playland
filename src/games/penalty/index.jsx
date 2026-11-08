@@ -4,12 +4,12 @@ import { useT } from '../../lib/i18n.js'
 import { tone, noiseBurst, sfx } from '../../lib/audio.js'
 import { useGameLoop } from '../../lib/useGameLoop.js'
 import { createScene, GOAL_Z } from './scene.js'
-import { freshWorld, resetBall, shoot, step } from './physics.js'
+import { freshWorld, resetBall, shoot, step, heightAt } from './physics.js'
 import './penalty.css'
 
 const STR = {
   en: {
-    hint: 'Drag to aim where the keeper can’t reach, then let go to shoot!',
+    hint: 'Hold the ball: the longer you hold, the higher it goes. Slide sideways to aim, then let go!',
     goal: 'GOAL!',
     save: 'Saved! Try again!',
     post: 'So close!',
@@ -18,7 +18,7 @@ const STR = {
     again: 'Play again',
   },
   es: {
-    hint: '¡Arrastra para apuntar donde el portero no llegue y suelta para disparar!',
+    hint: 'Mantén pulsada la pelota: cuanto más tiempo, más alto. Desliza a los lados para apuntar y suelta.',
     goal: '¡GOOOL!',
     save: '¡Paradón! ¡Otra vez!',
     post: '¡Por poco!',
@@ -27,7 +27,7 @@ const STR = {
     again: 'Jugar otra vez',
   },
   ca: {
-    hint: 'Arrossega per apuntar on el porter no arriba i deixa anar per xutar!',
+    hint: 'Mantén premuda la pilota: com més temps, més amunt. Llisca als costats per apuntar i deixa anar.',
     goal: 'GOOOL!',
     save: 'Parada! Torna-ho a provar!',
     post: 'Per poc!',
@@ -36,7 +36,7 @@ const STR = {
     again: 'Torna a jugar',
   },
   fr: {
-    hint: 'Glisse pour viser là où le gardien n’arrive pas, puis relâche pour tirer !',
+    hint: 'Garde le ballon appuyé : plus longtemps, plus haut. Glisse sur les côtés pour viser, puis relâche !',
     goal: 'BUT !',
     save: 'Arrêt ! Réessaie !',
     post: 'Presque !',
@@ -93,29 +93,30 @@ export default function Penalty() {
     }
   }, [])
 
-  const point = (e) => {
+  const local = (e) => {
     const rect = canvasRef.current.getBoundingClientRect()
-    return three.current.aimAt(e.clientX - rect.left, e.clientY - rect.top)
+    return [e.clientX - rect.left, e.clientY - rect.top]
   }
   const canAim = () => world.current?.phase === 'aim' && !gs.current.over && three.current
 
+  // Holding the ball picks the height (it rises and falls while held);
+  // sliding sideways picks the direction. Letting go shoots.
   handlers.current.down = (e) => {
     if (!canAim()) return
+    const [px, py] = local(e)
+    if (!three.current.onBall(px, py)) return
     canvasRef.current.setPointerCapture?.(e.pointerId)
-    aim.current = point(e)
+    aim.current = { x: 0, y: heightAt(0), t: 0 }
   }
   handlers.current.move = (e) => {
     if (!aim.current || !canAim()) return
-    aim.current = point(e) || aim.current
+    aim.current.x = three.current.aimAt(...local(e)).x
   }
-  handlers.current.up = (e) => {
-    if (!aim.current || !canAim()) {
-      aim.current = null
-      return
-    }
-    const target = point(e) || aim.current
+  handlers.current.up = () => {
+    const a = aim.current
     aim.current = null
-    shoot(world.current, target)
+    if (!a || !canAim()) return
+    shoot(world.current, { x: a.x, y: a.y })
     tone(110, { duration: 0.16, type: 'sine', gain: 0.3 })
     noiseBurst({ duration: 0.08, gain: 0.12, freq: 600 })
     setTouched(true)
@@ -173,6 +174,11 @@ export default function Penalty() {
     if (!sc || !wrap || !sc.fit(wrap.clientWidth, wrap.clientHeight)) return
     if (!world.current) world.current = freshWorld()
     const w = world.current
+
+    if (aim.current) {
+      aim.current.t += dt
+      aim.current.y = heightAt(aim.current.t)
+    }
 
     let left = dt
     while (left > 0) {

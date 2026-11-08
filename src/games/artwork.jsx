@@ -13,58 +13,6 @@
  */
 
 export const GAME_ART = {
-  // Hoop Shot — a glossy basketball dropping toward an orange hoop.
-  hoops: () => (
-    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
-      <defs>
-        <radialGradient id="hsBall" cx="0.35" cy="0.3" r="0.8">
-          <stop offset="0" stopColor="#ffb86b" />
-          <stop offset="1" stopColor="#e8590c" />
-        </radialGradient>
-      </defs>
-      {/* backboard */}
-      <rect x="22" y="8" width="56" height="34" rx="6" fill="#ffffff" />
-      <rect x="39" y="22" width="22" height="16" rx="3" fill="none" stroke="#e8590c" strokeWidth="3" />
-      {/* net */}
-      <path d="M31 47l9 24M44 47l4 24M56 47l-4 24M69 47l-9 24M33 56h34M37 65h26" stroke="#e9eefc" strokeWidth="2.2" strokeLinecap="round" fill="none" />
-      {/* rim */}
-      <ellipse cx="50" cy="46" rx="22" ry="5.5" fill="none" stroke="#ff5a1f" strokeWidth="4.5" />
-      {/* ball */}
-      <circle cx="50" cy="78" r="15" fill="url(#hsBall)" />
-      <path d="M35 78h30M50 63v30M40 67q6 11 0 22M60 67q-6 11 0 22" stroke="#3b2412" strokeWidth="1.8" fill="none" />
-      <ellipse cx="44" cy="71" rx="4.5" ry="3" fill="#ffffff" opacity="0.55" />
-    </svg>
-  ),
-  // Piano Rush — a white and a black 3D block landing on piano keys.
-  pianorush: () => (
-    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
-      <defs>
-        <linearGradient id="prKey" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ffffff" />
-          <stop offset="1" stopColor="#d9def0" />
-        </linearGradient>
-        <linearGradient id="prBlack" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#5a6090" />
-          <stop offset="1" stopColor="#1d2040" />
-        </linearGradient>
-      </defs>
-      {/* keyboard */}
-      <rect x="10" y="60" width="80" height="30" rx="7" fill="url(#prKey)" />
-      <path d="M30 60v30M50 60v30M70 60v30" stroke="#b9c1de" strokeWidth="1.8" />
-      <rect x="25" y="60" width="10" height="18" rx="3" fill="url(#prBlack)" />
-      <rect x="45" y="60" width="10" height="18" rx="3" fill="url(#prBlack)" />
-      <rect x="65" y="60" width="10" height="18" rx="3" fill="url(#prBlack)" />
-      {/* falling white block: top, front, side */}
-      <path d="M17 24l9-6h18l-5 6z" fill="#ffffff" />
-      <path d="M44 18l-5 6v14l5-6z" fill="#b9c1de" />
-      <rect x="17" y="24" width="22" height="14" rx="2" fill="#e4e8f8" />
-      {/* falling black block */}
-      <path d="M58 6l8-5h14l-4 5z" fill="#6c73a8" />
-      <path d="M80 1l-4 5v16l4-5z" fill="#0f1128" />
-      <rect x="58" y="6" width="18" height="16" rx="2" fill="#2a2e56" />
-      <rect x="60" y="8" width="14" height="3" rx="1.5" fill="#6fe3ff" opacity="0.8" />
-    </svg>
-  ),
   // Tiny Doctor — glossy white first-aid kit with a red cross.
   doctor: () => (
     <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
@@ -450,43 +398,6 @@ export const GAME_ART = {
   ),
 
   // Word Search — a glossy letter grid with one "found" word highlighted.
-  // Spell It! — a speaker calling out a word onto a card of letter lines.
-  spell: () => (
-    <svg viewBox="0 0 100 100" className="card__art" aria-hidden="true">
-      <defs>
-        <linearGradient id="spCard" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0" stopColor="#ffffff" />
-          <stop offset="1" stopColor="#e9edf6" />
-        </linearGradient>
-        <linearGradient id="spSpeaker" x1="0" y1="0" x2="1" y2="1">
-          <stop offset="0" stopColor="#b388ff" />
-          <stop offset="1" stopColor="#6c5ce7" />
-        </linearGradient>
-        <linearGradient id="spLine" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0" stopColor="#ffc46b" />
-          <stop offset="1" stopColor="#ff8a5c" />
-        </linearGradient>
-      </defs>
-      {/* the card the word is written on */}
-      <rect x="9" y="34" width="82" height="54" rx="14" fill="url(#spCard)" />
-      <rect x="15" y="39" width="70" height="9" rx="4.5" fill="#ffffff" opacity="0.7" />
-      {/* two letters written, one line still blank */}
-      <g fontFamily="inherit" fontWeight="900" fontSize="20" textAnchor="middle" fill="#6c5ce7">
-        <text x="27" y="72">S</text>
-        <text x="50" y="72">U</text>
-      </g>
-      <rect x="17" y="76" width="20" height="5" rx="2.5" fill="url(#spLine)" />
-      <rect x="40" y="76" width="20" height="5" rx="2.5" fill="url(#spLine)" />
-      <rect x="63" y="76" width="20" height="5" rx="2.5" fill="#c9cfe0" />
-      {/* speaker box + cone */}
-      <rect x="16" y="12" width="14" height="16" rx="5" fill="url(#spSpeaker)" />
-      <path d="M28 20 46 8v24z" fill="url(#spSpeaker)" />
-      <rect x="19" y="14.5" width="4" height="7" rx="2" fill="#ffffff" opacity="0.4" />
-      {/* sound waves */}
-      <path d="M53 12a12 12 0 0 1 0 16" fill="none" stroke="#ff8a5c" strokeWidth="5" strokeLinecap="round" />
-      <path d="M62 6a22 22 0 0 1 0 28" fill="none" stroke="#ffc46b" strokeWidth="5" strokeLinecap="round" />
-    </svg>
-  ),
 
   // Perfect Fit — a deep frame with pieces seated in it, one still coming in.
   fit: () => (

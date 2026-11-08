@@ -10,6 +10,7 @@ export const POST_R = 0.12
 export const NET_DEPTH = 1.6
 
 const TAU = Math.PI * 2
+const KEEPER_Z = GOAL_Z + 1.1 // the keeper stands a little in front of the goal line
 
 function rr(g, x, y, w, h, r) {
   g.beginPath()
@@ -231,8 +232,9 @@ export function createScene(canvas) {
 
   function drawKeeper(kp, t) {
     const dive = kp.dive
-    const p = project(kp.x, 0, GOAL_Z)
-    const s = L.k * 1.12
+    const p = project(kp.x, 0, KEEPER_Z)
+    p.x = L.cx + kp.x * L.k // keep the sideways position matching where saves are decided
+    const s = p.s * 1.05
     g.save()
     g.translate(p.x, p.y)
     g.scale(s, s)
@@ -392,11 +394,12 @@ export function createScene(canvas) {
     g.clearRect(0, 0, w, h)
     drawBackdrop()
     drawNet()
-    drawKeeper(state.keeper, clock)
-    const inNet = state.ball.z < GOAL_Z
-    if (inNet) drawBall(state.ball)
     drawFrame()
-    if (!inNet) drawBall(state.ball)
+    // The ball is hidden by the keeper until it has passed him.
+    const behind = state.ball.z < KEEPER_Z
+    if (behind) drawBall(state.ball)
+    drawKeeper(state.keeper, clock)
+    if (!behind) drawBall(state.ball)
     if (state.aim) drawReticle(state.aim, clock)
 
     sparks = sparks.filter((s) => {

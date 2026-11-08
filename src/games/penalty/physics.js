@@ -32,6 +32,7 @@ export function resetBall(w) {
   w.outcome = null
   w.ball = { x: 0, y: BALL_R, z: 0, vx: 0, vy: 0, vz: 0, spin: 0, spinX: 0 }
   w.keeper.diving = false
+  w.keeper.diveDir = 0
 }
 
 export function shoot(w, aim) {
@@ -106,6 +107,7 @@ export function step(w, dt, goals) {
       } else if (outcome === 'save') {
         k.diving = true
         k.diveTo = Math.max(-KEEPER_RANGE - 0.3, Math.min(KEEPER_RANGE + 0.3, b.x))
+        k.diveDir = Math.max(-1, Math.min(1, (b.x - k.x) / 0.8)) || (b.x >= 0 ? 1 : -1) * 0.6
         b.vx = (b.x >= k.x ? 1 : -1) * (3 + Math.random() * 2)
         b.vy = 3 + Math.random() * 2
         b.vz = 6 + Math.random() * 2

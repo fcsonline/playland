@@ -197,6 +197,7 @@ export default function Penalty() {
       {
         ball: w.ball,
         keeper: w.keeper,
+        mood: w.phase === 'after' ? w.outcome : null,
         aim: w.phase === 'aim' ? aim.current : null,
       },
       dt,

@@ -6,6 +6,9 @@ The home-screen game thumbnails (`src/assets/art/*.png`) are from
 **[Microsoft Fluent Emoji](https://github.com/microsoft/fluentui-emoji)**,
 used under the **MIT License**.
 
+The Pass & Shoot cover (`src/assets/art/passline.webp`) is the exception: it was drawn for
+this project from simple shapes, plus the ⚽ glyph from Noto Color Emoji (Apache-2.0).
+
 ## Color Studio coloring pages — project-supplied line art
 
 The animal coloring pages (`src/games/coloring/art/*.png`) are kawaii-style

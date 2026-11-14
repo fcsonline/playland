@@ -181,7 +181,6 @@ export default function PassAndShoot() {
   const cbs = useRef({})
   cbs.current = { earn, award, t }
 
-  const rootRef = useRef(null)
   const fieldRef = useRef(null)
   const canvasRef = useRef(null)
   const stickRef = useRef(null)
@@ -193,7 +192,7 @@ export default function PassAndShoot() {
   const keys = useRef(new Set())
   const joy = useRef({ x: 0, y: 0 })
 
-  const [hud, setHud] = useState({ level: 1, passes: 0, need: 2, ready: false, near: false })
+  const [hud, setHud] = useState({ level: 1, passes: 0, need: 2, ready: false })
   const [banner, setBanner] = useState(null) // { text, good }
   const [hint, setHint] = useState(null)
   const hudKey = useRef('')
@@ -842,9 +841,8 @@ export default function PassAndShoot() {
       passes: a.passes,
       need: a.need,
       ready: a.passes >= a.need,
-      near: a.carrier.x >= SHOOT_X,
     }
-    const key = `${next.level}|${next.passes}|${next.need}|${next.near}`
+    const key = `${next.level}|${next.passes}|${next.need}`
     if (key !== hudKey.current) {
       hudKey.current = key
       setHud(next)
@@ -855,7 +853,7 @@ export default function PassAndShoot() {
   for (let i = 0; i < hud.need; i++) pips.push(i < hud.passes ? '⚽' : '⚪')
 
   return (
-    <div className="passline" ref={rootRef}>
+    <div className="passline">
       <div className="passline__field play-surface" ref={fieldRef} onPointerDown={fieldTap} role="img" aria-label={t('fieldAria')}>
         <canvas ref={canvasRef} className="passline__canvas" />
         <div className="passline__hud">

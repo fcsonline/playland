@@ -1,0 +1,178 @@
+.passline {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  flex: 1;
+  min-height: 0;
+  user-select: none;
+  -webkit-user-select: none;
+  touch-action: none;
+}
+
+.passline__hud {
+  position: absolute;
+  top: 6px;
+  left: 6px;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 5px;
+}
+.passline__hud .chip {
+  font-size: 0.72rem;
+  padding: 3px 9px;
+}
+.passline__pips {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  font-size: 0.8rem;
+  line-height: 1.25;
+  padding: 4px 8px !important;
+}
+.passline__reset {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: var(--white);
+  box-shadow: var(--shadow);
+  font-size: 1.2rem;
+  pointer-events: auto;
+}
+.passline__reset:active {
+  transform: scale(0.9);
+}
+
+.passline__msg {
+  position: absolute;
+  left: 8px;
+  right: 8px;
+  bottom: 6px;
+  margin: 0 auto;
+  width: fit-content;
+  max-width: calc(100% - 16px);
+  padding: 4px 12px;
+  border-radius: 999px;
+  background: rgba(0, 0, 0, 0.5);
+  text-align: center;
+  font-weight: 800;
+  font-size: 0.85rem;
+  color: #fff;
+  pointer-events: none;
+}
+
+.passline__field {
+  flex: 1;
+  min-height: 0;
+  position: relative;
+  overflow: hidden;
+  padding: 0;
+  background: #1d5a2c;
+  touch-action: none;
+}
+.passline__canvas {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  display: block;
+}
+
+.passline__banner {
+  position: absolute;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
+  padding: 14px 10px;
+  text-align: center;
+  font-size: 1.8rem;
+  font-weight: 900;
+  color: #fff;
+  background: rgba(0, 0, 0, 0.55);
+  pointer-events: none;
+  animation: passline-pop 0.25s ease-out;
+}
+.passline__banner--good {
+  color: #ffe45c;
+}
+@keyframes passline-pop {
+  from {
+    transform: translateY(-50%) scale(0.7);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(-50%) scale(1);
+    opacity: 1;
+  }
+}
+
+.passline__pad {
+  flex: none;
+  height: 140px;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 6px calc(4px + env(safe-area-inset-bottom));
+}
+
+.passline__stick {
+  position: relative;
+  width: 120px;
+  height: 120px;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.55);
+  border: 3px solid var(--white);
+  box-shadow: var(--shadow);
+  touch-action: none;
+}
+.passline__knob {
+  position: absolute;
+  left: 31px;
+  top: 31px;
+  width: 54px;
+  height: 54px;
+  border-radius: 50%;
+  background: var(--primary);
+  box-shadow: var(--shadow);
+  pointer-events: none;
+}
+
+.passline__buttons {
+  display: flex;
+  align-items: flex-end;
+  gap: 12px;
+}
+.passline__btn {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  border-radius: 50%;
+  border: 3px solid var(--white);
+  box-shadow: var(--shadow);
+  color: var(--white);
+  font-weight: 900;
+  font-size: 1.6rem;
+  line-height: 1.1;
+  touch-action: none;
+}
+.passline__btn span {
+  font-size: 0.7rem;
+  letter-spacing: 0.04em;
+}
+.passline__btn:active {
+  transform: scale(0.94);
+  filter: brightness(1.15);
+}
+.passline__btn--pass {
+  width: 92px;
+  height: 92px;
+  background: var(--good);
+}
+.passline__btn--shoot {
+  width: 74px;
+  height: 74px;
+  margin-bottom: 36px;
+  background: var(--accent);
+}
